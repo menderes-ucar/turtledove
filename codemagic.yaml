@@ -21,8 +21,7 @@ workflows:
         bundle_identifier: com.mndrs.turtledove
 
       groups:
-        - turtle_dove_env
-        - turtle_dove_firebase
+        - turtle
 
       vars:
         BUNDLE_ID: com.mndrs.turtledove
