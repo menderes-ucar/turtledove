@@ -1,11 +1,10 @@
+
 workflows:
   ios-testflight:
     name: Turtle Dove - iOS TestFlight
     max_build_duration: 120
     instance_type: mac_mini_m2
 
-    # This integration must exist in Codemagic Team settings > Integrations.
-    # Reuses the App Store Connect integration previously used in your setup.
     integrations:
       app_store_connect: Codemagic
 
@@ -14,8 +13,6 @@ workflows:
       xcode: latest
       cocoapods: default
 
-      # TestFlight/App Store distribution signing. Codemagic fetches matching
-      # signing files for this bundle ID using the App Store Connect integration.
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.mndrs.turtledove
@@ -27,20 +24,23 @@ workflows:
         BUNDLE_ID: com.mndrs.turtledove
 
     scripts:
+      - name: Disable Swift Package Manager
+        script: |
+          set -euo pipefail
+          flutter config --no-enable-swift-package-manager
+
       - name: Validate app configuration and create .env
         script: |
           set -euo pipefail
 
-          if [ ! -f pubspec.yaml ]; then
-            echo "ERROR: pubspec.yaml not found. Ensure codemagic.yaml is in the Flutter project root."
+          test -f pubspec.yaml || {
+            echo "ERROR: pubspec.yaml not found."
             exit 1
-          fi
+          }
 
-          : "${SUPABASE_URL:?Add SUPABASE_URL to the turtle_dove_env Codemagic variable group}"
-          : "${SUPABASE_ANON_KEY:?Add SUPABASE_ANON_KEY to the turtle_dove_env Codemagic variable group}"
+          : "${SUPABASE_URL:?Add SUPABASE_URL to the turtle variable group}"
+          : "${SUPABASE_ANON_KEY:?Add SUPABASE_ANON_KEY to the turtle variable group}"
 
-          # pubspec.yaml declares .env as a Flutter asset, but secrets should not
-          # be committed to Git. Re-create it on the build machine.
           cat > .env <<EOF
           SUPABASE_URL=${SUPABASE_URL}
           SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
@@ -50,61 +50,113 @@ workflows:
           TURN_CREDENTIAL=${TURN_CREDENTIAL:-}
           EOF
 
-          echo "Created build-time .env (secret values are not printed)."
+          echo "Build environment configured."
 
       - name: Restore and validate Firebase iOS configuration
         script: |
           set -euo pipefail
 
-          : "${GOOGLE_SERVICE_INFO_PLIST_BASE64:?Add GOOGLE_SERVICE_INFO_PLIST_BASE64 to the turtle_dove_firebase Codemagic variable group}"
+          : "${GOOGLE_SERVICE_INFO_PLIST_BASE64:?Add GOOGLE_SERVICE_INFO_PLIST_BASE64 to the turtle variable group}"
 
           mkdir -p ios/Runner
-          printf '%s' "$GOOGLE_SERVICE_INFO_PLIST_BASE64" | base64 -D > ios/Runner/GoogleService-Info.plist
 
-          if [ ! -s ios/Runner/GoogleService-Info.plist ]; then
-            echo "ERROR: GoogleService-Info.plist was not restored correctly."
+          printf '%s' "$GOOGLE_SERVICE_INFO_PLIST_BASE64" \
+            | base64 -D > ios/Runner/GoogleService-Info.plist
+
+          test -s ios/Runner/GoogleService-Info.plist || {
+            echo "ERROR: Firebase plist is empty."
             exit 1
-          fi
+          }
 
-          PLIST_BUNDLE_ID=$(/usr/libexec/PlistBuddy -c 'Print :BUNDLE_ID' ios/Runner/GoogleService-Info.plist)
+          PLIST_BUNDLE_ID=$(
+            /usr/libexec/PlistBuddy \
+              -c 'Print :BUNDLE_ID' \
+              ios/Runner/GoogleService-Info.plist
+          )
+
           if [ "$PLIST_BUNDLE_ID" != "$BUNDLE_ID" ]; then
-            echo "ERROR: Firebase plist bundle ID is '$PLIST_BUNDLE_ID'; expected '$BUNDLE_ID'."
+            echo "ERROR: Firebase bundle ID mismatch: $PLIST_BUNDLE_ID"
             exit 1
           fi
 
-          # Firebase.initializeApp uses lib/firebase_options.dart as well as the
-          # native plist. Stop rather than silently shipping stale Firebase options.
-          if ! grep -Fq 'com.mndrs.turtledove' lib/firebase_options.dart; then
-            echo "ERROR: lib/firebase_options.dart does not contain com.mndrs.turtledove."
-            echo "Register the iOS app in Firebase with this Bundle ID, run FlutterFire configure, and commit the updated file."
+          grep -Fq 'com.mndrs.turtledove' lib/firebase_options.dart || {
+            echo "ERROR: firebase_options.dart has the wrong iOS configuration."
             exit 1
-          fi
+          }
 
-          echo "Firebase iOS bundle ID matches $BUNDLE_ID."
+          echo "Firebase configuration validated."
 
       - name: Install Flutter dependencies
-        script: flutter pub get
+        script: |
+          set -euo pipefail
+          flutter pub get
 
       - name: Verify iOS bundle identifier
         script: |
           set -euo pipefail
-          grep -Fq 'PRODUCT_BUNDLE_IDENTIFIER = com.mndrs.turtledove;' ios/Runner.xcodeproj/project.pbxproj || {
-            echo "ERROR: Runner bundle identifier is not com.mndrs.turtledove."
-            exit 1
-          }
+
+          grep -Fq \
+            'PRODUCT_BUNDLE_IDENTIFIER = com.mndrs.turtledove;' \
+            ios/Runner.xcodeproj/project.pbxproj || {
+              echo "ERROR: Runner bundle identifier is incorrect."
+              exit 1
+            }
+
+          echo "Bundle identifier validated."
+
+      - name: Install CocoaPods dependencies
+        script: |
+          set -euo pipefail
+
+          cd ios
+          export COCOAPODS_DISABLE_STATS=true
+
+          for i in 1 2 3 4 5; do
+            echo "CocoaPods attempt $i/5"
+
+            if pod install --repo-update; then
+              echo "CocoaPods installation succeeded."
+              exit 0
+            fi
+
+            if [ "$i" -lt 5 ]; then
+              sleep 15
+            fi
+          done
+
+          echo "ERROR: CocoaPods installation failed after 5 attempts."
+          exit 1
 
       - name: Configure iOS code signing
-        script: xcode-project use-profiles
+        script: |
+          set -euo pipefail
+          xcode-project use-profiles
+
+      - name: Calculate iOS build number
+        script: |
+          set -euo pipefail
+
+          BUILD_NUMBER="${CM_BUILD_NUMBER:-$(date +%s)}"
+
+          echo "Bundle ID: $BUNDLE_ID"
+          echo "Build number: $BUILD_NUMBER"
+
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> "$CM_ENV"
 
       - name: Build signed IPA for TestFlight
         script: |
           set -euo pipefail
 
-          BUILD_NUMBER="${CM_BUILD_NUMBER:-1}"
-
           flutter build ipa \
             --release \
             --build-number="$BUILD_NUMBER"
+
+          test -n "$(find build/ios/ipa -maxdepth 1 -name '*.ipa' -print -quit)" || {
+            echo "ERROR: No IPA file was generated."
+            exit 1
+          }
+
+          echo "Signed IPA generated successfully."
 
     artifacts:
       - build/ios/ipa/*.ipa
