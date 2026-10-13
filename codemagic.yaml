@@ -7,7 +7,7 @@ workflows:
     # This integration must exist in Codemagic Team settings > Integrations.
     # Reuses the App Store Connect integration previously used in your setup.
     integrations:
-      app_store_connect: turtle
+      app_store_connect: Turtle Dove
 
     environment:
       flutter: stable
