@@ -143,20 +143,32 @@ workflows:
 
           echo "BUILD_NUMBER=$BUILD_NUMBER" >> "$CM_ENV"
 
+
       - name: Build signed IPA for TestFlight
         script: |
           set -euo pipefail
 
+          EXPORT_OPTIONS="/Users/builder/export_options.plist"
+
+          if [ ! -s "$EXPORT_OPTIONS" ]; then
+            echo "ERROR: Codemagic export options plist is missing."
+            exit 1
+          fi
+
           flutter build ipa \
             --release \
-            --build-number="$BUILD_NUMBER"
+            --build-number="$BUILD_NUMBER" \
+            --export-options-plist="$EXPORT_OPTIONS"
 
-          test -n "$(find build/ios/ipa -maxdepth 1 -name '*.ipa' -print -quit)" || {
+          IPA_PATH="$(find build/ios/ipa -maxdepth 1 -name '*.ipa' -print -quit)"
+
+          if [ -z "$IPA_PATH" ]; then
             echo "ERROR: No IPA file was generated."
             exit 1
-          }
+          fi
 
-          echo "Signed IPA generated successfully."
+          echo "IPA generated successfully: $IPA_PATH"
+    
 
     artifacts:
       - build/ios/ipa/*.ipa
