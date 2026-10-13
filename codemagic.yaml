@@ -99,9 +99,12 @@ workflows:
       - name: Build signed IPA for TestFlight
         script: |
           set -euo pipefail
+
+          BUILD_NUMBER="${CM_BUILD_NUMBER:-1}"
+
           flutter build ipa \
             --release \
-            --build-number="$CM_BUILD_NUMBER"
+            --build-number="$BUILD_NUMBER"
 
     artifacts:
       - build/ios/ipa/*.ipa
