@@ -1,0 +1,729 @@
+// ============================================================================
+// KPSS KOLAY - ERROR NOTEBOOK - REAL SUPABASE IMPLEMENTATION
+// PRODUCTION-READY: No mock data, proper RLS, increment logic, transactions
+// ============================================================================
+
+// ============================================================================
+// LIB/MODELS/ERROR_NOTEBOOK_MODEL.DART (Updated)
+// ============================================================================
+
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class ErrorNotebookItemModel {
+  final String id;
+  final String userId;
+  final String questionId;
+  final String subjectId;
+  final String subjectName;
+  final String questionText;
+  final String userSelectedOption;
+  final String correctOption;
+  final int wrongCount;
+  final DateTime lastWrongAt;
+  final bool isResolved;
+  final String? userNote;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  
+  // Nested question object (optional, from JOIN)
+  final QuestionDetail? questionDetail;
+
+  ErrorNotebookItemModel({
+    required this.id,
+    required this.userId,
+    required this.questionId,
+    required this.subjectId,
+    required this.subjectName,
+    required this.questionText,
+    required this.userSelectedOption,
+    required this.correctOption,
+    required this.wrongCount,
+    required this.lastWrongAt,
+    required this.isResolved,
+    this.userNote,
+    required this.createdAt,
+    required this.updatedAt,
+    this.questionDetail,
+  });
+
+  factory ErrorNotebookItemModel.fromJson(Map<String, dynamic> json) {
+    return ErrorNotebookItemModel(
+      id: json['id'] as String,
+      userId: json['user_id'] as String,
+      questionId: json['question_id'] as String,
+      subjectId: json['subject_id'] as String,
+      subjectName: json['subject_name'] as String? ?? 'Unknown',
+      questionText: json['question_text'] as String? ?? '',
+      userSelectedOption: json['user_selected_option'] as String? ?? '',
+      correctOption: json['correct_option'] as String? ?? '',
+      wrongCount: _parseInt(json['wrong_count']),
+      lastWrongAt: DateTime.parse(json['last_wrong_at'] as String? ?? DateTime.now().toIso8601String()),
+      isResolved: json['is_resolved'] as bool? ?? false,
+      userNote: json['user_note'] as String?,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
+      questionDetail: json['question'] != null 
+        ? QuestionDetail.fromJson(json['question'] as Map<String, dynamic>)
+        : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'user_id': userId,
+    'question_id': questionId,
+    'subject_id': subjectId,
+    'subject_name': subjectName,
+    'question_text': questionText,
+    'user_selected_option': userSelectedOption,
+    'correct_option': correctOption,
+    'wrong_count': wrongCount,
+    'last_wrong_at': lastWrongAt.toIso8601String(),
+    'is_resolved': isResolved,
+    'user_note': userNote,
+    'created_at': createdAt.toIso8601String(),
+    'updated_at': updatedAt.toIso8601String(),
+  };
+
+  static int _parseInt(dynamic value) {
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+}
+
+class QuestionDetail {
+  final String id;
+  final String subjectId;
+  final String questionText;
+  final String optionA;
+  final String optionB;
+  final String optionC;
+  final String optionD;
+  final String optionE;
+  final String explanation;
+  final int difficultyLevel;
+
+  QuestionDetail({
+    required this.id,
+    required this.subjectId,
+    required this.questionText,
+    required this.optionA,
+    required this.optionB,
+    required this.optionC,
+    required this.optionD,
+    required this.optionE,
+    required this.explanation,
+    required this.difficultyLevel,
+  });
+
+  factory QuestionDetail.fromJson(Map<String, dynamic> json) {
+    return QuestionDetail(
+      id: json['id'] as String,
+      subjectId: json['subject_id'] as String,
+      questionText: json['question_text'] as String,
+      optionA: json['option_a'] as String,
+      optionB: json['option_b'] as String,
+      optionC: json['option_c'] as String,
+      optionD: json['option_d'] as String,
+      optionE: json['option_e'] as String,
+      explanation: json['explanation'] as String? ?? '',
+      difficultyLevel: _parseInt(json['difficulty_level']),
+    );
+  }
+
+  static int _parseInt(dynamic value) {
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+}
+
+// ============================================================================
+// LIB/REPOSITORIES/ERROR_NOTEBOOK_REPOSITORY.DART (NEW)
+// ============================================================================
+
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class ErrorNotebookRepository {
+  final SupabaseClient _supabase;
+  final String _userId;
+
+  ErrorNotebookRepository({
+    required SupabaseClient supabaseClient,
+    required String userId,
+  })  : _supabase = supabaseClient,
+        _userId = userId;
+
+  // =========================================================================
+  // LOAD ERROR NOTEBOOK
+  // =========================================================================
+
+  Future<List<ErrorNotebookItemModel>> loadErrorNotebook({
+    String? filterSubjectId,
+    bool? filterResolved,
+  }) async {
+    try {
+      var query = _supabase
+          .from('error_notebook')
+          .select('''
+            id,
+            user_id,
+            question_id,
+            subject_id,
+            subject_name,
+            question_text,
+            user_selected_option,
+            correct_option,
+            wrong_count,
+            last_wrong_at,
+            is_resolved,
+            user_note,
+            created_at,
+            updated_at,
+            question:question_id(
+              id,
+              subject_id,
+              question_text,
+              option_a,
+              option_b,
+              option_c,
+              option_d,
+              option_e,
+              explanation,
+              difficulty_level
+            )
+          ''')
+          .eq('user_id', _userId)
+          .order('last_wrong_at', ascending: false);
+
+      // Filter by subject if provided
+      if (filterSubjectId != null && filterSubjectId.isNotEmpty) {
+        query = query.eq('subject_id', filterSubjectId);
+      }
+
+      // Filter by resolved status if provided
+      if (filterResolved != null) {
+        query = query.eq('is_resolved', filterResolved);
+      }
+
+      final data = await query;
+
+      if (data.isEmpty) {
+        print('✅ No errors in notebook');
+        return [];
+      }
+
+      return (data as List)
+          .map((item) => ErrorNotebookItemModel.fromJson(item as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print('❌ Error loading error notebook: $e');
+      rethrow;
+    }
+  }
+
+  // =========================================================================
+  // ADD TO ERROR NOTEBOOK (From failed answer)
+  // =========================================================================
+
+  Future<ErrorNotebookItemModel> addOrUpdateError({
+    required String questionId,
+    required String subjectId,
+    required String subjectName,
+    required String questionText,
+    required String userSelectedOption,
+    required String correctOption,
+  }) async {
+    try {
+      // Try to upsert - if exists, increment; if not, create
+      final response = await _supabase.rpc(
+        'upsert_error_notebook',
+        params: {
+          'p_user_id': _userId,
+          'p_question_id': questionId,
+          'p_subject_id': subjectId,
+          'p_subject_name': subjectName,
+          'p_question_text': questionText,
+          'p_user_selected_option': userSelectedOption,
+          'p_correct_option': correctOption,
+        },
+      ) as Map<String, dynamic>;
+
+      print('✅ Error added/updated: $questionId');
+      return ErrorNotebookItemModel.fromJson(response);
+    } catch (e) {
+      print('❌ Error adding to error notebook: $e');
+      rethrow;
+    }
+  }
+
+  // =========================================================================
+  // MARK ERROR AS RESOLVED
+  // =========================================================================
+
+  Future<void> markErrorAsResolved(String errorId) async {
+    try {
+      await _supabase
+          .from('error_notebook')
+          .update({
+            'is_resolved': true,
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', errorId)
+          .eq('user_id', _userId);
+
+      print('✅ Error marked as resolved: $errorId');
+    } catch (e) {
+      print('❌ Error marking as resolved: $e');
+      rethrow;
+    }
+  }
+
+  // =========================================================================
+  // UPDATE ERROR NOTE
+  // =========================================================================
+
+  Future<void> updateErrorNote(String errorId, String note) async {
+    try {
+      await _supabase
+          .from('error_notebook')
+          .update({
+            'user_note': note.isNotEmpty ? note : null,
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', errorId)
+          .eq('user_id', _userId);
+
+      print('✅ Error note updated: $errorId');
+    } catch (e) {
+      print('❌ Error updating note: $e');
+      rethrow;
+    }
+  }
+
+  // =========================================================================
+  // DELETE ERROR FROM NOTEBOOK
+  // =========================================================================
+
+  Future<void> deleteError(String errorId) async {
+    try {
+      await _supabase
+          .from('error_notebook')
+          .delete()
+          .eq('id', errorId)
+          .eq('user_id', _userId);
+
+      print('✅ Error deleted: $errorId');
+    } catch (e) {
+      print('❌ Error deleting: $e');
+      rethrow;
+    }
+  }
+
+  // =========================================================================
+  // GET ERROR BY ID
+  // =========================================================================
+
+  Future<ErrorNotebookItemModel?> getErrorById(String errorId) async {
+    try {
+      final data = await _supabase
+          .from('error_notebook')
+          .select('''
+            id,
+            user_id,
+            question_id,
+            subject_id,
+            subject_name,
+            question_text,
+            user_selected_option,
+            correct_option,
+            wrong_count,
+            last_wrong_at,
+            is_resolved,
+            user_note,
+            created_at,
+            updated_at,
+            question:question_id(
+              id,
+              subject_id,
+              question_text,
+              option_a,
+              option_b,
+              option_c,
+              option_d,
+              option_e,
+              explanation,
+              difficulty_level
+            )
+          ''')
+          .eq('id', errorId)
+          .eq('user_id', _userId)
+          .single();
+
+      return ErrorNotebookItemModel.fromJson(data as Map<String, dynamic>);
+    } catch (e) {
+      print('❌ Error fetching error: $e');
+      return null;
+    }
+  }
+
+  // =========================================================================
+  // GET UNRESOLVED ERRORS COUNT
+  // =========================================================================
+
+  Future<int> getUnresolvedErrorsCount() async {
+    try {
+      final response = await _supabase
+          .from('error_notebook')
+          .select('id', const FetchOptions(count: CountOption.exact))
+          .eq('user_id', _userId)
+          .eq('is_resolved', false);
+
+      return response.length;
+    } catch (e) {
+      print('❌ Error counting errors: $e');
+      return 0;
+    }
+  }
+}
+
+// ============================================================================
+// LIB/PROVIDERS/ERROR_NOTEBOOK_PROVIDER.DART (NEW)
+// ============================================================================
+
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class ErrorNotebookProvider extends ChangeNotifier {
+  final ErrorNotebookRepository _repository;
+  
+  List<ErrorNotebookItemModel> _errors = [];
+  List<String> _selectedSubjectIds = [];
+  bool _showResolvedOnly = false;
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  ErrorNotebookProvider({required ErrorNotebookRepository repository})
+      : _repository = repository;
+
+  // =========================================================================
+  // GETTERS
+  // =========================================================================
+
+  List<ErrorNotebookItemModel> get errors {
+    return _errors.where((error) {
+      // Filter by subject
+      if (_selectedSubjectIds.isNotEmpty) {
+        if (!_selectedSubjectIds.contains(error.subjectId)) {
+          return false;
+        }
+      }
+      // Filter by resolved status
+      if (_showResolvedOnly) {
+        return error.isResolved;
+      } else {
+        return !error.isResolved;
+      }
+      return true;
+    }).toList();
+  }
+
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  List<String> get selectedSubjectIds => _selectedSubjectIds;
+  bool get showResolvedOnly => _showResolvedOnly;
+
+  int get unresolvedCount => _errors.where((e) => !e.isResolved).length;
+
+  // =========================================================================
+  // LOAD ERRORS
+  // =========================================================================
+
+  Future<void> loadErrors() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final errors = await _repository.loadErrorNotebook();
+      _errors = errors;
+      _errorMessage = null;
+      print('✅ Loaded ${_errors.length} errors');
+    } catch (e) {
+      _errorMessage = 'Yanlış defteri yüklenemedi: $e';
+      print('❌ Error loading: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // =========================================================================
+  // MARK AS RESOLVED
+  // =========================================================================
+
+  Future<void> markAsResolved(String errorId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      await _repository.markErrorAsResolved(errorId);
+      _errors = _errors.map((error) {
+        if (error.id == errorId) {
+          return ErrorNotebookItemModel(
+            id: error.id,
+            userId: error.userId,
+            questionId: error.questionId,
+            subjectId: error.subjectId,
+            subjectName: error.subjectName,
+            questionText: error.questionText,
+            userSelectedOption: error.userSelectedOption,
+            correctOption: error.correctOption,
+            wrongCount: error.wrongCount,
+            lastWrongAt: error.lastWrongAt,
+            isResolved: true,
+            userNote: error.userNote,
+            createdAt: error.createdAt,
+            updatedAt: DateTime.now(),
+            questionDetail: error.questionDetail,
+          );
+        }
+        return error;
+      }).toList();
+      _errorMessage = null;
+      print('✅ Marked as resolved: $errorId');
+    } catch (e) {
+      _errorMessage = 'Hata işaretlenemedi: $e';
+      print('❌ Error marking resolved: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // =========================================================================
+  // UPDATE NOTE
+  // =========================================================================
+
+  Future<void> updateNote(String errorId, String note) async {
+    try {
+      await _repository.updateErrorNote(errorId, note);
+      _errors = _errors.map((error) {
+        if (error.id == errorId) {
+          return ErrorNotebookItemModel(
+            id: error.id,
+            userId: error.userId,
+            questionId: error.questionId,
+            subjectId: error.subjectId,
+            subjectName: error.subjectName,
+            questionText: error.questionText,
+            userSelectedOption: error.userSelectedOption,
+            correctOption: error.correctOption,
+            wrongCount: error.wrongCount,
+            lastWrongAt: error.lastWrongAt,
+            isResolved: error.isResolved,
+            userNote: note,
+            createdAt: error.createdAt,
+            updatedAt: DateTime.now(),
+            questionDetail: error.questionDetail,
+          );
+        }
+        return error;
+      }).toList();
+      _errorMessage = null;
+      print('✅ Note updated: $errorId');
+    } catch (e) {
+      _errorMessage = 'Not güncellenemedi: $e';
+      print('❌ Error updating note: $e');
+    }
+    notifyListeners();
+  }
+
+  // =========================================================================
+  // DELETE ERROR
+  // =========================================================================
+
+  Future<void> deleteError(String errorId) async {
+    try {
+      await _repository.deleteError(errorId);
+      _errors.removeWhere((error) => error.id == errorId);
+      _errorMessage = null;
+      print('✅ Error deleted: $errorId');
+    } catch (e) {
+      _errorMessage = 'Hata silinemedi: $e';
+      print('❌ Error deleting: $e');
+    }
+    notifyListeners();
+  }
+
+  // =========================================================================
+  // FILTER
+  // =========================================================================
+
+  void toggleSubjectFilter(String subjectId) {
+    if (_selectedSubjectIds.contains(subjectId)) {
+      _selectedSubjectIds.remove(subjectId);
+    } else {
+      _selectedSubjectIds.add(subjectId);
+    }
+    notifyListeners();
+  }
+
+  void clearSubjectFilters() {
+    _selectedSubjectIds.clear();
+    notifyListeners();
+  }
+
+  void toggleResolvedFilter() {
+    _showResolvedOnly = !_showResolvedOnly;
+    notifyListeners();
+  }
+
+  // =========================================================================
+  // GET UNIQUE SUBJECTS
+  // =========================================================================
+
+  List<String> getUniqueSubjects() {
+    final subjects = <String>{};
+    for (final error in _errors) {
+      subjects.add(error.subjectId);
+    }
+    return subjects.toList();
+  }
+}
+
+// ============================================================================
+// DATABASE: SUPABASE SCHEMA UPDATES
+// ============================================================================
+
+/*
+-- Add this to your Supabase SQL migrations:
+
+-- Create or replace the upsert_error_notebook RPC function
+CREATE OR REPLACE FUNCTION upsert_error_notebook(
+  p_user_id UUID,
+  p_question_id UUID,
+  p_subject_id UUID,
+  p_subject_name TEXT,
+  p_question_text TEXT,
+  p_user_selected_option TEXT,
+  p_correct_option TEXT
+)
+RETURNS JSON AS $$
+DECLARE
+  v_error_id UUID;
+  v_existing RECORD;
+BEGIN
+  -- Find existing error entry
+  SELECT id, wrong_count INTO v_existing
+  FROM error_notebook
+  WHERE user_id = p_user_id
+    AND question_id = p_question_id
+  LIMIT 1;
+
+  IF FOUND THEN
+    -- Update existing: increment wrong_count
+    UPDATE error_notebook
+    SET 
+      wrong_count = wrong_count + 1,
+      last_wrong_at = NOW(),
+      updated_at = NOW()
+    WHERE id = v_existing.id;
+    
+    v_error_id := v_existing.id;
+  ELSE
+    -- Create new error entry
+    INSERT INTO error_notebook (
+      id,
+      user_id,
+      question_id,
+      subject_id,
+      subject_name,
+      question_text,
+      user_selected_option,
+      correct_option,
+      wrong_count,
+      last_wrong_at,
+      is_resolved,
+      created_at,
+      updated_at
+    ) VALUES (
+      gen_random_uuid(),
+      p_user_id,
+      p_question_id,
+      p_subject_id,
+      p_subject_name,
+      p_question_text,
+      p_user_selected_option,
+      p_correct_option,
+      1,  -- Initial count = 1
+      NOW(),
+      FALSE,
+      NOW(),
+      NOW()
+    )
+    RETURNING id INTO v_error_id;
+  END IF;
+
+  -- Return the updated/created error
+  RETURN (
+    SELECT row_to_json(row) FROM (
+      SELECT
+        id,
+        user_id,
+        question_id,
+        subject_id,
+        subject_name,
+        question_text,
+        user_selected_option,
+        correct_option,
+        wrong_count,
+        last_wrong_at,
+        is_resolved,
+        user_note,
+        created_at,
+        updated_at
+      FROM error_notebook
+      WHERE id = v_error_id
+    ) row
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Ensure RLS is enabled on error_notebook
+ALTER TABLE error_notebook ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if any
+DROP POLICY IF EXISTS "Users can view own errors" ON error_notebook;
+DROP POLICY IF EXISTS "Users can insert own errors" ON error_notebook;
+DROP POLICY IF EXISTS "Users can update own errors" ON error_notebook;
+DROP POLICY IF EXISTS "Users can delete own errors" ON error_notebook;
+
+-- RLS Policies
+CREATE POLICY "Users can view own errors"
+  ON error_notebook FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own errors"
+  ON error_notebook FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own errors"
+  ON error_notebook FOR UPDATE
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own errors"
+  ON error_notebook FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- Allow RPC execution for error_notebook operations
+GRANT EXECUTE ON FUNCTION upsert_error_notebook TO authenticated;
+*/
+
+// ============================================================================
+// END OF ERROR NOTEBOOK IMPLEMENTATION
+// ============================================================================

@@ -1,0 +1,10 @@
+services:
+  bestie-mediasoup:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "4000:4000/tcp"
+      - "20000-20100:20000-20100/udp"
+      - "20000-20100:20000-20100/tcp"

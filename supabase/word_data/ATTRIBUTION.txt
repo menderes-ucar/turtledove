@@ -1,0 +1,4 @@
+FrequencyWords
+https://github.com/hermitdave/FrequencyWords
+Content license: CC-BY-SA-4.0 (as stated by the repository README)
+Used for frequency-ranked word candidates for BESTIE Word Chain.

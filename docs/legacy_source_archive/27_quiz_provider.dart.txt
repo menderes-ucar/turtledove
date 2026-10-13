@@ -1,0 +1,232 @@
+import 'dart:async';
+import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '02_dart_models.dart';
+
+/// Server-authoritative quiz state.
+/// The client never reads questions.correct_option and never calculates score.
+class QuizProvider extends ChangeNotifier {
+  QuizProvider({required this.supabaseClient, required this.userId});
+
+  final SupabaseClient supabaseClient;
+  final String userId;
+
+  List<QuestionModel> questions = [];
+  final Map<String, UserAnswerModel> answeredQuestions = {};
+  final Map<String, String> _correctOptions = {};
+  final Map<String, String> _explanations = {};
+
+  String? sessionId;
+  QuizAttemptModel? currentQuizAttempt;
+  Timer? _timer;
+  int _remainingSeconds = 0;
+  int _currentQuestionIndex = 0;
+  bool _isLoading = false;
+  bool _isSubmitting = false;
+  String? _errorMessage;
+
+  bool get isLoading => _isLoading;
+  bool get isSubmitting => _isSubmitting;
+  String? get errorMessage => _errorMessage;
+  int get remainingSeconds => _remainingSeconds;
+  int get currentQuestionIndex => _currentQuestionIndex;
+  bool get hasNextQuestion => _currentQuestionIndex < questions.length - 1;
+  bool get hasPreviousQuestion => _currentQuestionIndex > 0;
+  QuestionModel? get currentQuestion =>
+      _currentQuestionIndex < questions.length ? questions[_currentQuestionIndex] : null;
+  String? get currentAnswerOption =>
+      currentQuestion == null ? null : answeredQuestions[currentQuestion!.id]?.selectedOption;
+  bool? get isCurrentAnswerCorrect =>
+      currentQuestion == null ? null : answeredQuestions[currentQuestion!.id]?.isCorrect;
+  String? get currentCorrectOption =>
+      currentQuestion == null ? null : _correctOptions[currentQuestion!.id];
+  String? get currentExplanation =>
+      currentQuestion == null ? null : _explanations[currentQuestion!.id];
+
+  Future<void> startQuiz({
+    required String subjectId,
+    int questionCount = 20,
+    bool isTimed = true,
+    int timeLimitMinutes = 30,
+    bool fromErrorNotebook = false,
+  }) async {
+    _setLoading(true);
+    try {
+      _errorMessage = null;
+      final result = await supabaseClient.rpc(fromErrorNotebook ? 'start_error_quiz_session' : 'start_quiz_session', params: {
+        'p_subject_id': subjectId,
+        'p_question_count': questionCount,
+        'p_is_timed': isTimed,
+        'p_time_limit_seconds': timeLimitMinutes * 60,
+      });
+
+      final payload = Map<String, dynamic>.from(result as Map);
+      sessionId = payload['session_id'] as String;
+      final ids = List<String>.from(payload['question_ids'] as List);
+      final rows = await supabaseClient.rpc(
+        'get_quiz_questions',
+        params: {'p_session_id': sessionId},
+      );
+      questions = List<Map<String, dynamic>>.from(rows as List)
+          .map(QuestionModel.fromJson)
+          .where((q) => ids.contains(q.id))
+          .toList();
+
+      if (questions.isEmpty) throw Exception('Bu sınav için soru bulunamadı.');
+
+      answeredQuestions.clear();
+      _correctOptions.clear();
+      _explanations.clear();
+      _currentQuestionIndex = 0;
+      final timed = payload['is_timed'] as bool? ?? isTimed;
+      final seconds = (payload['time_limit_seconds'] as num?)?.toInt();
+      _remainingSeconds = timed ? (seconds ?? timeLimitMinutes * 60) : 0;
+      currentQuizAttempt = QuizAttemptModel(
+        id: sessionId!,
+        userId: userId,
+        subjectId: subjectId,
+        status: QuizStatus.running,
+        totalQuestions: questions.length,
+        correctAnswers: 0,
+        wrongAnswers: 0,
+        blankAnswers: questions.length,
+        durationSeconds: 0,
+        isTimed: timed,
+        timeLimitSeconds: timed ? _remainingSeconds : null,
+        startedAt: DateTime.now(),
+      );
+      _startTimerIfNeeded();
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = _friendlyError(e);
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> selectAnswer(String option) async {
+    final question = currentQuestion;
+    final id = sessionId;
+    if (question == null || id == null || _isSubmitting) return;
+    if (answeredQuestions.containsKey(question.id)) return;
+
+    _isSubmitting = true;
+    _errorMessage = null;
+    notifyListeners();
+    try {
+      final result = await supabaseClient.rpc('submit_quiz_answer', params: {
+        'p_session_id': id,
+        'p_question_id': question.id,
+        'p_selected_option': option.toUpperCase(),
+      });
+      final payload = Map<String, dynamic>.from(result as Map);
+      final isCorrect = payload['is_correct'] == true;
+      _correctOptions[question.id] = (payload['correct_option'] as String).toUpperCase();
+      _explanations[question.id] = (payload['explanation'] as String?) ?? '';
+      answeredQuestions[question.id] = UserAnswerModel(
+        id: payload['answer_id'] as String,
+        userId: userId,
+        questionId: question.id,
+        quizAttemptId: id,
+        selectedOption: option.toUpperCase(),
+        isCorrect: isCorrect,
+        timeSpentSeconds: null,
+        answeredAt: DateTime.now(),
+      );
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = _friendlyError(e);
+      notifyListeners();
+      rethrow;
+    } finally {
+      _isSubmitting = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> completeQuiz({bool timeExpired = false}) async {
+    final id = sessionId;
+    if (id == null || _isSubmitting) return;
+    _isSubmitting = true;
+    _timer?.cancel();
+    notifyListeners();
+    try {
+      final result = await supabaseClient.rpc('complete_quiz_session', params: {
+        'p_session_id': id,
+      });
+      final payload = Map<String, dynamic>.from(result as Map);
+      currentQuizAttempt = currentQuizAttempt?.copyWith(
+        status: QuizStatus.completed,
+        correctAnswers: (payload['correct_answers'] as num).toInt(),
+        wrongAnswers: (payload['wrong_answers'] as num).toInt(),
+        blankAnswers: (payload['blank_answers'] as num).toInt(),
+        durationSeconds: (payload['duration_seconds'] as num).toInt(),
+        score: (payload['net'] as num).toDouble(),
+        completedAt: DateTime.now(),
+      );
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = _friendlyError(e);
+      notifyListeners();
+      rethrow;
+    } finally {
+      _isSubmitting = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> abandonQuiz() async {
+    final id = sessionId;
+    if (id == null) return;
+    _timer?.cancel();
+    try {
+      await supabaseClient.rpc('abandon_quiz_session', params: {'p_session_id': id});
+    } finally {
+      sessionId = null;
+      questions = [];
+      answeredQuestions.clear();
+      notifyListeners();
+    }
+  }
+
+  void nextQuestion() { if (hasNextQuestion) { _currentQuestionIndex++; notifyListeners(); } }
+  void previousQuestion() { if (hasPreviousQuestion) { _currentQuestionIndex--; notifyListeners(); } }
+  void goToQuestion(int index) {
+    if (index >= 0 && index < questions.length) { _currentQuestionIndex = index; notifyListeners(); }
+  }
+
+  void _startTimerIfNeeded() {
+    _timer?.cancel();
+    if (currentQuizAttempt?.isTimed != true) return;
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (_remainingSeconds > 0) {
+        _remainingSeconds--;
+        notifyListeners();
+      } else {
+        _timer?.cancel();
+        unawaited(completeQuiz(timeExpired: true));
+      }
+    });
+  }
+
+  String get formattedTime {
+    final minutes = _remainingSeconds ~/ 60;
+    final seconds = _remainingSeconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  String _friendlyError(Object error) {
+    final message = error.toString();
+    if (message.contains('QUESTION_ALREADY_ANSWERED')) return 'Bu soru zaten cevaplandı.';
+    if (message.contains('QUIZ_TIME_EXPIRED')) return 'Sınav süresi doldu.';
+    if (message.contains('SESSION_NOT_FOUND')) return 'Quiz oturumu bulunamadı.';
+    if (message.contains('NO_QUESTIONS')) return 'Bu konuda yeterli soru bulunamadı.';
+    return 'Quiz işlemi gerçekleştirilemedi.';
+  }
+
+  void _setLoading(bool value) { _isLoading = value; notifyListeners(); }
+
+  @override
+  void dispose() { _timer?.cancel(); super.dispose(); }
+}

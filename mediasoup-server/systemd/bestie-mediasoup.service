@@ -1,0 +1,18 @@
+[Unit]
+Description=BESTIE Mediasoup SFU
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/bestie/mediasoup-server
+ExecStart=/usr/bin/node --env-file=.env server.js
+Restart=always
+RestartSec=3
+LimitNOFILE=1048576
+Environment=NODE_ENV=production
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

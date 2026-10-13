@@ -1,0 +1,61 @@
+name: bestie
+description: SaaS Long Distance Companion App - Production Ready
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.8.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  flutter_localizations:
+    sdk: flutter
+
+  provider: ^6.1.2
+  supabase_flutter: 2.5.2
+
+  firebase_core: ^4.14.0
+  firebase_messaging: ^16.7.0
+
+  flutter_webrtc: ^1.6.2+hotfix.3
+  android_pip: ^2.0.2
+
+  go_router: ^14.2.0
+  flutter_dotenv: ^5.1.0
+
+  intl: ^0.20.2
+  uuid: ^4.3.3
+  shared_preferences: ^2.2.2
+
+  image_picker: ^1.0.7
+  flutter_image_compress: ^2.4.0
+  video_player: ^2.10.1
+  audioplayers: ^6.6.0
+
+  cupertino_icons: ^1.0.8
+  lottie: ^3.1.0
+
+  countries_world_map: ^1.3.0
+  flutter_3d_controller: ^2.3.0
+  country_state_city: ^0.1.6
+
+  flutter_local_notifications: ^19.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - .env
+    - assets/
+    - assets/sounds/
+    - assets/pet_rooms/
+    - assets/pet_3d/

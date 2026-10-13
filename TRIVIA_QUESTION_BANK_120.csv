@@ -1,0 +1,121 @@
+﻿game_type,category,subcategory,prompt,question_type,options,correct_answer,difficulty
+trivia,Genel Kültür,Temel Bilgiler,Dünyanın yüzölçümü bakımından en büyük ülkesi hangisidir?,choice,Rusya | Kanada | Çin | ABD,Rusya,medium
+trivia,Genel Kültür,Temel Bilgiler,Birleşmiş Milletler hangi yıl kuruldu?,choice,1945 | 1919 | 1955 | 1961,1945,medium
+trivia,Genel Kültür,Temel Bilgiler,Dünya üzerindeki en büyük okyanus hangisidir?,choice,Pasifik Okyanusu | Atlas Okyanusu | Hint Okyanusu | Arktik Okyanusu,Pasifik Okyanusu,medium
+trivia,Genel Kültür,Temel Bilgiler,Artık yıl olmayan bir yıl kaç gündür?,choice,365 | 364 | 366 | 360,365,medium
+trivia,Genel Kültür,Temel Bilgiler,İnsan vücudundaki en büyük organ hangisidir?,choice,Deri | Karaciğer | Akciğer | Beyin,Deri,medium
+trivia,Genel Kültür,Tarih,Magna Carta 1215 yılında hangi ülkede imzalandı?,choice,İngiltere | Fransa | İspanya | İtalya,İngiltere,medium
+trivia,Genel Kültür,Tarih,Berlin Duvarı hangi yıl yıkıldı?,choice,1989 | 1979 | 1991 | 1961,1989,medium
+trivia,Genel Kültür,Tarih,Rönesans ilk olarak hangi ülkede başladı?,choice,İtalya | Almanya | İngiltere | Portekiz,İtalya,medium
+trivia,Genel Kültür,Tarih,Antik Olimpiyat Oyunları hangi uygarlıkta ortaya çıktı?,choice,Antik Yunan | Roma | Mısır | Pers,Antik Yunan,medium
+trivia,Genel Kültür,Tarih,Ay’a ilk insanlı iniş hangi yıl gerçekleşti?,choice,1969 | 1965 | 1972 | 1959,1969,medium
+trivia,Genel Kültür,Coğrafya,Nil Nehri hangi kıtadadır?,choice,Afrika | Asya | Avrupa | Güney Amerika,Afrika,medium
+trivia,Genel Kültür,Coğrafya,Everest Dağı hangi sıradağlardadır?,choice,Himalayalar | Andlar | Alpler | Kayalık Dağları,Himalayalar,medium
+trivia,Genel Kültür,Coğrafya,Sahra Çölü hangi kıtadadır?,choice,Afrika | Asya | Avustralya | Kuzey Amerika,Afrika,medium
+trivia,Genel Kültür,Coğrafya,İstanbul hangi iki kıtayı birbirine bağlar?,choice,Avrupa ve Asya | Asya ve Afrika | Avrupa ve Afrika | Kuzey ve Güney Amerika,Avrupa ve Asya,medium
+trivia,Genel Kültür,Dil,Türk alfabesinde kaç harf vardır?,choice,29 | 28 | 30 | 26,29,medium
+trivia,Genel Kültür,Kültür,Kimono geleneksel olarak hangi ülkeyle ilişkilidir?,choice,Japonya | Hindistan | Çin | Kore,Japonya,medium
+trivia,Genel Kültür,Sanat,Mona Lisa hangi sanatçıya aittir?,choice,Leonardo da Vinci | Michelangelo | Raphael | Van Gogh,Leonardo da Vinci,medium
+trivia,Genel Kültür,Edebiyat,Romeo ve Juliet kimin eseridir?,choice,William Shakespeare | Charles Dickens | Victor Hugo | Dante,William Shakespeare,medium
+trivia,Genel Kültür,Edebiyat,1984 romanının yazarı kimdir?,choice,George Orwell | Aldous Huxley | Jules Verne | Franz Kafka,George Orwell,medium
+trivia,Genel Kültür,Edebiyat,Don Kişot kimin eseridir?,choice,Miguel de Cervantes | Tolstoy | Dostoyevski | Homer,Miguel de Cervantes,medium
+trivia,Bilim & Doğa,Fizik,Işık boşlukta yaklaşık kaç km/s hızla ilerler?,choice,300.000 | 30.000 | 3.000 | 3.000.000,300.000,medium
+trivia,Bilim & Doğa,Fizik,Dünya yüzeyindeki yerçekimi ivmesi yaklaşık kaç m/s²dir?,choice,"9,8 | 1,6 | 24,8 | 98","9,8",medium
+trivia,Bilim & Doğa,Fizik,Elektrik akımının SI birimi hangisidir?,choice,Amper | Volt | Ohm | Watt,Amper,medium
+trivia,Bilim & Doğa,Fizik,Kuvvetin SI birimi hangisidir?,choice,Newton | Joule | Pascal | Watt,Newton,medium
+trivia,Bilim & Doğa,Kimya,Suyun kimyasal formülü nedir?,choice,H₂O | CO₂ | O₂ | NaCl,H₂O,medium
+trivia,Bilim & Doğa,Kimya,Altının kimyasal sembolü nedir?,choice,Au | Ag | Fe | Al,Au,medium
+trivia,Bilim & Doğa,Kimya,Periyodik tabloda O hangi elementtir?,choice,Oksijen | Osmiyum | Altın | Hidrojen,Oksijen,medium
+trivia,Bilim & Doğa,Kimya,pH değeri 7 olan saf su hangi özelliktedir?,choice,Nötr | Asidik | Bazik | Radyoaktif,Nötr,medium
+trivia,Bilim & Doğa,Biyoloji,DNA’daki D harfi hangi kelimeyi ifade eder?,choice,Deoksiribo | Doymuş | Diatomik | Difüzyon,Deoksiribo,medium
+trivia,Bilim & Doğa,Biyoloji,Fotosentez sırasında bitkiler hangi gazı kullanır?,choice,Karbondioksit | Oksijen | Azot | Hidrojen,Karbondioksit,medium
+trivia,Bilim & Doğa,Biyoloji,İnsanda kanı pompalayan organ hangisidir?,choice,Kalp | Akciğer | Böbrek | Karaciğer,Kalp,medium
+trivia,Bilim & Doğa,Biyoloji,İnsanda kaç çift kromozom bulunur?,choice,23 | 22 | 24 | 46,23,medium
+trivia,Bilim & Doğa,Astronomi,Güneş Sistemi’nin en büyük gezegeni hangisidir?,choice,Jüpiter | Satürn | Dünya | Neptün,Jüpiter,medium
+trivia,Bilim & Doğa,Astronomi,Kızıl Gezegen olarak bilinen gezegen hangisidir?,choice,Mars | Venüs | Merkür | Jüpiter,Mars,medium
+trivia,Bilim & Doğa,Astronomi,Dünya’nın doğal uydusu hangisidir?,choice,Ay | Titan | Europa | Phobos,Ay,medium
+trivia,Bilim & Doğa,Astronomi,Güneş nedir?,choice,Yıldız | Uydu | Asteroit | Bulutsu,Yıldız,medium
+trivia,Bilim & Doğa,Doğa,Dünyadaki en büyük kara hayvanı hangisidir?,choice,Afrika fili | Zürafa | Gergedan | Su aygırı,Afrika fili,medium
+trivia,Bilim & Doğa,Doğa,En hızlı kara hayvanı hangisidir?,choice,Çita | Aslan | At | Kurt,Çita,medium
+trivia,Bilim & Doğa,Doğa,Arılar hangi ürünü üretmeleriyle bilinir?,choice,Bal | İpek | Peynir | Lateks,Bal,medium
+trivia,Bilim & Doğa,Bilim Tarihi,Görelilik teorisiyle özdeşleşen bilim insanı kimdir?,choice,Albert Einstein | Isaac Newton | Niels Bohr | Marie Curie,Albert Einstein,medium
+trivia,Film & Dizi,Film,The Lord of the Rings filmlerinin yönetmeni kimdir?,choice,Peter Jackson | Christopher Nolan | James Cameron | Ridley Scott,Peter Jackson,medium
+trivia,Film & Dizi,Film,Titanic filminin yönetmeni kimdir?,choice,James Cameron | Steven Spielberg | Peter Jackson | Tim Burton,James Cameron,medium
+trivia,Film & Dizi,Film,The Matrix hangi yıl vizyona girdi?,choice,1999 | 1997 | 2001 | 1995,1999,medium
+trivia,Film & Dizi,Film,Harry Potter kitaplarının yazarı kimdir?,choice,J. K. Rowling | J. R. R. Tolkien | George R. R. Martin | C. S. Lewis,J. K. Rowling,medium
+trivia,Film & Dizi,Film,Toy Story hangi stüdyonun ilk uzun metraj bilgisayar animasyon filmidir?,choice,Pixar | DreamWorks | Ghibli | Illumination,Pixar,medium
+trivia,Film & Dizi,Film,Star Wars serisinin yaratıcısı kimdir?,choice,George Lucas | Stanley Kubrick | George Miller | Denis Villeneuve,George Lucas,medium
+trivia,Film & Dizi,Film,Inception filminin yönetmeni kimdir?,choice,Christopher Nolan | David Fincher | Guy Ritchie | Quentin Tarantino,Christopher Nolan,medium
+trivia,Film & Dizi,Film,Spirited Away hangi stüdyoyla ilişkilidir?,choice,Studio Ghibli | Pixar | Aardman | Laika,Studio Ghibli,medium
+trivia,Film & Dizi,Film,The Godfather hangi yazarın romanından uyarlanmıştır?,choice,Mario Puzo | Stephen King | Dan Brown | Ernest Hemingway,Mario Puzo,medium
+trivia,Film & Dizi,Film,Parasite hangi ülkenin filmidir?,choice,Güney Kore | Japonya | Çin | Tayland,Güney Kore,medium
+trivia,Film & Dizi,Dizi,Friends hangi şehirde yaşayan arkadaş grubunu merkezine alır?,choice,New York | Los Angeles | Chicago | Boston,New York,medium
+trivia,Film & Dizi,Dizi,Breaking Bad’in baş karakteri hangi mesleğe sahiptir?,choice,Kimya öğretmeni | Avukat | Gazeteci | Doktor,Kimya öğretmeni,medium
+trivia,Film & Dizi,Dizi,The Office ABD uyarlamasında şirketin adı nedir?,choice,Dunder Mifflin | Weyland-Yutani | Sterling Cooper | Initech,Dunder Mifflin,medium
+trivia,Film & Dizi,Dizi,Stranger Things’in ilk sezonu hangi kasabada geçer?,choice,Hawkins | Sunnydale | Riverdale | Stars Hollow,Hawkins,medium
+trivia,Film & Dizi,Dizi,Game of Thrones’un iki ana kıtası hangileridir?,choice,Westeros ve Essos | Narnia ve Oz | Middle-earth ve Westeros | Panem ve Essos,Westeros ve Essos,medium
+trivia,Film & Dizi,Dizi,Sherlock dizisinde Sherlock Holmes’u kim canlandırır?,choice,Benedict Cumberbatch | Martin Freeman | Tom Hiddleston | Hugh Laurie,Benedict Cumberbatch,medium
+trivia,Film & Dizi,Dizi,The Simpsons hangi tür yapımdır?,choice,Animasyon komedi | Belgesel | Polisiye | Reality şov,Animasyon komedi,medium
+trivia,Film & Dizi,Dizi,Wednesday’in baş karakteri hangi aileden gelir?,choice,Addams | Simpson | Kent | Wayne,Addams,medium
+trivia,Film & Dizi,Dizi,The Mandalorian hangi evrende geçer?,choice,Star Wars | Star Trek | Marvel | DC,Star Wars,medium
+trivia,Film & Dizi,Dizi,Black Mirror çoğunlukla hangi temaları işler?,choice,Teknoloji ve toplum | Antik tarih | Spor | Yemek kültürü,Teknoloji ve toplum,medium
+trivia,Müzik,Müzik Bilgisi,Standart bir piyanoda kaç tuş bulunur?,choice,88 | 76 | 61 | 100,88,medium
+trivia,Müzik,Müzik Bilgisi,Bir oktavda kaç temel nota adı bulunur?,choice,7 | 8 | 12 | 5,7,medium
+trivia,Müzik,Müzik Bilgisi,Keman hangi enstrüman ailesindedir?,choice,Yaylı | Üflemeli | Vurmalı | Tuşlu,Yaylı,medium
+trivia,Müzik,Müzik Bilgisi,Davul hangi enstrüman ailesindedir?,choice,Vurmalı | Yaylı | Tuşlu | Üflemeli,Vurmalı,medium
+trivia,Müzik,Sanatçı,Queen grubunun solisti olarak en çok tanınan isim kimdir?,choice,Freddie Mercury | David Bowie | Elton John | Mick Jagger,Freddie Mercury,medium
+trivia,Müzik,Sanatçı,The Beatles hangi şehirde kuruldu?,choice,Liverpool | Londra | Manchester | Birmingham,Liverpool,medium
+trivia,Müzik,Sanatçı,“Like a Rolling Stone” hangi sanatçıyla ilişkilidir?,choice,Bob Dylan | Elvis Presley | Prince | Sting,Bob Dylan,medium
+trivia,Müzik,Sanatçı,“Purple Rain” hangi sanatçıyla ilişkilidir?,choice,Prince | Michael Jackson | Bruno Mars | Stevie Wonder,Prince,medium
+trivia,Müzik,Sanatçı,Mozart hangi ülkede doğmuştur?,choice,Avusturya | Almanya | İtalya | Fransa,Avusturya,medium
+trivia,Müzik,Sanatçı,Beethoven hangi iki müzik dönemiyle ilişkilidir?,choice,Klasik ve Romantik | Barok ve Rönesans | Caz ve Blues | Modern ve Elektronik,Klasik ve Romantik,medium
+trivia,Müzik,Türler,Blues müziğinin tarihsel kökleri en güçlü biçimde hangi ülkededir?,choice,ABD | İspanya | Japonya | İtalya,ABD,medium
+trivia,Müzik,Türler,Reggae müziği en çok hangi ülkeyle ilişkilidir?,choice,Jamaika | Küba | Brezilya | İrlanda,Jamaika,medium
+trivia,Müzik,Türler,Flamenko müziği hangi bölgeyle ilişkilidir?,choice,Endülüs | Bavyera | Toskana | Normandiya,Endülüs,medium
+trivia,Müzik,Türler,Cazın önemli doğum merkezlerinden biri hangi ABD şehridir?,choice,New Orleans | Seattle | Denver | Phoenix,New Orleans,medium
+trivia,Müzik,Türler,Elektronik dans müziği hangi kısaltmayla bilinir?,choice,EDM | EAM | EMD | DME,EDM,medium
+trivia,Müzik,Nota,Forte dinamiği neyi ifade eder?,choice,Güçlü/yüksek sesle | Çok yavaş | Çok hafif | Hızlanarak,Güçlü/yüksek sesle,medium
+trivia,Müzik,Nota,Piano dinamiği neyi ifade eder?,choice,Hafif/yumuşak | Çok hızlı | Çok yüksek | Tekrarlı,Hafif/yumuşak,medium
+trivia,Müzik,Nota,Tempo müzikte neyi belirtir?,choice,Hızı | Ses rengini | Enstrüman sayısını | Sözleri,Hızı,medium
+trivia,Müzik,Sanatçı,“Imagine” hangi sanatçıyla ilişkilidir?,choice,John Lennon | Paul McCartney | David Bowie | Eric Clapton,John Lennon,medium
+trivia,Müzik,Sanatçı,ABBA hangi ülkeden çıkan bir gruptur?,choice,İsveç | Norveç | Danimarka | Finlandiya,İsveç,medium
+trivia,Spor,Futbol,Bir futbol takımında sahada aynı anda kaç oyuncu bulunur?,choice,11 | 10 | 12 | 9,11,medium
+trivia,Spor,Futbol,FIFA Dünya Kupası normalde kaç yılda bir düzenlenir?,choice,4 | 2 | 3 | 5,4,medium
+trivia,Spor,Basketbol,NBA’de bir takım sahada kaç oyuncuyla oynar?,choice,5 | 6 | 7 | 4,5,medium
+trivia,Spor,Tenis,Teniste “love” ne anlama gelir?,choice,0 puan | 15 puan | Beraberlik | Maç puanı,0 puan,medium
+trivia,Spor,Olimpiyat,Modern Olimpiyat Oyunları ilk kez hangi şehirde düzenlendi?,choice,Atina | Paris | Londra | Roma,Atina,medium
+trivia,Spor,Olimpiyat,Olimpiyat sembolünde kaç halka vardır?,choice,5 | 4 | 6 | 7,5,medium
+trivia,Spor,Formula 1,Damalı bayrak neyi ifade eder?,choice,Yarışın bittiğini | Güvenlik aracını | Pit yolunu | Ceza verildiğini,Yarışın bittiğini,medium
+trivia,Spor,Futbol,Penaltı noktası kale çizgisinden kaç metre uzaktadır?,choice,11 | 9 | 12 | 7,11,medium
+trivia,Spor,Basketbol,Üç sayı çizgisinin gerisinden atılan basket kaç puandır?,choice,3 | 2 | 4 | 1,3,medium
+trivia,Spor,Voleybol,Bir voleybol takımında sahada kaç oyuncu bulunur?,choice,6 | 5 | 7 | 8,6,medium
+trivia,Spor,Voleybol,Blok teması dışında bir takım topa en fazla kaç kez vurabilir?,choice,3 | 2 | 4 | 5,3,medium
+trivia,Spor,Yüzme,Olimpik yüzme havuzunun uzunluğu kaç metredir?,choice,50 | 25 | 100 | 75,50,medium
+trivia,Spor,Boks,Nakavt için kullanılan yaygın kısaltma hangisidir?,choice,KO | VAR | MVP | DQ,KO,medium
+trivia,Spor,Golf,Golfte bir deliğin standart hedef skoruna ne ad verilir?,choice,Par | Ace | Set | Frame,Par,medium
+trivia,Spor,Satranç,Satranç tahtasında toplam kaç kare vardır?,choice,64 | 81 | 72 | 100,64,medium
+trivia,Spor,Satranç,Satrançta en fazla hareket özgürlüğüne sahip taş hangisidir?,choice,Vezir | Kale | Fil | At,Vezir,medium
+trivia,Spor,Atletizm,Maratonun resmi mesafesi kaç kilometredir?,choice,"42,195 | 40 | 41 | 45","42,195",medium
+trivia,Spor,Bisiklet,Tour de France hangi spor dalıyla ilgilidir?,choice,Bisiklet | Koşu | Yüzme | Kayak,Bisiklet,medium
+trivia,Spor,Hentbol,Hentbolda kaleci dahil sahada kaç oyuncu bulunur?,choice,7 | 6 | 8 | 5,7,medium
+trivia,Spor,Futbol,VAR kısaltması futbolda neyi ifade eder?,choice,Video Yardımcı Hakem | Video Atak Raporu | Virtual Attack Rule | Verified Assistant Referee,Video Yardımcı Hakem,medium
+trivia,Yemek & Seyahat,Yemek,Sushi hangi ülkenin mutfağıyla özdeşleşmiştir?,choice,Japonya | İtalya | Meksika | Yunanistan,Japonya,medium
+trivia,Yemek & Seyahat,Yemek,Pizza hangi ülkenin mutfağıyla güçlü biçimde ilişkilidir?,choice,İtalya | Fransa | Türkiye | İspanya,İtalya,medium
+trivia,Yemek & Seyahat,Yemek,Guacamole’nin ana malzemesi nedir?,choice,Avokado | Patates | Domates | Nohut,Avokado,medium
+trivia,Yemek & Seyahat,Yemek,Humusun temel malzemelerinden biri hangisidir?,choice,Nohut | Pirinç | Mercimek | Mısır,Nohut,medium
+trivia,Yemek & Seyahat,Yemek,Paella hangi ülkenin yemeğidir?,choice,İspanya | Portekiz | İtalya | Arjantin,İspanya,medium
+trivia,Yemek & Seyahat,Yemek,Kimchi hangi ülkenin mutfağına aittir?,choice,Güney Kore | Japonya | Vietnam | Tayland,Güney Kore,medium
+trivia,Yemek & Seyahat,Yemek,Falafel’in temel malzemelerinden biri hangisidir?,choice,Nohut | Peynir | Balık | Patates,Nohut,medium
+trivia,Yemek & Seyahat,Yemek,Pesto sosunun klasik tarifinde hangi kuruyemiş kullanılır?,choice,Çam fıstığı | Badem | Fındık | Ceviz,Çam fıstığı,medium
+trivia,Yemek & Seyahat,Yemek,Tiramisu hangi ülkenin tatlısıdır?,choice,İtalya | Fransa | Avusturya | Yunanistan,İtalya,medium
+trivia,Yemek & Seyahat,Yemek,Ramen hangi ülkenin mutfağıyla özdeşleşmiştir?,choice,Japonya | İtalya | Fransa | Meksika,Japonya,medium
+trivia,Yemek & Seyahat,Seyahat,Eyfel Kulesi hangi şehirde bulunur?,choice,Paris | Roma | Madrid | Brüksel,Paris,medium
+trivia,Yemek & Seyahat,Seyahat,Kolezyum hangi şehirde bulunur?,choice,Roma | Atina | Napoli | Milano,Roma,medium
+trivia,Yemek & Seyahat,Seyahat,Özgürlük Heykeli hangi şehirde bulunur?,choice,New York | Boston | Washington | Chicago,New York,medium
+trivia,Yemek & Seyahat,Seyahat,Machu Picchu hangi ülkededir?,choice,Peru | Şili | Bolivya | Ekvador,Peru,medium
+trivia,Yemek & Seyahat,Seyahat,Petra antik kenti hangi ülkededir?,choice,Ürdün | Mısır | İsrail | Lübnan,Ürdün,medium
+trivia,Yemek & Seyahat,Seyahat,Taj Mahal hangi ülkededir?,choice,Hindistan | Pakistan | Nepal | Bangladeş,Hindistan,medium
+trivia,Yemek & Seyahat,Seyahat,Kapadokya hangi ülkededir?,choice,Türkiye | Yunanistan | Gürcistan | Bulgaristan,Türkiye,medium
+trivia,Yemek & Seyahat,Seyahat,Sagrada Familia hangi şehirde bulunur?,choice,Barselona | Lizbon | Madrid | Sevilla,Barselona,medium
+trivia,Yemek & Seyahat,Seyahat,Big Ben hangi şehirle ilişkilidir?,choice,Londra | Dublin | Edinburgh | Manchester,Londra,medium
+trivia,Yemek & Seyahat,Seyahat,Burj Khalifa hangi şehirde bulunur?,choice,Dubai | Doha | Abu Dabi | Riyad,Dubai,medium

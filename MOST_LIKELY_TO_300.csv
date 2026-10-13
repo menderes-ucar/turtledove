@@ -1,0 +1,301 @@
+﻿game_type,category,subcategory,prompt,question_type,options,difficulty,is_active
+most_likely_to,relationship,Partneri Tanıma,Bir tartışmadan sonra ilk adımı atması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerinin bu durumda ilk tepki olarak ne yapacağını daha iyi tahmin eden kim?,prediction,"[""1. seçenek"",""2. seçenek"",""3. seçenek"",""4. seçenek""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerinin böyle bir durumda hangi seçeneği tercih edeceğini daha doğru tahmin eden kim?,prediction,"[""A"",""B"",""C"",""D""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerinin moralinin bozuk olduğunu daha hızlı fark etmesi olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Özel bir günü son anda bile olsa güzel bir sürprize çevirmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Birlikte geçirilen küçük bir anı yıllar sonra bile hatırlaması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,İlişkide “bunu sonra konuşuruz” deyip konuyu unutmaması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerinin sevdiği bir şeyi gizlice öğrenip sürpriz yapması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Birlikte gelecek planı yaparken ayrıntılara daha çok takılması olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerinin doğum gününü aylar önceden planlaması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Bir fotoğrafı silmeye kıyamayıp yıllarca saklaması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerinin sevdiği şarkıyı duyunca hemen onu düşünmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,“Ben iyiyim” cümlesinin aslında doğru olmadığını anlaması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,İlişkide küçük jestleri büyük hediyelerden daha çok önemsemesi olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Birlikte yaşama fikrini ilk ciddi şekilde gündeme getirmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Birlikte alınacak önemli bir kararda duygularıyla hareket etmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerinin ailesiyle ilk tanışmada daha çok heyecanlanması olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Eski bir mesajı okuyup geçmişteki bir anıyı yeniden hatırlaması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Birbirinize ait bir inside joke’u yıllarca kullanmaya devam etmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partneri için kendi planını son anda değiştirmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,İlişkide daha çok fotoğraf/video biriktirmesi olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Birlikte yaşanacak evin dekorasyonuna daha çok kafa yorması olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Absürt,Evde kimse yokken kendi kendine konser vermesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerinin bu komik durumda nasıl davranacağını daha iyi tahmin eden kim?,prediction,"[""1. seçenek"",""2. seçenek"",""3. seçenek"",""4. seçenek""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerinin bu senaryoda yapacağı seçimi daha doğru tahmin eden kim?,prediction,"[""A"",""B"",""C"",""D""]",medium,true
+most_likely_to,funny,Absürt,Yanlış kişiye mesaj gönderip sonra telefonu kapatıp kaçması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Absürt,Bir kelimeyi yanlış anlayıp konuşmayı tamamen başka yere götürmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Absürt,Bir şeyi ararken elinde tuttuğu şeyi fark etmemesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Absürt,En ciddi anda gülmemesi gerekirken gülmeye başlaması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Absürt,Bir dizideki karaktere gereğinden fazla bağlanması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Absürt,Bir arkadaş grubunda en saçma lakabı alması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Absürt,Yemek siparişinde yanlış seçim yapıp yine de “aslında güzelmiş” demesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Absürt,Alarmı kapatıp beş dakika sonra kalkacağını düşünüp bir saat uyuması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Absürt,Bir yere giderken yanlış yöne gidip bunu uzun süre fark etmemesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Absürt,Kendi yaptığı şakaya karşısındaki kişiden daha çok gülmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Absürt,Fotoğraf çekerken en garip pozu vermesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Absürt,Bir şarkının sözlerini uydurarak söylemesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Absürt,Bir şeyi tamir etmeye çalışırken durumu daha da kötüleştirmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Absürt,Bir hayvan gördüğünde planını değiştirip onu sevmeye gitmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Absürt,“Sadece beş dakika” diyerek telefonda bir saat geçirmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Absürt,Bir markete tek ürün için gidip poşetlerle dönmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Absürt,Bir oyunda kuralları yanlış anlayıp kendi kuralını icat etmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Absürt,Bir kelimeyi söyleyemeyince tamamen farklı bir kelime kullanması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,funny,Absürt,Kendi doğum gününde bile sürprizi yanlışlıkla bozması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,Hafta sonunu evde geçirip bundan hiç şikâyet etmemesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerinin böyle bir yaşam tercihinde hangi seçeneğe yöneleceğini daha iyi tahmin eden kim?,prediction,"[""1. seçenek"",""2. seçenek"",""3. seçenek"",""4. seçenek""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerinin bu konuda hangi kararı vereceğini daha doğru tahmin eden kim?,prediction,"[""A"",""B"",""C"",""D""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,Yeni bir hobiye başlayıp birkaç hafta içinde başka bir hobiye geçmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,Evde düzen konusunda daha titiz olması olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,Bir eşyanın yerini değiştirip odanın havasını tamamen değiştirmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,Para biriktirmek için kendine net bir hedef koyması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,Kariyer konusunda beş yıllık plan yapması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,İşten/okuldan sonra tamamen kapanıp dinlenmek istemesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,Yeni bir uygulama veya teknoloji çıktığında ilk deneyen olması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,Bir alışverişte kaliteye fiyatından daha çok önem vermesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,Evde bitki yetiştirip onlarla konuşması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,Bir günü dakikası dakikasına planlaması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,Plansız bir akşamı spontane bir etkinliğe çevirmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,İndirim görünce ihtiyacı olmayan bir şeyi alma ihtimali daha yüksek olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,Bir işi son dakikaya bırakıp yine de yetiştirmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,Kendi çalışma alanını baştan tasarlaması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,Kariyer değişikliği yapmaktan daha az korkması olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,Bir konuda uzmanlaşmak için uzun süre sabretmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,Bir alışkanlık takip uygulamasını düzenli kullanması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,Evdeki en rahat köşeyi sahiplenmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,lifestyle,Günlük Hayat,Yeni bir finansal hedef belirleyip ona sadık kalması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Tatil,Haritaya bakmadan yeni bir sokakta yürümeye daha yatkın olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerinin bu seyahat senaryosunda hangi seçeneği tercih edeceğini daha iyi tahmin eden kim?,prediction,"[""1. seçenek"",""2. seçenek"",""3. seçenek"",""4. seçenek""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerinin tatilde nasıl davranacağını daha doğru tahmin eden kim?,prediction,"[""A"",""B"",""C"",""D""]",medium,true
+most_likely_to,travel,Tatil,Tatil programını son güne kadar değiştirmeye açık olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Tatil,Uçuşa yetişmek için havaalanına gereğinden erken gitmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Tatil,Tatilde yerel bir yemeği denemeye daha cesur yaklaşan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Tatil,Bir şehirde mutlaka müze veya tarihi yer görmek isteyen kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Tatil,Seyahatte fotoğraf çekmeyi unutmayacak olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Tatil,Tatil için bavulunu günler önceden hazırlaması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Tatil,Bir seyahatte plan dışı bir maceraya atılması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Tatil,Gittiği şehirden küçük bir hatıra alması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Tatil,Tatilde sabah erkenden kalkıp günün tamamını değerlendirmek isteyen kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Tatil,Yolculuk sırasında manzarayı izlemek için müziği kapatması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Tatil,Bir tatilde aynı otelde kalmak yerine farklı yerleri denemek isteyen kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Tatil,Bir ülkeye sırf yemekleri için gitmek isteyecek olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Tatil,Kaybolsa bile bunu eğlenceli bir maceraya çevirmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Tatil,Seyahatte bütçeyi takip etmeyi daha çok önemseyen kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Tatil,Bir tatil fotoğrafını yıllar sonra sosyal medyada tekrar paylaşması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Tatil,Kış tatili ile yaz tatili arasında kalsa yazı seçmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Tatil,Uzun bir yolculukta herkes uyurken uyanık kalması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Tatil,Bir şehirde turistlerin gitmediği yerleri keşfetmek isteyen kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,travel,Tatil,Tatil dönüşü “birkaç gün daha kalsaydık” diyecek olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Favoriler,Menüde daha önce hiç denemediği bir yemeği seçmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerinin bu yemek senaryosunda hangi seçeneği seçeceğini daha iyi tahmin eden kim?,prediction,"[""1. seçenek"",""2. seçenek"",""3. seçenek"",""4. seçenek""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerinin bu menüde hangi tercihi yapacağını daha doğru tahmin eden kim?,prediction,"[""A"",""B"",""C"",""D""]",medium,true
+most_likely_to,food,Favoriler,Aynı favori yemeği tekrar tekrar sipariş etmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Favoriler,Tatlı için ana yemeği feda etmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Favoriler,Bir restoranı sırf tatlısı için seçmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Favoriler,Yeni açılan bir restoranı ilk deneyen olması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Favoriler,Evde tarif denemek için saatler harcaması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Favoriler,Acı yemekte sınırlarını zorlaması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Favoriler,Kahvaltıyı günün en önemli öğünü ilan etmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Favoriler,Bir yemeğin sunumuna tadından fazla dikkat etmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Favoriler,“Bir lokma tadacağım” deyip tabağın yarısını yemesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Favoriler,Gece geç saatte atıştırmalık araması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Favoriler,Bir şehirde en iyi restoranları araştırmadan gitmemesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Favoriler,Yeni bir kahve türünü denemeye daha meraklı olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Favoriler,Yemek siparişinde herkesin fikrini soran kişi olması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Favoriler,Bir yemeğin tarifini sadece tadına bakarak tahmin etmeye çalışması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Favoriler,Piknik için gereğinden fazla yiyecek hazırlaması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Favoriler,Bir yemeği sırf görüntüsü güzel diye seçmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Favoriler,En sevdiği tatlıyı paylaşmak istememesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Favoriler,Bir restoranın imza yemeğini denemeden çıkmaması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,food,Favoriler,Yemek yaparken tarife bakmadan doğaçlama yapması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,İkilemler,Bir yıl boyunca tek bir şehirde yaşamak zorunda kalsa seçimini daha hızlı yapacak olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerinin bu ikilemde hangi seçeneği seçeceğini daha iyi tahmin eden kim?,prediction,"[""1. seçenek"",""2. seçenek"",""3. seçenek"",""4. seçenek""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerinin bu zor kararda hangi yolu tercih edeceğini daha doğru tahmin eden kim?,prediction,"[""A"",""B"",""C"",""D""]",medium,true
+most_likely_to,hard_choices,İkilemler,Çok para kazanıp az boş zamana sahip olmayı seçmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,İkilemler,Hayalindeki işi bulmak için başka bir ülkeye taşınması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,İkilemler,Bir macera uğruna konfordan vazgeçmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,İkilemler,Kariyer fırsatı için uzun süre uzak mesafe ilişkiyi denemesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,İkilemler,Bütün bir ay boyunca sosyal medyayı bırakması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,İkilemler,Bir yarışmada büyük ödül yerine unutulmaz bir deneyimi seçmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,İkilemler,Planlı güvenli bir hayat yerine belirsiz ama heyecanlı bir hayatı seçmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,İkilemler,Bir hayali gerçekleştirmek için birikiminin büyük bölümünü harcaması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,İkilemler,Bir konuda haklı olduğunu bilse bile tartışmayı bitirmek için geri adım atması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,İkilemler,Bir fırsatı kaçırmamak için son anda karar değiştirmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,İkilemler,Bir yıl boyunca aynı yemeği yemek zorunda kalsa en az şikâyet edecek olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,İkilemler,Bir hafta boyunca telefonsuz kalmayı daha kolay kabul edecek olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,İkilemler,Büyük bir sürpriz için bütün gün planını gizli tutması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,İkilemler,Korktuğu halde yeni bir şeyi ilk deneyen olması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,İkilemler,Bir ev seçerken manzarayı konfordan daha önemli görmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,İkilemler,Bir işi sevmediğini fark edince daha hızlı yön değiştirecek olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,İkilemler,Bir karar verirken “en mantıklısı” yerine “en çok istediğim” seçeneğini seçmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,İkilemler,Birlikte yapılacak planlarda riskli seçeneği savunması daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,hard_choices,İkilemler,Büyük bir hedef uğruna günlük rahatlıklarından vazgeçmesi daha olası olan kim?,choice,"[""Sen"",""Partnerin""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin bir hafta sonu için hangisini seçer Bugün seçim yapmak zorunda olsa hangisini seçer?,prediction,"[""Evde film gecesi"",""Şehirde uzun bir yürüyüş"",""Arkadaşlarla buluşma"",""Spontane bir kaçamak""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin bir hafta sonu için hangisini seçer Hiç düşünmeden seçse hangisine gider?,prediction,"[""Evde film gecesi"",""Şehirde uzun bir yürüyüş"",""Arkadaşlarla buluşma"",""Spontane bir kaçamak""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin bir hafta sonu için hangisini seçer Uzun vadede hangisini tercih eder?,prediction,"[""Evde film gecesi"",""Şehirde uzun bir yürüyüş"",""Arkadaşlarla buluşma"",""Spontane bir kaçamak""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin bir hafta sonu için hangisini seçer İlk aklına gelen seçenek hangisi olur?,prediction,"[""Evde film gecesi"",""Şehirde uzun bir yürüyüş"",""Arkadaşlarla buluşma"",""Spontane bir kaçamak""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin bir hafta sonu için hangisini seçer Bütçeyi düşünmeden seçse hangisini ister?,prediction,"[""Evde film gecesi"",""Şehirde uzun bir yürüyüş"",""Arkadaşlarla buluşma"",""Spontane bir kaçamak""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin bir hafta sonu için hangisini seçer Tamamen spontane karar verse hangisini seçer?,prediction,"[""Evde film gecesi"",""Şehirde uzun bir yürüyüş"",""Arkadaşlarla buluşma"",""Spontane bir kaçamak""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin bir hafta sonu için hangisini seçer Bir arkadaşına önerse hangisini seçer?,prediction,"[""Evde film gecesi"",""Şehirde uzun bir yürüyüş"",""Arkadaşlarla buluşma"",""Spontane bir kaçamak""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin bir hafta sonu için hangisini seçer Birlikte yapacağınız plan için hangisini seçer?,prediction,"[""Evde film gecesi"",""Şehirde uzun bir yürüyüş"",""Arkadaşlarla buluşma"",""Spontane bir kaçamak""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin bir hafta sonu için hangisini seçer En rahat hissedeceği seçenek hangisi?,prediction,"[""Evde film gecesi"",""Şehirde uzun bir yürüyüş"",""Arkadaşlarla buluşma"",""Spontane bir kaçamak""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin bir hafta sonu için hangisini seçer En çok heyecanlandıracak seçenek hangisi?,prediction,"[""Evde film gecesi"",""Şehirde uzun bir yürüyüş"",""Arkadaşlarla buluşma"",""Spontane bir kaçamak""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin ideal buluşma planı hangisine daha yakın Bugün seçim yapmak zorunda olsa hangisini seçer?,prediction,"[""Sakin bir kahve"",""Şık bir akşam yemeği"",""Macera dolu bir aktivite"",""Evde birlikte yemek""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin ideal buluşma planı hangisine daha yakın Hiç düşünmeden seçse hangisine gider?,prediction,"[""Sakin bir kahve"",""Şık bir akşam yemeği"",""Macera dolu bir aktivite"",""Evde birlikte yemek""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin ideal buluşma planı hangisine daha yakın Uzun vadede hangisini tercih eder?,prediction,"[""Sakin bir kahve"",""Şık bir akşam yemeği"",""Macera dolu bir aktivite"",""Evde birlikte yemek""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin ideal buluşma planı hangisine daha yakın İlk aklına gelen seçenek hangisi olur?,prediction,"[""Sakin bir kahve"",""Şık bir akşam yemeği"",""Macera dolu bir aktivite"",""Evde birlikte yemek""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin ideal buluşma planı hangisine daha yakın Bütçeyi düşünmeden seçse hangisini ister?,prediction,"[""Sakin bir kahve"",""Şık bir akşam yemeği"",""Macera dolu bir aktivite"",""Evde birlikte yemek""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin ideal buluşma planı hangisine daha yakın Tamamen spontane karar verse hangisini seçer?,prediction,"[""Sakin bir kahve"",""Şık bir akşam yemeği"",""Macera dolu bir aktivite"",""Evde birlikte yemek""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin ideal buluşma planı hangisine daha yakın Bir arkadaşına önerse hangisini seçer?,prediction,"[""Sakin bir kahve"",""Şık bir akşam yemeği"",""Macera dolu bir aktivite"",""Evde birlikte yemek""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin ideal buluşma planı hangisine daha yakın Birlikte yapacağınız plan için hangisini seçer?,prediction,"[""Sakin bir kahve"",""Şık bir akşam yemeği"",""Macera dolu bir aktivite"",""Evde birlikte yemek""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin ideal buluşma planı hangisine daha yakın En rahat hissedeceği seçenek hangisi?,prediction,"[""Sakin bir kahve"",""Şık bir akşam yemeği"",""Macera dolu bir aktivite"",""Evde birlikte yemek""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin ideal buluşma planı hangisine daha yakın En çok heyecanlandıracak seçenek hangisi?,prediction,"[""Sakin bir kahve"",""Şık bir akşam yemeği"",""Macera dolu bir aktivite"",""Evde birlikte yemek""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin hediye olarak hangisini seçmeye daha yakın Bugün seçim yapmak zorunda olsa hangisini seçer?,prediction,"[""Kişisel bir not"",""Bir deneyim"",""Kullanışlı bir eşya"",""Fotoğraflı bir anı""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin hediye olarak hangisini seçmeye daha yakın Hiç düşünmeden seçse hangisine gider?,prediction,"[""Kişisel bir not"",""Bir deneyim"",""Kullanışlı bir eşya"",""Fotoğraflı bir anı""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin hediye olarak hangisini seçmeye daha yakın Uzun vadede hangisini tercih eder?,prediction,"[""Kişisel bir not"",""Bir deneyim"",""Kullanışlı bir eşya"",""Fotoğraflı bir anı""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin hediye olarak hangisini seçmeye daha yakın İlk aklına gelen seçenek hangisi olur?,prediction,"[""Kişisel bir not"",""Bir deneyim"",""Kullanışlı bir eşya"",""Fotoğraflı bir anı""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin hediye olarak hangisini seçmeye daha yakın Bütçeyi düşünmeden seçse hangisini ister?,prediction,"[""Kişisel bir not"",""Bir deneyim"",""Kullanışlı bir eşya"",""Fotoğraflı bir anı""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin hediye olarak hangisini seçmeye daha yakın Tamamen spontane karar verse hangisini seçer?,prediction,"[""Kişisel bir not"",""Bir deneyim"",""Kullanışlı bir eşya"",""Fotoğraflı bir anı""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin hediye olarak hangisini seçmeye daha yakın Bir arkadaşına önerse hangisini seçer?,prediction,"[""Kişisel bir not"",""Bir deneyim"",""Kullanışlı bir eşya"",""Fotoğraflı bir anı""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin hediye olarak hangisini seçmeye daha yakın Birlikte yapacağınız plan için hangisini seçer?,prediction,"[""Kişisel bir not"",""Bir deneyim"",""Kullanışlı bir eşya"",""Fotoğraflı bir anı""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin hediye olarak hangisini seçmeye daha yakın En rahat hissedeceği seçenek hangisi?,prediction,"[""Kişisel bir not"",""Bir deneyim"",""Kullanışlı bir eşya"",""Fotoğraflı bir anı""]",medium,true
+most_likely_to,relationship,Partneri Tanıma,Partnerin hediye olarak hangisini seçmeye daha yakın En çok heyecanlandıracak seçenek hangisi?,prediction,"[""Kişisel bir not"",""Bir deneyim"",""Kullanışlı bir eşya"",""Fotoğraflı bir anı""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin plansız boş bir akşamda hangisini yapar Bugün seçim yapmak zorunda olsa hangisini seçer?,prediction,"[""Film/dizi açar"",""Oyun oynar"",""Mutfakta bir şey dener"",""Sosyal medyada kaybolur""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin plansız boş bir akşamda hangisini yapar Hiç düşünmeden seçse hangisine gider?,prediction,"[""Film/dizi açar"",""Oyun oynar"",""Mutfakta bir şey dener"",""Sosyal medyada kaybolur""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin plansız boş bir akşamda hangisini yapar Uzun vadede hangisini tercih eder?,prediction,"[""Film/dizi açar"",""Oyun oynar"",""Mutfakta bir şey dener"",""Sosyal medyada kaybolur""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin plansız boş bir akşamda hangisini yapar İlk aklına gelen seçenek hangisi olur?,prediction,"[""Film/dizi açar"",""Oyun oynar"",""Mutfakta bir şey dener"",""Sosyal medyada kaybolur""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin plansız boş bir akşamda hangisini yapar Bütçeyi düşünmeden seçse hangisini ister?,prediction,"[""Film/dizi açar"",""Oyun oynar"",""Mutfakta bir şey dener"",""Sosyal medyada kaybolur""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin plansız boş bir akşamda hangisini yapar Tamamen spontane karar verse hangisini seçer?,prediction,"[""Film/dizi açar"",""Oyun oynar"",""Mutfakta bir şey dener"",""Sosyal medyada kaybolur""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin plansız boş bir akşamda hangisini yapar Bir arkadaşına önerse hangisini seçer?,prediction,"[""Film/dizi açar"",""Oyun oynar"",""Mutfakta bir şey dener"",""Sosyal medyada kaybolur""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin plansız boş bir akşamda hangisini yapar Birlikte yapacağınız plan için hangisini seçer?,prediction,"[""Film/dizi açar"",""Oyun oynar"",""Mutfakta bir şey dener"",""Sosyal medyada kaybolur""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin plansız boş bir akşamda hangisini yapar En rahat hissedeceği seçenek hangisi?,prediction,"[""Film/dizi açar"",""Oyun oynar"",""Mutfakta bir şey dener"",""Sosyal medyada kaybolur""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin plansız boş bir akşamda hangisini yapar En çok heyecanlandıracak seçenek hangisi?,prediction,"[""Film/dizi açar"",""Oyun oynar"",""Mutfakta bir şey dener"",""Sosyal medyada kaybolur""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin arkadaş grubunda hangi rolü seçer Bugün seçim yapmak zorunda olsa hangisini seçer?,prediction,"[""Şakacı"",""Organizatör"",""Sessiz gözlemci"",""Hikâye anlatıcı""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin arkadaş grubunda hangi rolü seçer Hiç düşünmeden seçse hangisine gider?,prediction,"[""Şakacı"",""Organizatör"",""Sessiz gözlemci"",""Hikâye anlatıcı""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin arkadaş grubunda hangi rolü seçer Uzun vadede hangisini tercih eder?,prediction,"[""Şakacı"",""Organizatör"",""Sessiz gözlemci"",""Hikâye anlatıcı""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin arkadaş grubunda hangi rolü seçer İlk aklına gelen seçenek hangisi olur?,prediction,"[""Şakacı"",""Organizatör"",""Sessiz gözlemci"",""Hikâye anlatıcı""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin arkadaş grubunda hangi rolü seçer Bütçeyi düşünmeden seçse hangisini ister?,prediction,"[""Şakacı"",""Organizatör"",""Sessiz gözlemci"",""Hikâye anlatıcı""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin arkadaş grubunda hangi rolü seçer Tamamen spontane karar verse hangisini seçer?,prediction,"[""Şakacı"",""Organizatör"",""Sessiz gözlemci"",""Hikâye anlatıcı""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin arkadaş grubunda hangi rolü seçer Bir arkadaşına önerse hangisini seçer?,prediction,"[""Şakacı"",""Organizatör"",""Sessiz gözlemci"",""Hikâye anlatıcı""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin arkadaş grubunda hangi rolü seçer Birlikte yapacağınız plan için hangisini seçer?,prediction,"[""Şakacı"",""Organizatör"",""Sessiz gözlemci"",""Hikâye anlatıcı""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin arkadaş grubunda hangi rolü seçer En rahat hissedeceği seçenek hangisi?,prediction,"[""Şakacı"",""Organizatör"",""Sessiz gözlemci"",""Hikâye anlatıcı""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin arkadaş grubunda hangi rolü seçer En çok heyecanlandıracak seçenek hangisi?,prediction,"[""Şakacı"",""Organizatör"",""Sessiz gözlemci"",""Hikâye anlatıcı""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin bir fotoğrafta hangi pozu verir Bugün seçim yapmak zorunda olsa hangisini seçer?,prediction,"[""Ciddi"",""Komik yüz"",""Doğal gülümseme"",""Poz vermeyi reddeder""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin bir fotoğrafta hangi pozu verir Hiç düşünmeden seçse hangisine gider?,prediction,"[""Ciddi"",""Komik yüz"",""Doğal gülümseme"",""Poz vermeyi reddeder""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin bir fotoğrafta hangi pozu verir Uzun vadede hangisini tercih eder?,prediction,"[""Ciddi"",""Komik yüz"",""Doğal gülümseme"",""Poz vermeyi reddeder""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin bir fotoğrafta hangi pozu verir İlk aklına gelen seçenek hangisi olur?,prediction,"[""Ciddi"",""Komik yüz"",""Doğal gülümseme"",""Poz vermeyi reddeder""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin bir fotoğrafta hangi pozu verir Bütçeyi düşünmeden seçse hangisini ister?,prediction,"[""Ciddi"",""Komik yüz"",""Doğal gülümseme"",""Poz vermeyi reddeder""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin bir fotoğrafta hangi pozu verir Tamamen spontane karar verse hangisini seçer?,prediction,"[""Ciddi"",""Komik yüz"",""Doğal gülümseme"",""Poz vermeyi reddeder""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin bir fotoğrafta hangi pozu verir Bir arkadaşına önerse hangisini seçer?,prediction,"[""Ciddi"",""Komik yüz"",""Doğal gülümseme"",""Poz vermeyi reddeder""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin bir fotoğrafta hangi pozu verir Birlikte yapacağınız plan için hangisini seçer?,prediction,"[""Ciddi"",""Komik yüz"",""Doğal gülümseme"",""Poz vermeyi reddeder""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin bir fotoğrafta hangi pozu verir En rahat hissedeceği seçenek hangisi?,prediction,"[""Ciddi"",""Komik yüz"",""Doğal gülümseme"",""Poz vermeyi reddeder""]",medium,true
+most_likely_to,funny,Partneri Tanıma,Partnerin bir fotoğrafta hangi pozu verir En çok heyecanlandıracak seçenek hangisi?,prediction,"[""Ciddi"",""Komik yüz"",""Doğal gülümseme"",""Poz vermeyi reddeder""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin ideal ev ortamı hangisi Bugün seçim yapmak zorunda olsa hangisini seçer?,prediction,"[""Minimal ve düzenli"",""Sıcak ve rahat"",""Modern ve teknolojik"",""Renkli ve hareketli""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin ideal ev ortamı hangisi Hiç düşünmeden seçse hangisine gider?,prediction,"[""Minimal ve düzenli"",""Sıcak ve rahat"",""Modern ve teknolojik"",""Renkli ve hareketli""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin ideal ev ortamı hangisi Uzun vadede hangisini tercih eder?,prediction,"[""Minimal ve düzenli"",""Sıcak ve rahat"",""Modern ve teknolojik"",""Renkli ve hareketli""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin ideal ev ortamı hangisi İlk aklına gelen seçenek hangisi olur?,prediction,"[""Minimal ve düzenli"",""Sıcak ve rahat"",""Modern ve teknolojik"",""Renkli ve hareketli""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin ideal ev ortamı hangisi Bütçeyi düşünmeden seçse hangisini ister?,prediction,"[""Minimal ve düzenli"",""Sıcak ve rahat"",""Modern ve teknolojik"",""Renkli ve hareketli""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin ideal ev ortamı hangisi Tamamen spontane karar verse hangisini seçer?,prediction,"[""Minimal ve düzenli"",""Sıcak ve rahat"",""Modern ve teknolojik"",""Renkli ve hareketli""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin ideal ev ortamı hangisi Bir arkadaşına önerse hangisini seçer?,prediction,"[""Minimal ve düzenli"",""Sıcak ve rahat"",""Modern ve teknolojik"",""Renkli ve hareketli""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin ideal ev ortamı hangisi Birlikte yapacağınız plan için hangisini seçer?,prediction,"[""Minimal ve düzenli"",""Sıcak ve rahat"",""Modern ve teknolojik"",""Renkli ve hareketli""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin ideal ev ortamı hangisi En rahat hissedeceği seçenek hangisi?,prediction,"[""Minimal ve düzenli"",""Sıcak ve rahat"",""Modern ve teknolojik"",""Renkli ve hareketli""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin ideal ev ortamı hangisi En çok heyecanlandıracak seçenek hangisi?,prediction,"[""Minimal ve düzenli"",""Sıcak ve rahat"",""Modern ve teknolojik"",""Renkli ve hareketli""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin boş gününü hangisiyle doldurur Bugün seçim yapmak zorunda olsa hangisini seçer?,prediction,"[""Dinlenme"",""Yeni bir şey öğrenme"",""Arkadaşlarla plan"",""Dışarı çıkıp keşfetme""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin boş gününü hangisiyle doldurur Hiç düşünmeden seçse hangisine gider?,prediction,"[""Dinlenme"",""Yeni bir şey öğrenme"",""Arkadaşlarla plan"",""Dışarı çıkıp keşfetme""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin boş gününü hangisiyle doldurur Uzun vadede hangisini tercih eder?,prediction,"[""Dinlenme"",""Yeni bir şey öğrenme"",""Arkadaşlarla plan"",""Dışarı çıkıp keşfetme""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin boş gününü hangisiyle doldurur İlk aklına gelen seçenek hangisi olur?,prediction,"[""Dinlenme"",""Yeni bir şey öğrenme"",""Arkadaşlarla plan"",""Dışarı çıkıp keşfetme""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin boş gününü hangisiyle doldurur Bütçeyi düşünmeden seçse hangisini ister?,prediction,"[""Dinlenme"",""Yeni bir şey öğrenme"",""Arkadaşlarla plan"",""Dışarı çıkıp keşfetme""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin boş gününü hangisiyle doldurur Tamamen spontane karar verse hangisini seçer?,prediction,"[""Dinlenme"",""Yeni bir şey öğrenme"",""Arkadaşlarla plan"",""Dışarı çıkıp keşfetme""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin boş gününü hangisiyle doldurur Bir arkadaşına önerse hangisini seçer?,prediction,"[""Dinlenme"",""Yeni bir şey öğrenme"",""Arkadaşlarla plan"",""Dışarı çıkıp keşfetme""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin boş gününü hangisiyle doldurur Birlikte yapacağınız plan için hangisini seçer?,prediction,"[""Dinlenme"",""Yeni bir şey öğrenme"",""Arkadaşlarla plan"",""Dışarı çıkıp keşfetme""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin boş gününü hangisiyle doldurur En rahat hissedeceği seçenek hangisi?,prediction,"[""Dinlenme"",""Yeni bir şey öğrenme"",""Arkadaşlarla plan"",""Dışarı çıkıp keşfetme""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin boş gününü hangisiyle doldurur En çok heyecanlandıracak seçenek hangisi?,prediction,"[""Dinlenme"",""Yeni bir şey öğrenme"",""Arkadaşlarla plan"",""Dışarı çıkıp keşfetme""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin para harcarken hangisini önceler Bugün seçim yapmak zorunda olsa hangisini seçer?,prediction,"[""Kalite"",""Fiyat avantajı"",""Deneyim"",""Uzun vadeli değer""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin para harcarken hangisini önceler Hiç düşünmeden seçse hangisine gider?,prediction,"[""Kalite"",""Fiyat avantajı"",""Deneyim"",""Uzun vadeli değer""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin para harcarken hangisini önceler Uzun vadede hangisini tercih eder?,prediction,"[""Kalite"",""Fiyat avantajı"",""Deneyim"",""Uzun vadeli değer""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin para harcarken hangisini önceler İlk aklına gelen seçenek hangisi olur?,prediction,"[""Kalite"",""Fiyat avantajı"",""Deneyim"",""Uzun vadeli değer""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin para harcarken hangisini önceler Bütçeyi düşünmeden seçse hangisini ister?,prediction,"[""Kalite"",""Fiyat avantajı"",""Deneyim"",""Uzun vadeli değer""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin para harcarken hangisini önceler Tamamen spontane karar verse hangisini seçer?,prediction,"[""Kalite"",""Fiyat avantajı"",""Deneyim"",""Uzun vadeli değer""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin para harcarken hangisini önceler Bir arkadaşına önerse hangisini seçer?,prediction,"[""Kalite"",""Fiyat avantajı"",""Deneyim"",""Uzun vadeli değer""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin para harcarken hangisini önceler Birlikte yapacağınız plan için hangisini seçer?,prediction,"[""Kalite"",""Fiyat avantajı"",""Deneyim"",""Uzun vadeli değer""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin para harcarken hangisini önceler En rahat hissedeceği seçenek hangisi?,prediction,"[""Kalite"",""Fiyat avantajı"",""Deneyim"",""Uzun vadeli değer""]",medium,true
+most_likely_to,lifestyle,Partneri Tanıma,Partnerin para harcarken hangisini önceler En çok heyecanlandıracak seçenek hangisi?,prediction,"[""Kalite"",""Fiyat avantajı"",""Deneyim"",""Uzun vadeli değer""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin tatil için hangisini seçer Bugün seçim yapmak zorunda olsa hangisini seçer?,prediction,"[""Sahil bungalovu"",""Şehir apartmanı"",""Dağ evi"",""Butik otel""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin tatil için hangisini seçer Hiç düşünmeden seçse hangisine gider?,prediction,"[""Sahil bungalovu"",""Şehir apartmanı"",""Dağ evi"",""Butik otel""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin tatil için hangisini seçer Uzun vadede hangisini tercih eder?,prediction,"[""Sahil bungalovu"",""Şehir apartmanı"",""Dağ evi"",""Butik otel""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin tatil için hangisini seçer İlk aklına gelen seçenek hangisi olur?,prediction,"[""Sahil bungalovu"",""Şehir apartmanı"",""Dağ evi"",""Butik otel""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin tatil için hangisini seçer Bütçeyi düşünmeden seçse hangisini ister?,prediction,"[""Sahil bungalovu"",""Şehir apartmanı"",""Dağ evi"",""Butik otel""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin tatil için hangisini seçer Tamamen spontane karar verse hangisini seçer?,prediction,"[""Sahil bungalovu"",""Şehir apartmanı"",""Dağ evi"",""Butik otel""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin tatil için hangisini seçer Bir arkadaşına önerse hangisini seçer?,prediction,"[""Sahil bungalovu"",""Şehir apartmanı"",""Dağ evi"",""Butik otel""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin tatil için hangisini seçer Birlikte yapacağınız plan için hangisini seçer?,prediction,"[""Sahil bungalovu"",""Şehir apartmanı"",""Dağ evi"",""Butik otel""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin tatil için hangisini seçer En rahat hissedeceği seçenek hangisi?,prediction,"[""Sahil bungalovu"",""Şehir apartmanı"",""Dağ evi"",""Butik otel""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin tatil için hangisini seçer En çok heyecanlandıracak seçenek hangisi?,prediction,"[""Sahil bungalovu"",""Şehir apartmanı"",""Dağ evi"",""Butik otel""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin seyahatte ilk yapmak isteyeceği şey hangisi Bugün seçim yapmak zorunda olsa hangisini seçer?,prediction,"[""Yerel yemek denemek"",""Şehri yürüyerek gezmek"",""Fotoğraf çekmek"",""Dinlenmek""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin seyahatte ilk yapmak isteyeceği şey hangisi Hiç düşünmeden seçse hangisine gider?,prediction,"[""Yerel yemek denemek"",""Şehri yürüyerek gezmek"",""Fotoğraf çekmek"",""Dinlenmek""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin seyahatte ilk yapmak isteyeceği şey hangisi Uzun vadede hangisini tercih eder?,prediction,"[""Yerel yemek denemek"",""Şehri yürüyerek gezmek"",""Fotoğraf çekmek"",""Dinlenmek""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin seyahatte ilk yapmak isteyeceği şey hangisi İlk aklına gelen seçenek hangisi olur?,prediction,"[""Yerel yemek denemek"",""Şehri yürüyerek gezmek"",""Fotoğraf çekmek"",""Dinlenmek""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin seyahatte ilk yapmak isteyeceği şey hangisi Bütçeyi düşünmeden seçse hangisini ister?,prediction,"[""Yerel yemek denemek"",""Şehri yürüyerek gezmek"",""Fotoğraf çekmek"",""Dinlenmek""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin seyahatte ilk yapmak isteyeceği şey hangisi Tamamen spontane karar verse hangisini seçer?,prediction,"[""Yerel yemek denemek"",""Şehri yürüyerek gezmek"",""Fotoğraf çekmek"",""Dinlenmek""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin seyahatte ilk yapmak isteyeceği şey hangisi Bir arkadaşına önerse hangisini seçer?,prediction,"[""Yerel yemek denemek"",""Şehri yürüyerek gezmek"",""Fotoğraf çekmek"",""Dinlenmek""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin seyahatte ilk yapmak isteyeceği şey hangisi Birlikte yapacağınız plan için hangisini seçer?,prediction,"[""Yerel yemek denemek"",""Şehri yürüyerek gezmek"",""Fotoğraf çekmek"",""Dinlenmek""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin seyahatte ilk yapmak isteyeceği şey hangisi En rahat hissedeceği seçenek hangisi?,prediction,"[""Yerel yemek denemek"",""Şehri yürüyerek gezmek"",""Fotoğraf çekmek"",""Dinlenmek""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin seyahatte ilk yapmak isteyeceği şey hangisi En çok heyecanlandıracak seçenek hangisi?,prediction,"[""Yerel yemek denemek"",""Şehri yürüyerek gezmek"",""Fotoğraf çekmek"",""Dinlenmek""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin macera seçse hangisine daha yakın olur Bugün seçim yapmak zorunda olsa hangisini seçer?,prediction,"[""Kamp"",""Dalış"",""Rafting"",""Uzun bir doğa yürüyüşü""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin macera seçse hangisine daha yakın olur Hiç düşünmeden seçse hangisine gider?,prediction,"[""Kamp"",""Dalış"",""Rafting"",""Uzun bir doğa yürüyüşü""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin macera seçse hangisine daha yakın olur Uzun vadede hangisini tercih eder?,prediction,"[""Kamp"",""Dalış"",""Rafting"",""Uzun bir doğa yürüyüşü""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin macera seçse hangisine daha yakın olur İlk aklına gelen seçenek hangisi olur?,prediction,"[""Kamp"",""Dalış"",""Rafting"",""Uzun bir doğa yürüyüşü""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin macera seçse hangisine daha yakın olur Bütçeyi düşünmeden seçse hangisini ister?,prediction,"[""Kamp"",""Dalış"",""Rafting"",""Uzun bir doğa yürüyüşü""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin macera seçse hangisine daha yakın olur Tamamen spontane karar verse hangisini seçer?,prediction,"[""Kamp"",""Dalış"",""Rafting"",""Uzun bir doğa yürüyüşü""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin macera seçse hangisine daha yakın olur Bir arkadaşına önerse hangisini seçer?,prediction,"[""Kamp"",""Dalış"",""Rafting"",""Uzun bir doğa yürüyüşü""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin macera seçse hangisine daha yakın olur Birlikte yapacağınız plan için hangisini seçer?,prediction,"[""Kamp"",""Dalış"",""Rafting"",""Uzun bir doğa yürüyüşü""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin macera seçse hangisine daha yakın olur En rahat hissedeceği seçenek hangisi?,prediction,"[""Kamp"",""Dalış"",""Rafting"",""Uzun bir doğa yürüyüşü""]",medium,true
+most_likely_to,travel,Partneri Tanıma,Partnerin macera seçse hangisine daha yakın olur En çok heyecanlandıracak seçenek hangisi?,prediction,"[""Kamp"",""Dalış"",""Rafting"",""Uzun bir doğa yürüyüşü""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin doğum gününde hangi menüyü seçer Bugün seçim yapmak zorunda olsa hangisini seçer?,prediction,"[""Pizza ve tatlı"",""Ev yapımı yemek"",""Şık restoran menüsü"",""Sokak lezzetleri""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin doğum gününde hangi menüyü seçer Hiç düşünmeden seçse hangisine gider?,prediction,"[""Pizza ve tatlı"",""Ev yapımı yemek"",""Şık restoran menüsü"",""Sokak lezzetleri""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin doğum gününde hangi menüyü seçer Uzun vadede hangisini tercih eder?,prediction,"[""Pizza ve tatlı"",""Ev yapımı yemek"",""Şık restoran menüsü"",""Sokak lezzetleri""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin doğum gününde hangi menüyü seçer İlk aklına gelen seçenek hangisi olur?,prediction,"[""Pizza ve tatlı"",""Ev yapımı yemek"",""Şık restoran menüsü"",""Sokak lezzetleri""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin doğum gününde hangi menüyü seçer Bütçeyi düşünmeden seçse hangisini ister?,prediction,"[""Pizza ve tatlı"",""Ev yapımı yemek"",""Şık restoran menüsü"",""Sokak lezzetleri""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin doğum gününde hangi menüyü seçer Tamamen spontane karar verse hangisini seçer?,prediction,"[""Pizza ve tatlı"",""Ev yapımı yemek"",""Şık restoran menüsü"",""Sokak lezzetleri""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin doğum gününde hangi menüyü seçer Bir arkadaşına önerse hangisini seçer?,prediction,"[""Pizza ve tatlı"",""Ev yapımı yemek"",""Şık restoran menüsü"",""Sokak lezzetleri""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin doğum gününde hangi menüyü seçer Birlikte yapacağınız plan için hangisini seçer?,prediction,"[""Pizza ve tatlı"",""Ev yapımı yemek"",""Şık restoran menüsü"",""Sokak lezzetleri""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin doğum gününde hangi menüyü seçer En rahat hissedeceği seçenek hangisi?,prediction,"[""Pizza ve tatlı"",""Ev yapımı yemek"",""Şık restoran menüsü"",""Sokak lezzetleri""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin doğum gününde hangi menüyü seçer En çok heyecanlandıracak seçenek hangisi?,prediction,"[""Pizza ve tatlı"",""Ev yapımı yemek"",""Şık restoran menüsü"",""Sokak lezzetleri""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin kahve seçimi hangisine daha yakın Bugün seçim yapmak zorunda olsa hangisini seçer?,prediction,"[""Latte"",""Americano"",""Türk kahvesi"",""Soğuk kahve""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin kahve seçimi hangisine daha yakın Hiç düşünmeden seçse hangisine gider?,prediction,"[""Latte"",""Americano"",""Türk kahvesi"",""Soğuk kahve""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin kahve seçimi hangisine daha yakın Uzun vadede hangisini tercih eder?,prediction,"[""Latte"",""Americano"",""Türk kahvesi"",""Soğuk kahve""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin kahve seçimi hangisine daha yakın İlk aklına gelen seçenek hangisi olur?,prediction,"[""Latte"",""Americano"",""Türk kahvesi"",""Soğuk kahve""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin kahve seçimi hangisine daha yakın Bütçeyi düşünmeden seçse hangisini ister?,prediction,"[""Latte"",""Americano"",""Türk kahvesi"",""Soğuk kahve""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin kahve seçimi hangisine daha yakın Tamamen spontane karar verse hangisini seçer?,prediction,"[""Latte"",""Americano"",""Türk kahvesi"",""Soğuk kahve""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin kahve seçimi hangisine daha yakın Bir arkadaşına önerse hangisini seçer?,prediction,"[""Latte"",""Americano"",""Türk kahvesi"",""Soğuk kahve""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin kahve seçimi hangisine daha yakın Birlikte yapacağınız plan için hangisini seçer?,prediction,"[""Latte"",""Americano"",""Türk kahvesi"",""Soğuk kahve""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin kahve seçimi hangisine daha yakın En rahat hissedeceği seçenek hangisi?,prediction,"[""Latte"",""Americano"",""Türk kahvesi"",""Soğuk kahve""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin kahve seçimi hangisine daha yakın En çok heyecanlandıracak seçenek hangisi?,prediction,"[""Latte"",""Americano"",""Türk kahvesi"",""Soğuk kahve""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin tatlı seçimi hangisine daha yakın Bugün seçim yapmak zorunda olsa hangisini seçer?,prediction,"[""Çikolatalı"",""Meyveli"",""Sütlü"",""Dondurmalı""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin tatlı seçimi hangisine daha yakın Hiç düşünmeden seçse hangisine gider?,prediction,"[""Çikolatalı"",""Meyveli"",""Sütlü"",""Dondurmalı""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin tatlı seçimi hangisine daha yakın Uzun vadede hangisini tercih eder?,prediction,"[""Çikolatalı"",""Meyveli"",""Sütlü"",""Dondurmalı""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin tatlı seçimi hangisine daha yakın İlk aklına gelen seçenek hangisi olur?,prediction,"[""Çikolatalı"",""Meyveli"",""Sütlü"",""Dondurmalı""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin tatlı seçimi hangisine daha yakın Bütçeyi düşünmeden seçse hangisini ister?,prediction,"[""Çikolatalı"",""Meyveli"",""Sütlü"",""Dondurmalı""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin tatlı seçimi hangisine daha yakın Tamamen spontane karar verse hangisini seçer?,prediction,"[""Çikolatalı"",""Meyveli"",""Sütlü"",""Dondurmalı""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin tatlı seçimi hangisine daha yakın Bir arkadaşına önerse hangisini seçer?,prediction,"[""Çikolatalı"",""Meyveli"",""Sütlü"",""Dondurmalı""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin tatlı seçimi hangisine daha yakın Birlikte yapacağınız plan için hangisini seçer?,prediction,"[""Çikolatalı"",""Meyveli"",""Sütlü"",""Dondurmalı""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin tatlı seçimi hangisine daha yakın En rahat hissedeceği seçenek hangisi?,prediction,"[""Çikolatalı"",""Meyveli"",""Sütlü"",""Dondurmalı""]",medium,true
+most_likely_to,food,Partneri Tanıma,Partnerin tatlı seçimi hangisine daha yakın En çok heyecanlandıracak seçenek hangisi?,prediction,"[""Çikolatalı"",""Meyveli"",""Sütlü"",""Dondurmalı""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerin iki hafta tatil için hangisini seçer Bugün seçim yapmak zorunda olsa hangisini seçer?,prediction,"[""Tek şehirde rahat tatil"",""Üç şehir gezmek"",""Doğa kaçamağı"",""Deniz tatili""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerin iki hafta tatil için hangisini seçer Hiç düşünmeden seçse hangisine gider?,prediction,"[""Tek şehirde rahat tatil"",""Üç şehir gezmek"",""Doğa kaçamağı"",""Deniz tatili""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerin iki hafta tatil için hangisini seçer Uzun vadede hangisini tercih eder?,prediction,"[""Tek şehirde rahat tatil"",""Üç şehir gezmek"",""Doğa kaçamağı"",""Deniz tatili""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerin iki hafta tatil için hangisini seçer İlk aklına gelen seçenek hangisi olur?,prediction,"[""Tek şehirde rahat tatil"",""Üç şehir gezmek"",""Doğa kaçamağı"",""Deniz tatili""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerin iki hafta tatil için hangisini seçer Bütçeyi düşünmeden seçse hangisini ister?,prediction,"[""Tek şehirde rahat tatil"",""Üç şehir gezmek"",""Doğa kaçamağı"",""Deniz tatili""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerin iki hafta tatil için hangisini seçer Tamamen spontane karar verse hangisini seçer?,prediction,"[""Tek şehirde rahat tatil"",""Üç şehir gezmek"",""Doğa kaçamağı"",""Deniz tatili""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerin iki hafta tatil için hangisini seçer Bir arkadaşına önerse hangisini seçer?,prediction,"[""Tek şehirde rahat tatil"",""Üç şehir gezmek"",""Doğa kaçamağı"",""Deniz tatili""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerin iki hafta tatil için hangisini seçer Birlikte yapacağınız plan için hangisini seçer?,prediction,"[""Tek şehirde rahat tatil"",""Üç şehir gezmek"",""Doğa kaçamağı"",""Deniz tatili""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerin iki hafta tatil için hangisini seçer En rahat hissedeceği seçenek hangisi?,prediction,"[""Tek şehirde rahat tatil"",""Üç şehir gezmek"",""Doğa kaçamağı"",""Deniz tatili""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerin iki hafta tatil için hangisini seçer En çok heyecanlandıracak seçenek hangisi?,prediction,"[""Tek şehirde rahat tatil"",""Üç şehir gezmek"",""Doğa kaçamağı"",""Deniz tatili""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerin beklenmedik bir para bulsa ilk ne yapar Bugün seçim yapmak zorunda olsa hangisini seçer?,prediction,"[""Biriktirir"",""Seyahate harcar"",""Bir ihtiyacını alır"",""Deneyime yatırır""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerin beklenmedik bir para bulsa ilk ne yapar Hiç düşünmeden seçse hangisine gider?,prediction,"[""Biriktirir"",""Seyahate harcar"",""Bir ihtiyacını alır"",""Deneyime yatırır""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerin beklenmedik bir para bulsa ilk ne yapar Uzun vadede hangisini tercih eder?,prediction,"[""Biriktirir"",""Seyahate harcar"",""Bir ihtiyacını alır"",""Deneyime yatırır""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerin beklenmedik bir para bulsa ilk ne yapar İlk aklına gelen seçenek hangisi olur?,prediction,"[""Biriktirir"",""Seyahate harcar"",""Bir ihtiyacını alır"",""Deneyime yatırır""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerin beklenmedik bir para bulsa ilk ne yapar Bütçeyi düşünmeden seçse hangisini ister?,prediction,"[""Biriktirir"",""Seyahate harcar"",""Bir ihtiyacını alır"",""Deneyime yatırır""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerin beklenmedik bir para bulsa ilk ne yapar Tamamen spontane karar verse hangisini seçer?,prediction,"[""Biriktirir"",""Seyahate harcar"",""Bir ihtiyacını alır"",""Deneyime yatırır""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerin beklenmedik bir para bulsa ilk ne yapar Bir arkadaşına önerse hangisini seçer?,prediction,"[""Biriktirir"",""Seyahate harcar"",""Bir ihtiyacını alır"",""Deneyime yatırır""]",medium,true
+most_likely_to,hard_choices,Partneri Tanıma,Partnerin beklenmedik bir para bulsa ilk ne yapar Birlikte yapacağınız plan için hangisini seçer?,prediction,"[""Biriktirir"",""Seyahate harcar"",""Bir ihtiyacını alır"",""Deneyime yatırır""]",medium,true

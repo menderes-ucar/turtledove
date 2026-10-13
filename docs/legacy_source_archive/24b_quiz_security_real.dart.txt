@@ -1,0 +1,698 @@
+// ============================================================================
+// KPSS KOLAY - QUIZ SECURITY - SERVER-SIDE VALIDATION
+// PRODUCTION-READY: correct_option hidden, server validation, no cheating
+// ============================================================================
+
+// ============================================================================
+// LIB/MODELS/QUIZ_MODELS.DART (Updated for Security)
+// ============================================================================
+
+class PublicQuestionModel {
+  // Client NEVER receives correct_option
+  final String id;
+  final String subjectId;
+  final String questionText;
+  final String optionA;
+  final String optionB;
+  final String optionC;
+  final String optionD;
+  final String optionE;
+  final String? imageUrl;
+  final int difficultyLevel;
+
+  PublicQuestionModel({
+    required this.id,
+    required this.subjectId,
+    required this.questionText,
+    required this.optionA,
+    required this.optionB,
+    required this.optionC,
+    required this.optionD,
+    required this.optionE,
+    this.imageUrl,
+    required this.difficultyLevel,
+  });
+
+  factory PublicQuestionModel.fromJson(Map<String, dynamic> json) {
+    return PublicQuestionModel(
+      id: json['id'] as String,
+      subjectId: json['subject_id'] as String,
+      questionText: json['question_text'] as String,
+      optionA: json['option_a'] as String,
+      optionB: json['option_b'] as String,
+      optionC: json['option_c'] as String,
+      optionD: json['option_d'] as String,
+      optionE: json['option_e'] as String,
+      imageUrl: json['image_url'] as String?,
+      difficultyLevel: _parseInt(json['difficulty_level']),
+    );
+  }
+
+  static int _parseInt(dynamic value) {
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+}
+
+class SubmitAnswerPayload {
+  final String quizSessionId;
+  final String questionId;
+  final String selectedOption;
+
+  SubmitAnswerPayload({
+    required this.quizSessionId,
+    required this.questionId,
+    required this.selectedOption,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'quiz_session_id': quizSessionId,
+    'question_id': questionId,
+    'selected_option': selectedOption,
+  };
+}
+
+class AnswerResultModel {
+  final String answerId;
+  final bool isCorrect;
+  final String correctOption;
+  final String explanation;
+  final int earnedPoints;
+
+  AnswerResultModel({
+    required this.answerId,
+    required this.isCorrect,
+    required this.correctOption,
+    required this.explanation,
+    required this.earnedPoints,
+  });
+
+  factory AnswerResultModel.fromJson(Map<String, dynamic> json) {
+    return AnswerResultModel(
+      answerId: json['id'] as String,
+      isCorrect: json['is_correct'] as bool,
+      correctOption: json['correct_option'] as String,
+      explanation: json['explanation'] as String? ?? '',
+      earnedPoints: _parseInt(json['earned_points']),
+    );
+  }
+
+  static int _parseInt(dynamic value) {
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+}
+
+class QuizSessionModel {
+  final String id;
+  final String userId;
+  final String subjectId;
+  final int totalQuestions;
+  final int timeLimitSeconds;
+  final bool isTimed;
+  final DateTime startedAt;
+  final List<String> questionIds;
+  final int currentIndex;
+
+  QuizSessionModel({
+    required this.id,
+    required this.userId,
+    required this.subjectId,
+    required this.totalQuestions,
+    required this.timeLimitSeconds,
+    required this.isTimed,
+    required this.startedAt,
+    required this.questionIds,
+    this.currentIndex = 0,
+  });
+
+  factory QuizSessionModel.fromJson(Map<String, dynamic> json) {
+    return QuizSessionModel(
+      id: json['id'] as String,
+      userId: json['user_id'] as String,
+      subjectId: json['subject_id'] as String,
+      totalQuestions: _parseInt(json['total_questions']),
+      timeLimitSeconds: _parseInt(json['time_limit_seconds']),
+      isTimed: json['is_timed'] as bool,
+      startedAt: DateTime.parse(json['started_at'] as String),
+      questionIds: List<String>.from(json['question_ids'] as List? ?? []),
+      currentIndex: _parseInt(json['current_index']),
+    );
+  }
+
+  static int _parseInt(dynamic value) {
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+}
+
+// ============================================================================
+// LIB/REPOSITORIES/QUIZ_REPOSITORY.DART (New - Security-First)
+// ============================================================================
+
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
+
+class QuizRepository {
+  final SupabaseClient _supabase;
+  final String _userId;
+
+  QuizRepository({
+    required SupabaseClient supabaseClient,
+    required String userId,
+  })  : _supabase = supabaseClient,
+        _userId = userId;
+
+  // =========================================================================
+  // START QUIZ SESSION (Server-managed)
+  // =========================================================================
+
+  Future<QuizSessionModel> startQuizSession({
+    required String subjectId,
+    required int questionCount,
+    required bool isTimed,
+    required int timeLimitMinutes,
+  }) async {
+    try {
+      final response = await _supabase.rpc(
+        'start_quiz_session',
+        params: {
+          'p_subject_id': subjectId,
+          'p_question_count': questionCount,
+          'p_is_timed': isTimed,
+          'p_time_limit_minutes': timeLimitMinutes,
+        },
+      ) as Map<String, dynamic>;
+
+      final session = QuizSessionModel.fromJson(response);
+      print('✅ Quiz session started: ${session.id}');
+      return session;
+    } catch (e) {
+      print('❌ Error starting quiz: $e');
+      rethrow;
+    }
+  }
+
+  // =========================================================================
+  // GET QUIZ QUESTION (Without correct_option)
+  // =========================================================================
+
+  Future<PublicQuestionModel> getQuestion(String questionId) async {
+    try {
+      final response = await _supabase
+          .from('questions')
+          .select('''
+            id,
+            subject_id,
+            question_text,
+            option_a,
+            option_b,
+            option_c,
+            option_d,
+            option_e,
+            image_url,
+            difficulty_level
+          ''')
+          .eq('id', questionId)
+          .eq('is_deleted', false)
+          .single();
+
+      return PublicQuestionModel.fromJson(response as Map<String, dynamic>);
+    } catch (e) {
+      print('❌ Error getting question: $e');
+      rethrow;
+    }
+  }
+
+  // =========================================================================
+  // GET ALL QUESTIONS FOR QUIZ (Without correct_option)
+  // =========================================================================
+
+  Future<List<PublicQuestionModel>> getQuestionsForSession(
+    String sessionId,
+  ) async {
+    try {
+      // Get question IDs from session
+      final sessionData = await _supabase
+          .from('quiz_sessions')
+          .select('question_ids')
+          .eq('id', sessionId)
+          .eq('user_id', _userId)
+          .single();
+
+      final questionIds = List<String>.from(sessionData['question_ids'] as List);
+
+      if (questionIds.isEmpty) {
+        return [];
+      }
+
+      // Fetch all questions without correct_option
+      final response = await _supabase
+          .from('questions')
+          .select('''
+            id,
+            subject_id,
+            question_text,
+            option_a,
+            option_b,
+            option_c,
+            option_d,
+            option_e,
+            image_url,
+            difficulty_level
+          ''')
+          .in_('id', questionIds)
+          .eq('is_deleted', false);
+
+      return (response as List)
+          .map((item) => PublicQuestionModel.fromJson(item as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print('❌ Error getting questions: $e');
+      rethrow;
+    }
+  }
+
+  // =========================================================================
+  // SUBMIT ANSWER (Server validates correctness)
+  // =========================================================================
+
+  Future<AnswerResultModel> submitAnswer({
+    required String sessionId,
+    required String questionId,
+    required String selectedOption,
+  }) async {
+    try {
+      // Server validates answer
+      final response = await _supabase.rpc(
+        'submit_quiz_answer',
+        params: {
+          'p_session_id': sessionId,
+          'p_question_id': questionId,
+          'p_selected_option': selectedOption,
+        },
+      ) as Map<String, dynamic>;
+
+      final result = AnswerResultModel.fromJson(response);
+      print('✅ Answer submitted: ${result.isCorrect ? 'correct' : 'incorrect'}');
+      return result;
+    } catch (e) {
+      print('❌ Error submitting answer: $e');
+      rethrow;
+    }
+  }
+
+  // =========================================================================
+  // COMPLETE QUIZ (Transaction-based)
+  // =========================================================================
+
+  Future<Map<String, dynamic>> completeQuiz({
+    required String sessionId,
+    required String subjectId,
+  }) async {
+    try {
+      final response = await _supabase.rpc(
+        'complete_quiz_session',
+        params: {
+          'p_session_id': sessionId,
+          'p_subject_id': subjectId,
+        },
+      ) as Map<String, dynamic>;
+
+      print('✅ Quiz completed: ${response['total_correct']}/${response['total_questions']}');
+      return response;
+    } catch (e) {
+      print('❌ Error completing quiz: $e');
+      rethrow;
+    }
+  }
+
+  // =========================================================================
+  // ABANDON QUIZ
+  // =========================================================================
+
+  Future<void> abandonQuiz(String sessionId) async {
+    try {
+      await _supabase.rpc(
+        'abandon_quiz_session',
+        params: {'p_session_id': sessionId},
+      );
+
+      print('✅ Quiz abandoned: $sessionId');
+    } catch (e) {
+      print('❌ Error abandoning quiz: $e');
+      rethrow;
+    }
+  }
+}
+
+// ============================================================================
+// SUPABASE SQL: QUIZ SECURITY RPC FUNCTIONS
+// ============================================================================
+
+/*
+-- Execute these in Supabase SQL editor
+
+-- 1. Create quiz_sessions table (if not exists)
+CREATE TABLE IF NOT EXISTS quiz_sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  subject_id UUID NOT NULL REFERENCES subjects(id),
+  total_questions INTEGER NOT NULL,
+  time_limit_seconds INTEGER NOT NULL,
+  is_timed BOOLEAN NOT NULL DEFAULT FALSE,
+  started_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  completed_at TIMESTAMP WITH TIME ZONE,
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'completed', 'abandoned')),
+  question_ids UUID[] NOT NULL,
+  current_index INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_quiz_sessions_user_status ON quiz_sessions(user_id, status);
+ALTER TABLE quiz_sessions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own sessions"
+  ON quiz_sessions FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own sessions"
+  ON quiz_sessions FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own sessions"
+  ON quiz_sessions FOR UPDATE
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- 2. Create quiz_answers table (if not exists)
+CREATE TABLE IF NOT EXISTS quiz_answers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id UUID NOT NULL REFERENCES quiz_sessions(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  question_id UUID NOT NULL REFERENCES questions(id),
+  selected_option TEXT NOT NULL,
+  is_correct BOOLEAN NOT NULL,
+  time_taken_seconds INTEGER,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_quiz_answers_session ON quiz_answers(session_id);
+CREATE INDEX idx_quiz_answers_user ON quiz_answers(user_id);
+ALTER TABLE quiz_answers ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own answers"
+  ON quiz_answers FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "System can insert answers"
+  ON quiz_answers FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+-- 3. RPC: Start Quiz Session
+CREATE OR REPLACE FUNCTION start_quiz_session(
+  p_subject_id UUID,
+  p_question_count INTEGER,
+  p_is_timed BOOLEAN,
+  p_time_limit_minutes INTEGER
+)
+RETURNS JSON AS $$
+DECLARE
+  v_session_id UUID;
+  v_question_ids UUID[];
+  v_user_id UUID;
+BEGIN
+  v_user_id := auth.uid();
+  
+  IF v_user_id IS NULL THEN
+    RAISE EXCEPTION 'User not authenticated';
+  END IF;
+
+  -- Select random questions from subject (WITHOUT correct_option in session)
+  SELECT ARRAY_AGG(id)
+  INTO v_question_ids
+  FROM questions
+  WHERE subject_id = p_subject_id
+    AND is_deleted = FALSE
+  ORDER BY RANDOM()
+  LIMIT p_question_count;
+
+  IF v_question_ids IS NULL OR ARRAY_LENGTH(v_question_ids, 1) = 0 THEN
+    RAISE EXCEPTION 'Not enough questions in subject';
+  END IF;
+
+  -- Create session record
+  INSERT INTO quiz_sessions (
+    user_id,
+    subject_id,
+    total_questions,
+    time_limit_seconds,
+    is_timed,
+    question_ids,
+    status
+  ) VALUES (
+    v_user_id,
+    p_subject_id,
+    p_question_count,
+    p_time_limit_minutes * 60,
+    p_is_timed,
+    v_question_ids,
+    'active'
+  )
+  RETURNING id INTO v_session_id;
+
+  RETURN JSON_BUILD_OBJECT(
+    'id', v_session_id,
+    'user_id', v_user_id,
+    'subject_id', p_subject_id,
+    'total_questions', p_question_count,
+    'time_limit_seconds', p_time_limit_minutes * 60,
+    'is_timed', p_is_timed,
+    'started_at', NOW(),
+    'question_ids', v_question_ids,
+    'current_index', 0
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 4. RPC: Submit Answer (Server validates correctness)
+CREATE OR REPLACE FUNCTION submit_quiz_answer(
+  p_session_id UUID,
+  p_question_id UUID,
+  p_selected_option TEXT
+)
+RETURNS JSON AS $$
+DECLARE
+  v_user_id UUID;
+  v_correct_option TEXT;
+  v_is_correct BOOLEAN;
+  v_answer_id UUID;
+  v_explanation TEXT;
+  v_session_record RECORD;
+BEGIN
+  v_user_id := auth.uid();
+  
+  IF v_user_id IS NULL THEN
+    RAISE EXCEPTION 'User not authenticated';
+  END IF;
+
+  -- Get session (verify ownership)
+  SELECT * INTO v_session_record
+  FROM quiz_sessions
+  WHERE id = p_session_id
+    AND user_id = v_user_id
+    AND status = 'active';
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Quiz session not found or inactive';
+  END IF;
+
+  -- Get correct answer from database (client never sees this)
+  SELECT correct_option, explanation
+  INTO v_correct_option, v_explanation
+  FROM questions
+  WHERE id = p_question_id
+    AND is_deleted = FALSE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Question not found';
+  END IF;
+
+  -- SERVER validates correctness (not client)
+  v_is_correct := UPPER(p_selected_option) = UPPER(v_correct_option);
+
+  -- Insert answer record
+  INSERT INTO quiz_answers (
+    session_id,
+    user_id,
+    question_id,
+    selected_option,
+    is_correct
+  ) VALUES (
+    p_session_id,
+    v_user_id,
+    p_question_id,
+    p_selected_option,
+    v_is_correct
+  )
+  RETURNING id INTO v_answer_id;
+
+  -- If wrong, upsert to error_notebook
+  IF NOT v_is_correct THEN
+    INSERT INTO error_notebook (
+      user_id,
+      question_id,
+      subject_id,
+      subject_name,
+      question_text,
+      user_selected_option,
+      correct_option,
+      wrong_count,
+      last_wrong_at,
+      is_resolved
+    ) 
+    SELECT
+      v_user_id,
+      q.id,
+      q.subject_id,
+      s.name,
+      q.question_text,
+      p_selected_option,
+      v_correct_option,
+      1,
+      NOW(),
+      FALSE
+    FROM questions q
+    JOIN subjects s ON q.subject_id = s.id
+    WHERE q.id = p_question_id
+    ON CONFLICT (user_id, question_id) DO UPDATE
+    SET 
+      wrong_count = error_notebook.wrong_count + 1,
+      last_wrong_at = NOW(),
+      updated_at = NOW();
+  END IF;
+
+  RETURN JSON_BUILD_OBJECT(
+    'id', v_answer_id,
+    'is_correct', v_is_correct,
+    'correct_option', v_correct_option,
+    'explanation', v_explanation,
+    'earned_points', CASE WHEN v_is_correct THEN 1 ELSE 0 END
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 5. RPC: Complete Quiz Session (Transaction)
+CREATE OR REPLACE FUNCTION complete_quiz_session(
+  p_session_id UUID,
+  p_subject_id UUID
+)
+RETURNS JSON AS $$
+DECLARE
+  v_user_id UUID;
+  v_total_correct INTEGER;
+  v_total_wrong INTEGER;
+  v_total_blank INTEGER;
+  v_attempt_id UUID;
+  v_session_record RECORD;
+BEGIN
+  v_user_id := auth.uid();
+
+  IF v_user_id IS NULL THEN
+    RAISE EXCEPTION 'User not authenticated';
+  END IF;
+
+  -- Get and verify session
+  SELECT * INTO v_session_record
+  FROM quiz_sessions
+  WHERE id = p_session_id
+    AND user_id = v_user_id
+    AND status = 'active'
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Quiz session not found';
+  END IF;
+
+  -- Calculate stats from quiz_answers
+  SELECT
+    COUNT(CASE WHEN is_correct THEN 1 END),
+    COUNT(CASE WHEN NOT is_correct THEN 1 END),
+    v_session_record.total_questions - COUNT(*)
+  INTO v_total_correct, v_total_wrong, v_total_blank
+  FROM quiz_answers
+  WHERE session_id = p_session_id;
+
+  -- Create user_quiz_attempts record
+  INSERT INTO user_quiz_attempts (
+    user_id,
+    subject_id,
+    session_id,
+    total_questions,
+    correct_count,
+    wrong_count,
+    blank_count,
+    score,
+    status,
+    started_at,
+    completed_at
+  ) VALUES (
+    v_user_id,
+    p_subject_id,
+    p_session_id,
+    v_session_record.total_questions,
+    v_total_correct,
+    v_total_wrong,
+    v_total_blank,
+    ROUND((v_total_correct::NUMERIC / v_session_record.total_questions) * 100, 2),
+    'completed',
+    v_session_record.started_at,
+    NOW()
+  )
+  RETURNING id INTO v_attempt_id;
+
+  -- Update session status
+  UPDATE quiz_sessions
+  SET status = 'completed', completed_at = NOW()
+  WHERE id = p_session_id;
+
+  RETURN JSON_BUILD_OBJECT(
+    'attempt_id', v_attempt_id,
+    'total_questions', v_session_record.total_questions,
+    'total_correct', v_total_correct,
+    'total_wrong', v_total_wrong,
+    'total_blank', v_total_blank,
+    'score', ROUND((v_total_correct::NUMERIC / v_session_record.total_questions) * 100, 2)
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 6. RPC: Abandon Quiz
+CREATE OR REPLACE FUNCTION abandon_quiz_session(
+  p_session_id UUID
+)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE quiz_sessions
+  SET status = 'abandoned'
+  WHERE id = p_session_id
+    AND user_id = auth.uid();
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION start_quiz_session TO authenticated;
+GRANT EXECUTE ON FUNCTION submit_quiz_answer TO authenticated;
+GRANT EXECUTE ON FUNCTION complete_quiz_session TO authenticated;
+GRANT EXECUTE ON FUNCTION abandon_quiz_session TO authenticated;
+*/
+
+// ============================================================================
+// END OF QUIZ SECURITY
+// ============================================================================

@@ -1,0 +1,1525 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:android_pip/android_pip.dart';
+import 'package:provider/provider.dart';
+import 'package:audioplayers/audioplayers.dart';
+
+import '../../localization/app_strings.dart';
+import '../../models/call_signal_model.dart';
+import '../../services/call_service.dart';
+import '../../services/push_notification_service.dart';
+
+/// Production call surface for BESTIE.
+///
+/// Design rules:
+/// - One RTCPeerConnection for the entire call.
+/// - Four permanent media sections are created once: mic, screen-audio,
+///   camera and screen-video.
+/// - After the initial offer/answer, media buttons NEVER renegotiate SDP.
+///   Camera/screen are switched with RTCRtpSender.replaceTrack(), which keeps
+///   the RTP receiver alive and removes the source of offer-glare/transceiver
+///   disposal races.
+/// - Every sender/transceiver lookup is performed from the current native
+///   transceiver list. We do not call setDirection() on cached Android wrappers.
+/// - Signaling carries only call lifecycle, ICE and UI/media-state metadata.
+class CallScreen extends StatefulWidget {
+  final String userId;
+  final String partnerId;
+  final String callId;
+  final bool isCaller;
+  final bool autoAccept;
+
+  const CallScreen({
+    super.key,
+    required this.userId,
+    required this.partnerId,
+    required this.callId,
+    required this.isCaller,
+    this.autoAccept = false,
+  });
+
+  @override
+  State<CallScreen> createState() => _CallScreenState();
+}
+
+class _CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
+  RTCPeerConnection? _peer;
+
+  // Local sources. They intentionally stay alive while a call is active so a
+  // camera can be turned off/on without creating another RTP receiver track.
+  MediaStream? _microphoneStream;
+  MediaStream? _cameraStream;
+  MediaStream? _screenStream;
+
+  // Permanent media sections. Their mids are discovered after negotiation;
+  // the initial creation order is: 0 mic, 1 screen audio, 2 camera, 3 screen.
+  RTCRtpTransceiver? _micTransceiver;
+  RTCRtpTransceiver? _screenAudioTransceiver;
+  RTCRtpTransceiver? _cameraTransceiver;
+  RTCRtpTransceiver? _screenTransceiver;
+
+  final RTCVideoRenderer _localCameraRenderer = RTCVideoRenderer();
+  final RTCVideoRenderer _localScreenRenderer = RTCVideoRenderer();
+  final RTCVideoRenderer _remoteCameraRenderer = RTCVideoRenderer();
+  final RTCVideoRenderer _remoteScreenRenderer = RTCVideoRenderer();
+
+  final AudioPlayer _ringtone = AudioPlayer();
+  StreamSubscription<CallSignal>? _signals;
+  Future<void> _signalQueue = Future<void>.value();
+
+  static const MethodChannel _mediaProjectionChannel =
+      MethodChannel('bestie/media_projection');
+
+  bool _micOn = true;
+  bool _cameraOn = false;
+  bool _screenOn = false;
+  bool _connected = false;
+  bool _starting = true;
+  bool _ending = false;
+  bool _incomingPending = false;
+  bool _pipConfigured = false;
+  bool _cameraBusy = false;
+  bool _screenBusy = false;
+  bool _remoteCamera = false;
+  bool _remoteScreen = false;
+  bool _localCameraExpanded = false;
+  bool _remoteDescriptionSet = false;
+  bool _initialOfferSent = false;
+  bool _autoAcceptStarted = false;
+
+  String _status = 'Connecting…';
+  String? _lastOfferSdp;
+  String? _lastAnswerSdp;
+
+  String? _remoteCameraTrackId;
+  String? _remoteScreenTrackId;
+  String? _remoteCameraStreamId;
+  String? _remoteScreenStreamId;
+
+  final List<RTCIceCandidate> _pendingRemoteCandidates = [];
+  final Map<String, MediaStream> _remoteStreamsByTrackId = {};
+  final Map<String, MediaStream> _remoteStreamsByMid = {};
+  Future<void>? _incomingConnectFuture;
+  int _ringtoneGeneration = 0;
+  bool _ringing = false;
+  bool _ringtoneStopped = true;
+  Offset _localTileOffset = const Offset(12, 88);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    unawaited(_start());
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused &&
+        defaultTargetPlatform == TargetPlatform.android &&
+        _connected &&
+        !_ending &&
+        !_screenBusy) {
+      unawaited(_enterPip());
+    }
+  }
+
+  Future<void> _start() async {
+    try {
+      await _localCameraRenderer.initialize();
+      await _localScreenRenderer.initialize();
+      await _remoteCameraRenderer.initialize();
+      await _remoteScreenRenderer.initialize();
+
+      final calls = context.read<CallService>();
+      _signals = calls.signals.listen((signal) {
+        _signalQueue = _signalQueue.then((_) => _handleSignal(signal));
+      });
+
+      if (!widget.isCaller) {
+        if (!mounted) return;
+        setState(() {
+          _starting = false;
+          _incomingPending = true;
+          _status = AppStrings.of(context).incomingCall;
+        });
+        unawaited(_startRingtone());
+
+        _incomingConnectFuture = calls.connect(
+          userId: widget.userId,
+          partnerId: widget.partnerId,
+          callId: widget.callId,
+        );
+        unawaited(_incomingConnectFuture!);
+        unawaited(
+          context
+              .read<PushNotificationService>()
+              .cancelCallNotification(widget.callId),
+        );
+        unawaited(_configurePip());
+
+        if (widget.autoAccept && !_autoAcceptStarted) {
+          _autoAcceptStarted = true;
+          unawaited(_autoAcceptIncoming());
+        }
+        return;
+      }
+
+      await calls.connect(
+        userId: widget.userId,
+        partnerId: widget.partnerId,
+        callId: widget.callId,
+      );
+      await _configurePip();
+      await _createPeer();
+
+      if (!mounted) return;
+      setState(() {
+        _starting = false;
+        _status = AppStrings.of(context).startCall;
+      });
+    } catch (e) {
+      debugPrint('BESTIE CALL start error: $e');
+      _showMediaError('${AppStrings.of(context).callFailed}: $e');
+      if (mounted) {
+        setState(() {
+          _starting = false;
+          _status = AppStrings.of(context).callFailed;
+        });
+      }
+    }
+  }
+
+  Future<void> _autoAcceptIncoming() async {
+    try {
+      await _incomingConnectFuture;
+      if (mounted && _incomingPending && !_ending) {
+        await _acceptIncomingCall();
+      }
+    } catch (e) {
+      debugPrint('BESTIE CALL auto-accept error: $e');
+    }
+  }
+
+  Future<void> _startRingtone() async {
+    if (defaultTargetPlatform == TargetPlatform.android ||
+        widget.isCaller ||
+        !_incomingPending ||
+        _ending ||
+        _ringing) {
+      return;
+    }
+
+    final generation = ++_ringtoneGeneration;
+    _ringing = true;
+    _ringtoneStopped = false;
+    try {
+      await _ringtone.setReleaseMode(ReleaseMode.loop);
+      await _ringtone.setVolume(1);
+      if (_ringtoneStopped ||
+          !_ringing ||
+          generation != _ringtoneGeneration ||
+          _ending ||
+          !_incomingPending) {
+        return;
+      }
+      unawaited(_ringtone.play(AssetSource('sounds/call_ringtone.wav')));
+    } catch (e) {
+      debugPrint('BESTIE CALL ringtone error: $e');
+    }
+  }
+
+  Future<void> _stopRingtone() async {
+    ++_ringtoneGeneration;
+    _ringing = false;
+    _ringtoneStopped = true;
+    unawaited(_ringtone.stop().catchError((_) {}));
+    unawaited(_ringtone.release().catchError((_) {}));
+  }
+
+  Future<void> _createPeer() async {
+    if (_peer != null) return;
+
+    final turnUrl = dotenv.env['TURN_URL']?.trim() ?? '';
+    final turnUser = dotenv.env['TURN_USERNAME']?.trim() ?? '';
+    final turnCredential = dotenv.env['TURN_CREDENTIAL']?.trim() ?? '';
+
+    final config = <String, dynamic>{
+      'sdpSemantics': 'unified-plan',
+      'bundlePolicy': 'max-bundle',
+      'rtcpMuxPolicy': 'require',
+      'iceServers': [
+        {'urls': 'stun:stun.l.google.com:19302'},
+        if (turnUrl.isNotEmpty)
+          {
+            'urls': turnUrl,
+            'username': turnUser,
+            'credential': turnCredential,
+          },
+      ],
+    };
+
+    final peer = await createPeerConnection(config);
+    _peer = peer;
+
+    try {
+      await Helper.setSpeakerphoneOn(true);
+    } catch (_) {}
+
+    // IMPORTANT: create all media sections before the first offer. This makes
+    // later camera/screen changes RTP-only and avoids SDP churn entirely.
+    _micTransceiver = await peer.addTransceiver(
+      kind: RTCRtpMediaType.RTCRtpMediaTypeAudio,
+      init: RTCRtpTransceiverInit(direction: TransceiverDirection.SendRecv),
+    );
+    _screenAudioTransceiver = await peer.addTransceiver(
+      kind: RTCRtpMediaType.RTCRtpMediaTypeAudio,
+      init: RTCRtpTransceiverInit(direction: TransceiverDirection.SendRecv),
+    );
+    _cameraTransceiver = await peer.addTransceiver(
+      kind: RTCRtpMediaType.RTCRtpMediaTypeVideo,
+      init: RTCRtpTransceiverInit(direction: TransceiverDirection.SendRecv),
+    );
+    _screenTransceiver = await peer.addTransceiver(
+      kind: RTCRtpMediaType.RTCRtpMediaTypeVideo,
+      init: RTCRtpTransceiverInit(direction: TransceiverDirection.SendRecv),
+    );
+
+    debugPrint(
+      'BESTIE CALL MEDIA PLAN mic=${_micTransceiver?.mid} '
+      'screenAudio=${_screenAudioTransceiver?.mid} '
+      'camera=${_cameraTransceiver?.mid} screen=${_screenTransceiver?.mid}',
+    );
+
+    peer.onIceCandidate = (candidate) async {
+      if (candidate.candidate == null || _ending) return;
+      try {
+        await context.read<CallService>().send(
+          type: 'ice',
+          callId: widget.callId,
+          data: {
+            'candidate': candidate.candidate,
+            'sdpMid': candidate.sdpMid,
+            'sdpMLineIndex': candidate.sdpMLineIndex,
+          },
+        );
+      } catch (e) {
+        debugPrint('BESTIE CALL ICE send error: $e');
+      }
+    };
+
+    peer.onTrack = (event) {
+      unawaited(_attachRemoteTrack(event));
+    };
+
+    peer.onAddTrack = (stream, track) {
+      if (track.kind == 'video') {
+        unawaited(_attachRemoteVideo(track, stream));
+      }
+    };
+
+    peer.onAddStream = (stream) {
+      for (final track in stream.getVideoTracks()) {
+        unawaited(_attachRemoteVideo(track, stream));
+      }
+    };
+
+    peer.onConnectionState = (state) {
+      if (!mounted) return;
+      final connected =
+          state == RTCPeerConnectionState.RTCPeerConnectionStateConnected;
+      setState(() {
+        _connected = connected;
+        _status = connected
+            ? AppStrings.of(context).connectedCall
+            : _stateText(state);
+      });
+    };
+
+    peer.onIceConnectionState = (state) {
+      debugPrint('BESTIE CALL ICE state=$state');
+    };
+
+    // The microphone is established before the first offer on the caller and
+    // before accept on the receiver. Camera/screen remain off by default.
+    await _ensureMicrophone();
+  }
+
+  Future<void> _ensureMicrophone() async {
+    if (_microphoneStream != null || _micTransceiver == null) return;
+
+    final stream = await navigator.mediaDevices.getUserMedia({
+      'audio': {
+        'echoCancellation': true,
+        'noiseSuppression': true,
+        'autoGainControl': true,
+      },
+      'video': false,
+    });
+
+    final track = stream.getAudioTracks().firstOrNull;
+    if (track == null) {
+      await stream.dispose();
+      throw StateError('No microphone track was returned.');
+    }
+
+    track.enabled = _micOn;
+    _microphoneStream = stream;
+    await _replaceTrack(_micTransceiver, track);
+    await _setStreams(_micTransceiver, stream);
+  }
+
+  Future<void> _refreshTransceivers() async {
+    final peer = _peer;
+    if (peer == null) return;
+
+    try {
+      final list = await peer.getTransceivers();
+      for (final transceiver in list) {
+        switch (transceiver.mid) {
+          case '0':
+            _micTransceiver = transceiver;
+            break;
+          case '1':
+            _screenAudioTransceiver = transceiver;
+            break;
+          case '2':
+            _cameraTransceiver = transceiver;
+            break;
+          case '3':
+            _screenTransceiver = transceiver;
+            break;
+        }
+      }
+      debugPrint(
+        'BESTIE CALL FRESH MEDIA mic=${_micTransceiver?.mid} '
+        'screenAudio=${_screenAudioTransceiver?.mid} '
+        'camera=${_cameraTransceiver?.mid} screen=${_screenTransceiver?.mid}',
+      );
+    } catch (e) {
+      debugPrint('BESTIE CALL refresh transceivers failed: $e');
+    }
+  }
+
+  Future<void> _replaceTrack(
+    RTCRtpTransceiver? transceiver,
+    MediaStreamTrack? track,
+  ) async {
+    if (transceiver == null) {
+      throw StateError('Required RTP transceiver is unavailable.');
+    }
+    // replaceTrack() does not require SDP renegotiation for these pre-created
+    // sendrecv sections. Never call setDirection here.
+    await transceiver.sender.replaceTrack(track);
+  }
+
+  Future<void> _setStreams(
+    RTCRtpTransceiver? transceiver,
+    MediaStream stream,
+  ) async {
+    if (transceiver == null) return;
+    try {
+      await transceiver.sender.setStreams([stream]);
+    } catch (e) {
+      // setStreams is metadata; failure must never break the media path.
+      debugPrint('BESTIE CALL setStreams skipped: $e');
+    }
+  }
+
+  Future<void> _setVideoParameters(
+    RTCRtpTransceiver? transceiver, {
+    required bool screen,
+  }) async {
+    if (transceiver == null) return;
+    try {
+      final params = transceiver.sender.parameters;
+      final encodings = params.encodings;
+      final maxBitrate = screen ? 3_500_000 : 1_800_000;
+      final minBitrate = screen ? 350_000 : 200_000;
+      final maxFramerate = screen ? 20 : 30;
+
+      if (encodings == null || encodings.isEmpty) {
+        params.encodings = [
+          RTCRtpEncoding(
+            active: true,
+            maxBitrate: maxBitrate,
+            minBitrate: minBitrate,
+            maxFramerate: maxFramerate,
+            scaleResolutionDownBy: 1.0,
+            priority: RTCPriorityType.high,
+            networkPriority: RTCPriorityType.high,
+          ),
+        ];
+      } else {
+        for (final encoding in encodings) {
+          encoding.active = true;
+          encoding.maxBitrate = maxBitrate;
+          encoding.minBitrate = minBitrate;
+          encoding.maxFramerate = maxFramerate;
+          encoding.scaleResolutionDownBy = 1.0;
+          encoding.priority = RTCPriorityType.high;
+          encoding.networkPriority = RTCPriorityType.high;
+        }
+      }
+      params.degradationPreference = screen
+          ? RTCDegradationPreference.MAINTAIN_FRAMERATE
+          : RTCDegradationPreference.BALANCED;
+      await transceiver.sender.setParameters(params);
+    } catch (e) {
+      debugPrint('BESTIE CALL video parameter tuning skipped: $e');
+    }
+  }
+
+  Future<void> _makeInitialOffer() async {
+    final peer = _peer;
+    if (peer == null || _initialOfferSent || _ending) return;
+
+    _initialOfferSent = true;
+    try {
+      final state = await peer.getSignalingState();
+      if (state != RTCSignalingState.RTCSignalingStateStable) {
+        _initialOfferSent = false;
+        return;
+      }
+
+      final offer = await peer.createOffer({
+        'offerToReceiveAudio': true,
+        'offerToReceiveVideo': true,
+      });
+      await peer.setLocalDescription(offer);
+
+      // setLocalDescription can recreate Android-side wrappers. Re-read them
+      // exactly once after the initial SDP is applied. There is no SDP churn
+      // after this point.
+      await _refreshTransceivers();
+
+      await context.read<CallService>().send(
+        type: 'offer',
+        callId: widget.callId,
+        data: {
+          'sdp': offer.sdp,
+          'type': offer.type,
+          'camera': _cameraOn,
+          'screen': _screenOn,
+          'cameraTrackId': _cameraStream?.getVideoTracks().firstOrNull?.id,
+          'screenTrackId': _screenStream?.getVideoTracks().firstOrNull?.id,
+        },
+      );
+    } catch (e) {
+      _initialOfferSent = false;
+      rethrow;
+    }
+  }
+
+  Future<void> _acceptIncomingCall() async {
+    if (widget.isCaller || !_incomingPending || _ending) return;
+
+    _incomingPending = false;
+    await _stopRingtone();
+    if (mounted) {
+      setState(() {
+        _starting = true;
+        _status = AppStrings.of(context).connectingCall;
+      });
+    }
+
+    final calls = context.read<CallService>();
+    try {
+      await _incomingConnectFuture;
+      await _createPeer();
+
+      // Build the receiver before telling the caller that it can offer.
+      await Future.wait([
+        calls.acceptCall(widget.callId),
+        calls.send(type: 'accept', callId: widget.callId),
+        context
+            .read<PushNotificationService>()
+            .cancelCallNotification(widget.callId),
+      ]);
+
+      if (mounted) setState(() => _starting = false);
+    } catch (e) {
+      _showMediaError('${AppStrings.of(context).callFailed}: $e');
+    }
+  }
+
+  Future<void> _rejectIncomingCall() async {
+    if (widget.isCaller || _ending) return;
+    _ending = true;
+    _incomingPending = false;
+    await _stopRingtone();
+
+    final calls = context.read<CallService>();
+    try {
+      await _incomingConnectFuture;
+      await Future.wait([
+        calls.rejectCallSession(widget.callId),
+        calls.send(type: 'reject', callId: widget.callId),
+        context
+            .read<PushNotificationService>()
+            .cancelCallNotification(widget.callId),
+      ]);
+    } catch (_) {}
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  Future<void> _handleSignal(CallSignal signal) async {
+    if (_ending || signal.callId != widget.callId) return;
+
+    try {
+      switch (signal.type) {
+        case 'accept':
+          if (widget.isCaller) await _makeInitialOffer();
+          return;
+
+        case 'offer':
+          await _handleOffer(signal);
+          return;
+
+        case 'answer':
+          await _handleAnswer(signal);
+          return;
+
+        case 'ice':
+          await _handleIce(signal);
+          return;
+
+        case 'media_state':
+          _handleRemoteMediaState(signal.data);
+          return;
+
+        case 'hangup':
+        case 'reject':
+          if (mounted) Navigator.of(context).pop();
+          return;
+      }
+    } catch (e) {
+      debugPrint('BESTIE CALL signal ${signal.type} error: $e');
+    }
+  }
+
+  Future<void> _handleOffer(CallSignal signal) async {
+    final peer = _peer;
+    if (peer == null) return;
+
+    final sdp = signal.data['sdp']?.toString();
+    final type = signal.data['type']?.toString();
+    if (sdp == null || type == null || sdp.isEmpty) return;
+    if (_lastOfferSdp == sdp) return;
+
+    final state = await peer.getSignalingState();
+    if (state != RTCSignalingState.RTCSignalingStateStable) {
+      debugPrint('BESTIE CALL stale offer ignored state=$state');
+      return;
+    }
+
+    _lastOfferSdp = sdp;
+    _remoteCamera = signal.data['camera'] == true;
+    _remoteScreen = signal.data['screen'] == true;
+    _remoteCameraTrackId = signal.data['cameraTrackId']?.toString();
+    _remoteScreenTrackId = signal.data['screenTrackId']?.toString();
+
+    if (!_remoteCamera) _remoteCameraRenderer.srcObject = null;
+    if (!_remoteScreen) _remoteScreenRenderer.srcObject = null;
+
+    await peer.setRemoteDescription(RTCSessionDescription(sdp, type));
+    _remoteDescriptionSet = true;
+    await _refreshTransceivers();
+    await _flushPendingCandidates();
+
+    final answer = await peer.createAnswer({
+      'offerToReceiveAudio': true,
+      'offerToReceiveVideo': true,
+    });
+    await peer.setLocalDescription(answer);
+    await _refreshTransceivers();
+
+    await context.read<CallService>().send(
+      type: 'answer',
+      callId: widget.callId,
+      data: {'sdp': answer.sdp, 'type': answer.type},
+    );
+
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _handleAnswer(CallSignal signal) async {
+    final peer = _peer;
+    if (peer == null) return;
+
+    final sdp = signal.data['sdp']?.toString();
+    final type = signal.data['type']?.toString();
+    if (sdp == null || type == null || sdp.isEmpty) return;
+    if (_lastAnswerSdp == sdp) return;
+
+    final state = await peer.getSignalingState();
+    if (state != RTCSignalingState.RTCSignalingStateHaveLocalOffer) {
+      debugPrint('BESTIE CALL stale answer ignored state=$state');
+      return;
+    }
+
+    _lastAnswerSdp = sdp;
+    await peer.setRemoteDescription(RTCSessionDescription(sdp, type));
+    _remoteDescriptionSet = true;
+    await _refreshTransceivers();
+    await _flushPendingCandidates();
+  }
+
+  Future<void> _handleIce(CallSignal signal) async {
+    final peer = _peer;
+    if (peer == null) return;
+
+    final candidateText = signal.data['candidate']?.toString();
+    if (candidateText == null || candidateText.isEmpty) return;
+
+    final rawIndex = signal.data['sdpMLineIndex'];
+    final index = rawIndex is num ? rawIndex.toInt() : null;
+    final candidate = RTCIceCandidate(
+      candidateText,
+      signal.data['sdpMid']?.toString(),
+      index,
+    );
+
+    if (!_remoteDescriptionSet) {
+      _pendingRemoteCandidates.add(candidate);
+      return;
+    }
+
+    try {
+      await peer.addCandidate(candidate);
+    } catch (e) {
+      debugPrint('BESTIE CALL add ICE error: $e');
+    }
+  }
+
+  Future<void> _flushPendingCandidates() async {
+    final peer = _peer;
+    if (peer == null || !_remoteDescriptionSet) return;
+    if (_pendingRemoteCandidates.isEmpty) return;
+
+    final pending = List<RTCIceCandidate>.from(_pendingRemoteCandidates);
+    _pendingRemoteCandidates.clear();
+    for (final candidate in pending) {
+      try {
+        await peer.addCandidate(candidate);
+      } catch (e) {
+        debugPrint('BESTIE CALL pending ICE error: $e');
+      }
+    }
+  }
+
+  Future<void> _attachRemoteTrack(RTCTrackEvent event) async {
+    if (event.track.kind != 'video') return;
+    final stream = event.streams.isNotEmpty
+        ? event.streams.first
+        : await _createRemoteStream(event.track);
+    await _attachRemoteVideo(event.track, stream, mid: event.transceiver?.mid);
+  }
+
+  Future<MediaStream> _createRemoteStream(MediaStreamTrack track) async {
+    final stream = await createLocalMediaStream('bestie-remote-${track.id}');
+    await stream.addTrack(track);
+    return stream;
+  }
+
+  Future<void> _attachRemoteVideo(
+    MediaStreamTrack track,
+    MediaStream stream, {
+    String? mid,
+  }) async {
+    if (track.kind != 'video') return;
+
+    final trackId = track.id;
+    if (trackId == null || trackId.isEmpty) return;
+
+    _remoteStreamsByTrackId[trackId] = stream;
+    if (mid != null && mid.isNotEmpty) {
+      _remoteStreamsByMid[mid] = stream;
+    }
+
+    // Mid is the authoritative classification because it comes from the
+    // negotiated RTP media section. Track IDs are only the fallback.
+    final camera = mid == '2' || trackId == _remoteCameraTrackId;
+    final screen = mid == '3' || trackId == _remoteScreenTrackId;
+
+    debugPrint(
+      'BESTIE CALL REMOTE VIDEO track=$trackId mid=$mid '
+      'camera=$camera screen=$screen stream=${stream.id}',
+    );
+
+    if (camera && !screen) {
+      _remoteCameraRenderer.srcObject = stream;
+      _remoteCamera = true;
+      _remoteCameraTrackId = trackId;
+      _remoteCameraStreamId = stream.id;
+    } else if (screen) {
+      _remoteScreenRenderer.srcObject = stream;
+      _remoteScreen = true;
+      _remoteScreenTrackId = trackId;
+      _remoteScreenStreamId = stream.id;
+    }
+
+    if (mounted) setState(() {});
+  }
+
+  void _handleRemoteMediaState(Map<String, dynamic> data) {
+    _remoteCamera = data['camera'] == true;
+    _remoteScreen = data['screen'] == true;
+    _remoteCameraTrackId = data['cameraTrackId']?.toString();
+    _remoteScreenTrackId = data['screenTrackId']?.toString();
+
+    if (!_remoteCamera) {
+      _remoteCameraRenderer.srcObject = null;
+    }
+    if (!_remoteScreen) {
+      _remoteScreenRenderer.srcObject = null;
+    }
+
+    // Do not renegotiate. The corresponding transceivers already exist in the
+    // initial SDP. This signal is only for immediate UI classification.
+    final cameraId = _remoteCameraTrackId;
+    final screenId = _remoteScreenTrackId;
+    if (cameraId != null) {
+      final stream = _remoteStreamsByTrackId[cameraId];
+      if (stream != null) _remoteCameraRenderer.srcObject = stream;
+    }
+    if (screenId != null) {
+      final stream = _remoteStreamsByTrackId[screenId];
+      if (stream != null) _remoteScreenRenderer.srcObject = stream;
+    }
+
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _sendMediaState() async {
+    try {
+      await context.read<CallService>().send(
+        type: 'media_state',
+        callId: widget.callId,
+        data: {
+          'camera': _cameraOn,
+          'screen': _screenOn,
+          'cameraTrackId': _cameraStream?.getVideoTracks().firstOrNull?.id,
+          'screenTrackId': _screenStream?.getVideoTracks().firstOrNull?.id,
+        },
+      );
+    } catch (e) {
+      debugPrint('BESTIE CALL media state error: $e');
+    }
+  }
+
+  Future<MediaStream> _openCamera() async {
+    try {
+      return await Helper.openCamera({
+        'audio': false,
+        'video': {
+          'facingMode': 'user',
+          'width': {'ideal': 1280, 'max': 1280},
+          'height': {'ideal': 720, 'max': 720},
+          'frameRate': {'ideal': 30, 'max': 30},
+        },
+      });
+    } catch (e) {
+      debugPrint('BESTIE CALL Helper.openCamera fallback: $e');
+      return navigator.mediaDevices.getUserMedia({
+        'audio': false,
+        'video': {
+          'facingMode': 'user',
+          'width': {'ideal': 1280, 'max': 1280},
+          'height': {'ideal': 720, 'max': 720},
+          'frameRate': {'ideal': 30, 'max': 30},
+        },
+      });
+    }
+  }
+
+  Future<void> _toggleMic() async {
+    _micOn = !_micOn;
+    for (final track in _microphoneStream?.getAudioTracks() ?? <MediaStreamTrack>[]) {
+      track.enabled = _micOn;
+    }
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _toggleCamera() async {
+    if (_cameraBusy || _ending || _peer == null) return;
+    _cameraBusy = true;
+    try {
+      await _refreshTransceivers();
+      if (_cameraStream == null) {
+        final stream = await _openCamera();
+        final track = stream.getVideoTracks().firstOrNull;
+        if (track == null) {
+          await stream.dispose();
+          throw StateError('Android returned no camera video track.');
+        }
+        _cameraStream = stream;
+        _localCameraRenderer.srcObject = stream;
+        await _replaceTrack(_cameraTransceiver, track);
+        await _setStreams(_cameraTransceiver, stream);
+        await _setVideoParameters(_cameraTransceiver, screen: false);
+        _cameraOn = true;
+      } else {
+        final track = _cameraStream!.getVideoTracks().firstOrNull;
+        if (track == null) throw StateError('Camera track disappeared.');
+        // Keep the exact same RTP track. This is the critical part that makes
+        // off -> on instantaneous for the remote receiver as well.
+        track.enabled = !track.enabled;
+        _cameraOn = track.enabled;
+      }
+
+      await _sendMediaState();
+      debugPrint(
+        'BESTIE CALL CAMERA state=$_cameraOn '
+        'track=${_cameraStream?.getVideoTracks().firstOrNull?.id} '
+        'mid=${_cameraTransceiver?.mid}',
+      );
+      if (mounted) setState(() {});
+    } catch (e) {
+      debugPrint('BESTIE CALL camera error: $e');
+      _showMediaError('${AppStrings.of(context).cameraOpenFailed}: $e');
+    } finally {
+      _cameraBusy = false;
+    }
+  }
+
+  Future<void> _switchCamera() async {
+    if (!_cameraOn) return;
+    final track = _cameraStream?.getVideoTracks().firstOrNull;
+    if (track == null) return;
+    try {
+      await Helper.switchCamera(track, null, _cameraStream);
+    } catch (e) {
+      _showMediaError('${AppStrings.of(context).cameraSwitchFailed}: $e');
+    }
+  }
+
+  Future<void> _toggleScreen() async {
+    if (_screenBusy || _ending || _peer == null) return;
+    _screenBusy = true;
+    try {
+      if (_screenOn) {
+        await _stopScreenShareInternal();
+        return;
+      }
+
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        final granted = await Helper.requestCapturePermission(fullScreenOnly: true);
+        if (!granted) {
+          _showMediaError('Screen sharing permission was denied.');
+          return;
+        }
+        await _mediaProjectionChannel.invokeMethod('start');
+      }
+
+      final stream = await navigator.mediaDevices.getDisplayMedia({
+        'video': {
+          'width': {'ideal': 1280, 'max': 1280},
+          'height': {'ideal': 720, 'max': 720},
+          'frameRate': {'ideal': 20, 'max': 20},
+        },
+        'audio': true,
+      });
+
+      final videoTrack = stream.getVideoTracks().firstOrNull;
+      if (videoTrack == null) {
+        await stream.dispose();
+        throw StateError('Android returned no screen video track.');
+      }
+
+      _screenStream = stream;
+      _localScreenRenderer.srcObject = stream;
+      await _refreshTransceivers();
+      await _replaceTrack(_screenTransceiver, videoTrack);
+      await _setStreams(_screenTransceiver, stream);
+      await _setVideoParameters(_screenTransceiver, screen: true);
+
+      // A second permanent audio transceiver carries system/playback audio
+      // when the platform capture API actually returns one. The microphone
+      // remains on the first audio transceiver, so voice is not sacrificed.
+      final systemAudioTrack = stream.getAudioTracks().firstOrNull;
+      if (systemAudioTrack != null) {
+        systemAudioTrack.enabled = true;
+        await _replaceTrack(_screenAudioTransceiver, systemAudioTrack);
+        await _setStreams(_screenAudioTransceiver, stream);
+        debugPrint('BESTIE CALL SCREEN AUDIO track=${systemAudioTrack.id}');
+      } else {
+        debugPrint('BESTIE CALL SCREEN AUDIO unavailable on this device/plugin');
+        await _replaceTrack(_screenAudioTransceiver, null);
+      }
+
+      _screenOn = true;
+      await _sendMediaState();
+      debugPrint(
+        'BESTIE CALL SCREEN state=true track=${videoTrack.id} '
+        'mid=${_screenTransceiver?.mid}',
+      );
+      if (mounted) setState(() {});
+    } catch (e) {
+      debugPrint('BESTIE CALL screen error: $e');
+      await _mediaProjectionChannel.invokeMethod('stop').catchError((_) {});
+      _showMediaError('${AppStrings.of(context).screenShareStartFailed}: $e');
+    } finally {
+      _screenBusy = false;
+    }
+  }
+
+  Future<void> _stopScreenShareInternal() async {
+    try {
+      final track = _screenStream?.getVideoTracks().firstOrNull;
+      if (track != null) {
+        try {
+          await track.stop();
+        } catch (_) {}
+      }
+
+      await _refreshTransceivers();
+      await _replaceTrack(_screenTransceiver, null);
+      await _replaceTrack(_screenAudioTransceiver, null);
+
+      await _screenStream?.dispose();
+      _screenStream = null;
+      _localScreenRenderer.srcObject = null;
+      _screenOn = false;
+      await _mediaProjectionChannel.invokeMethod('stop').catchError((_) {});
+      await _sendMediaState();
+      if (mounted) setState(() {});
+    } catch (e) {
+      debugPrint('BESTIE CALL stop screen error: $e');
+    }
+  }
+
+  Future<void> _configurePip() async {
+    if (defaultTargetPlatform != TargetPlatform.android || _pipConfigured) return;
+    try {
+      if (await AndroidPIP.isPipAvailable) {
+        await AndroidPIP().setAutoPipMode(
+          aspectRatio: const [16, 9],
+          seamlessResize: true,
+        );
+        _pipConfigured = true;
+      }
+    } catch (e) {
+      debugPrint('BESTIE CALL PiP setup skipped: $e');
+    }
+  }
+
+  Future<void> _enterPip() async {
+    if (defaultTargetPlatform != TargetPlatform.android || _ending) return;
+    try {
+      if (await AndroidPIP.isPipAvailable) {
+        await AndroidPIP().enterPipMode(
+          aspectRatio: const [16, 9],
+          seamlessResize: true,
+        );
+      }
+    } catch (e) {
+      debugPrint('BESTIE CALL PiP error: $e');
+    }
+  }
+
+  Future<void> _hangup() async {
+    if (_ending) return;
+    _ending = true;
+    await _stopRingtone();
+    await _mediaProjectionChannel.invokeMethod('stop').catchError((_) {});
+
+    final calls = context.read<CallService>();
+    try {
+      await calls.endCallSession(widget.callId);
+    } catch (_) {}
+    unawaited(calls.sendCallEndNotification(widget.callId));
+    try {
+      await calls.send(type: 'hangup', callId: widget.callId);
+    } catch (_) {}
+
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  void _showMediaError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  String _stateText(RTCPeerConnectionState state) {
+    switch (state) {
+      case RTCPeerConnectionState.RTCPeerConnectionStateNew:
+        return AppStrings.of(context).preparingCall;
+      case RTCPeerConnectionState.RTCPeerConnectionStateConnecting:
+        return AppStrings.of(context).connectingCall;
+      case RTCPeerConnectionState.RTCPeerConnectionStateConnected:
+        return AppStrings.of(context).connectedCall;
+      case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
+        return AppStrings.of(context).connectionLost;
+      case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
+        return AppStrings.of(context).connectionFailed;
+      case RTCPeerConnectionState.RTCPeerConnectionStateClosed:
+        return AppStrings.of(context).callClosed;
+    }
+  }
+
+  void _dragLocalTile(DragUpdateDetails details, Size size) {
+    const tileWidth = 118.0;
+    const tileHeight = 166.0;
+    final maxX = (size.width - tileWidth - 12).clamp(12.0, double.infinity);
+    final maxY = (size.height - tileHeight - 116).clamp(80.0, double.infinity);
+    final next = _localTileOffset + details.delta;
+    setState(() {
+      _localTileOffset = Offset(
+        next.dx.clamp(12.0, maxX),
+        next.dy.clamp(80.0, maxY),
+      );
+    });
+  }
+
+  Widget _localCameraTile(Size size) {
+    if (!_cameraOn || _localCameraRenderer.srcObject == null) {
+      return const SizedBox.shrink();
+    }
+
+    final width = _localCameraExpanded ? 180.0 : 118.0;
+    final height = _localCameraExpanded ? 255.0 : 166.0;
+    final maxX = (size.width - width - 12).clamp(12.0, double.infinity);
+    final maxY = (size.height - height - 116).clamp(80.0, double.infinity);
+    final left = _localTileOffset.dx.clamp(12.0, maxX);
+    final top = _localTileOffset.dy.clamp(80.0, maxY);
+
+    return Positioned(
+      left: left,
+      top: top,
+      child: GestureDetector(
+        onTap: () => setState(() => _localCameraExpanded = !_localCameraExpanded),
+        onPanUpdate: (d) => _dragLocalTile(d, size),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: Colors.white30),
+            boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 18)],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              RTCVideoView(
+                _localCameraRenderer,
+                mirror: true,
+                objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+              ),
+              Positioned(
+                right: 7,
+                bottom: 7,
+                child: Material(
+                  color: Colors.black87,
+                  shape: const CircleBorder(),
+                  child: InkWell(
+                    onTap: _switchCamera,
+                    customBorder: const CircleBorder(),
+                    child: const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Icon(Icons.flip_camera_ios_rounded, color: Colors.white, size: 18),
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 7,
+                bottom: 7,
+                child: _label(AppStrings.of(context).you),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _remoteCameraOverlay({required bool onScreenShare}) {
+    if (!_remoteCamera || _remoteCameraRenderer.srcObject == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Positioned(
+      top: onScreenShare ? 18 : 78,
+      right: 14,
+      child: SizedBox(
+        width: 118,
+        height: 166,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(18),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              RTCVideoView(
+                _remoteCameraRenderer,
+                objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+              ),
+              Positioned(left: 7, bottom: 7, child: _label(AppStrings.of(context).partner)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _label(String text) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.black54,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+        child: Text(
+          text,
+          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),
+        ),
+      ),
+    );
+  }
+
+  Widget _screenLocalOverlay() {
+    if (!_screenOn || _localScreenRenderer.srcObject == null) {
+      return const SizedBox.shrink();
+    }
+    return Positioned(
+      top: 18,
+      left: 14,
+      child: SizedBox(
+        width: 118,
+        height: 166,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(18),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              RTCVideoView(
+                _localScreenRenderer,
+                objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitContain,
+              ),
+              Positioned(left: 7, bottom: 7, child: _label(AppStrings.of(context).you)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _controls() {
+    return Positioned(
+      left: 14,
+      right: 14,
+      bottom: 14,
+      child: SafeArea(
+        top: false,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: .76),
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _CallButton(
+                  icon: _micOn ? Icons.mic : Icons.mic_off,
+                  active: _micOn,
+                  onTap: _toggleMic,
+                ),
+                const SizedBox(width: 10),
+                _CallButton(
+                  icon: _cameraOn ? Icons.videocam : Icons.videocam_off,
+                  active: _cameraOn,
+                  onTap: _toggleCamera,
+                ),
+                const SizedBox(width: 10),
+                _CallButton(
+                  icon: _screenOn ? Icons.stop_screen_share : Icons.screen_share,
+                  active: _screenOn,
+                  onTap: _toggleScreen,
+                ),
+                const SizedBox(width: 10),
+                _CallButton(
+                  icon: Icons.call_end,
+                  active: false,
+                  danger: true,
+                  onTap: _hangup,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _incomingOverlay() {
+    if (!_incomingPending || widget.autoAccept) return const SizedBox.shrink();
+
+    return Positioned.fill(
+      child: ColoredBox(
+        color: Colors.black.withValues(alpha: .92),
+        child: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(28),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircleAvatar(
+                    radius: 56,
+                    child: Icon(Icons.person, size: 56),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    AppStrings.of(context).incomingCall,
+                    style: const TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    AppStrings.of(context).acceptToStartCall,
+                    style: const TextStyle(color: Colors.white70, fontSize: 15),
+                  ),
+                  const SizedBox(height: 34),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _IncomingCallAction(
+                        icon: Icons.call_end,
+                        label: AppStrings.of(context).decline,
+                        color: Colors.red,
+                        onTap: _rejectIncomingCall,
+                      ),
+                      const SizedBox(width: 44),
+                      _IncomingCallAction(
+                        icon: Icons.call,
+                        label: AppStrings.of(context).accept,
+                        color: Colors.green,
+                        onTap: _acceptIncomingCall,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final showRemoteScreen = _remoteScreen && _remoteScreenRenderer.srcObject != null;
+    final showLocalScreen = !showRemoteScreen && _screenOn && _localScreenRenderer.srcObject != null;
+    final showScreen = showRemoteScreen || showLocalScreen;
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && !_ending) unawaited(_enterPip());
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: SafeArea(
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Main media surface: remote screen > local screen preview >
+              // remote camera > voice placeholder.
+              if (showRemoteScreen)
+                RTCVideoView(
+                  _remoteScreenRenderer,
+                  objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitContain,
+                )
+              else if (showLocalScreen)
+                RTCVideoView(
+                  _localScreenRenderer,
+                  objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitContain,
+                )
+              else if (_remoteCamera && _remoteCameraRenderer.srcObject != null)
+                RTCVideoView(
+                  _remoteCameraRenderer,
+                  objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                )
+              else
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const CircleAvatar(
+                        radius: 42,
+                        child: Icon(Icons.favorite, size: 42),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _connected ? AppStrings.of(context).voiceCall : _status,
+                        style: const TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                    ],
+                  ),
+                ),
+
+              // During screen share the shared screen is the only main view;
+              // each participant camera appears only once as a small overlay.
+              if (showScreen) _screenLocalOverlay(),
+              _remoteCameraOverlay(onScreenShare: showScreen),
+              if (!showScreen) _localCameraTile(size),
+
+              Positioned(
+                top: 10,
+                left: 0,
+                right: 0,
+                child: IgnorePointer(
+                  child: Center(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.black45,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        child: Text(
+                          showRemoteScreen
+                              ? AppStrings.of(context).screenShareActiveRemote
+                              : showLocalScreen
+                                  ? AppStrings.of(context).screenShareActiveLocal
+                                  : _status,
+                          style: const TextStyle(color: Colors.white70, fontSize: 12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              Positioned(
+                top: 10,
+                right: 10,
+                child: Material(
+                  color: Colors.black54,
+                  shape: const CircleBorder(),
+                  child: InkWell(
+                    onTap: _enterPip,
+                    customBorder: const CircleBorder(),
+                    child: const Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Icon(Icons.picture_in_picture_alt, color: Colors.white, size: 20),
+                    ),
+                  ),
+                ),
+              ),
+
+              if (!_incomingPending) _controls(),
+              _incomingOverlay(),
+              if (_starting)
+                const Center(child: CircularProgressIndicator(color: Colors.white)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ending = true;
+    WidgetsBinding.instance.removeObserver(this);
+    _signals?.cancel();
+    _ringtone.dispose();
+    _mediaProjectionChannel.invokeMethod('stop').catchError((_) {});
+    _peer?.close();
+    _microphoneStream?.dispose();
+    _cameraStream?.dispose();
+    _screenStream?.dispose();
+    _localCameraRenderer.dispose();
+    _localScreenRenderer.dispose();
+    _remoteCameraRenderer.dispose();
+    _remoteScreenRenderer.dispose();
+    _remoteStreamsByTrackId.clear();
+    _remoteStreamsByMid.clear();
+    super.dispose();
+  }
+}
+
+class _IncomingCallAction extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _IncomingCallAction({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Material(
+          color: color,
+          shape: const CircleBorder(),
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Icon(icon, color: Colors.white, size: 30),
+            ),
+          ),
+        ),
+        const SizedBox(height: 9),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+        ),
+      ],
+    );
+  }
+}
+
+class _CallButton extends StatelessWidget {
+  final IconData icon;
+  final bool active;
+  final bool danger;
+  final VoidCallback onTap;
+
+  const _CallButton({
+    required this.icon,
+    required this.active,
+    required this.onTap,
+    this.danger = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: danger ? Colors.red : (active ? Colors.white24 : Colors.white12),
+      shape: const CircleBorder(),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Icon(icon, color: Colors.white),
+        ),
+      ),
+    );
+  }
+}
+
+extension<T> on List<T> {
+  T? get firstOrNull => isEmpty ? null : first;
+}

@@ -1,0 +1,578 @@
+// ============================================================================
+// KPSS MOBIL UYGULAMASI - MAIN.DART
+// Production-Ready: Supabase, Firebase, MultiProvider, Tema, Rotalar
+// ============================================================================
+
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:go_router/go_router.dart';
+
+// Import services
+// import './services/notification_service.dart';
+
+// Import providers
+// import './providers/quiz_provider.dart';
+// import './providers/notes_and_audio_provider.dart';
+// import './providers/study_plan_provider.dart';
+
+// Import screens
+// import './screens/quiz_screen.dart';
+// import './screens/error_notebook_screen.dart';
+// import './screens/notes_screen.dart';
+// import './screens/home_screen.dart';
+// import './screens/settings_screen.dart';
+
+// ============================================================================
+// FIREBASE CONFIGURATION
+// ============================================================================
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print('Handling a background message: ${message.messageId}');
+}
+
+// ============================================================================
+// MAIN FUNCTION
+// ============================================================================
+
+Future<void> main() async {
+  // Flutter Binding
+  WidgetsFlutterBinding.ensureInitialized();
+
+  try {
+    // Supabase İnitialize
+    await Supabase.initialize(
+      url: const String.fromEnvironment('SUPABASE_URL'),
+      anonKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
+    );
+
+    // Firebase İnitialize
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: String.fromEnvironment('FIREBASE_API_KEY'),
+        appId: String.fromEnvironment('FIREBASE_APP_ID'),
+        messagingSenderId: String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID'),
+        projectId: String.fromEnvironment('FIREBASE_PROJECT_ID'),
+        storageBucket: String.fromEnvironment('FIREBASE_STORAGE_BUCKET'),
+      ),
+    );
+
+    // Background Message Handler
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+    print('✅ Supabase ve Firebase başarıyla initialize edildi');
+  } catch (e) {
+    print('❌ İnitialization Hatası: $e');
+    rethrow;
+  }
+
+  runApp(const KpssApp());
+}
+
+// ============================================================================
+// MAIN APP WIDGET
+// ============================================================================
+
+class KpssApp extends StatefulWidget {
+  const KpssApp({Key? key}) : super(key: key);
+
+  @override
+  State<KpssApp> createState() => _KpssAppState();
+}
+
+class _KpssAppState extends State<KpssApp> {
+  late final GoRouter _router;
+  final GlobalKey<NavigatorState> _rootNavigatorKey =
+      GlobalKey<NavigatorState>();
+  late NotificationService _notificationService;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeNotifications();
+    _setupRouter();
+  }
+
+  void _initializeNotifications() {
+    _notificationService = NotificationService();
+    
+    // Get current user
+    final supabaseClient = Supabase.instance.client;
+    final userId = supabaseClient.auth.currentUser?.id;
+
+    if (userId != null) {
+      _notificationService.initialize(
+        supabaseClient: supabaseClient,
+        userId: userId,
+        onNotificationHandler: _handleNotificationNavigation,
+      );
+    }
+  }
+
+  void _handleNotificationNavigation(String? route) {
+    if (route != null) {
+      _rootNavigatorKey.currentState?.pushNamed(route);
+    }
+  }
+
+  void _setupRouter() {
+    _router = GoRouter(
+      navigatorKey: _rootNavigatorKey,
+      initialLocation: '/',
+      routes: [
+        // Ana Sayfa
+        GoRoute(
+          path: '/',
+          name: 'home',
+          builder: (context, state) => const HomeScreen(),
+          routes: [
+            // Quiz Ekranı
+            GoRoute(
+              path: 'quiz/:subjectId',
+              name: 'quiz',
+              builder: (context, state) {
+                final subjectId = state.pathParameters['subjectId']!;
+                final fromErrorNotebook =
+                    state.queryParameters['fromErrorNotebook'] == 'true';
+                return QuizScreen(
+                  subjectId: subjectId,
+                  fromErrorNotebook: fromErrorNotebook,
+                );
+              },
+            ),
+            // Yanlış Defteri
+            GoRoute(
+              path: 'error-notebook',
+              name: 'error_notebook',
+              builder: (context, state) => const ErrorNotebookScreen(),
+            ),
+            // Notlar
+            GoRoute(
+              path: 'notes',
+              name: 'notes',
+              builder: (context, state) {
+                final subjectId = state.queryParameters['subjectId'];
+                return NotesScreen(initialSubjectId: subjectId);
+              },
+            ),
+            // Çalışma Planı (Opsiyonel)
+            GoRoute(
+              path: 'study-plan',
+              name: 'study_plan',
+              builder: (context, state) => const StudyPlanScreen(),
+            ),
+            // Ayarlar (Opsiyonel)
+            GoRoute(
+              path: 'settings',
+              name: 'settings',
+              builder: (context, state) => const SettingsScreen(),
+            ),
+          ],
+        ),
+        // Login (Redirect'lere ihtiyaç varsa)
+        GoRoute(
+          path: '/login',
+          name: 'login',
+          builder: (context, state) => const LoginScreen(),
+        ),
+        // Signup (Opsiyonel)
+        GoRoute(
+          path: '/signup',
+          name: 'signup',
+          builder: (context, state) => const SignupScreen(),
+        ),
+      ],
+      errorBuilder: (context, state) => ErrorScreen(error: state.error),
+      redirect: (context, state) {
+        // Auth redirect logic
+        final isLoggedIn = Supabase.instance.client.auth.currentUser != null;
+        final isLoggingIn = state.matchedLocation == '/login' ||
+            state.matchedLocation == '/signup';
+
+        if (!isLoggedIn && !isLoggingIn) {
+          return '/login';
+        }
+
+        if (isLoggedIn && isLoggingIn) {
+          return '/';
+        }
+
+        return null;
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: _buildProviders(),
+      child: MaterialApp.router(
+        title: 'KPSS Kolay',
+        routerConfig: _router,
+        theme: _buildLightTheme(),
+        darkTheme: _buildDarkTheme(),
+        themeMode: ThemeMode.light,
+        debugShowCheckedModeBanner: false,
+        localizationsDelegates: const [],
+        supportedLocales: const [Locale('tr', 'TR')],
+      ),
+    );
+  }
+
+  // =========================================================================
+  // PROVIDERS SETUP
+  // =========================================================================
+
+  List<ChangeNotifierProvider> _buildProviders() {
+    final supabaseClient = Supabase.instance.client;
+    final userId = supabaseClient.auth.currentUser?.id ?? '';
+
+    return [
+      // Quiz Provider
+      ChangeNotifierProvider(
+        create: (_) => QuizProvider(
+          supabaseClient: supabaseClient,
+          userId: userId,
+        ),
+      ),
+      // Notes and Audio Provider
+      ChangeNotifierProvider(
+        create: (_) => NotesAndAudioProvider(
+          supabaseClient: supabaseClient,
+          userId: userId,
+        ),
+      ),
+      // Study Plan Provider
+      ChangeNotifierProvider(
+        create: (_) => StudyPlanProvider(
+          supabaseClient: supabaseClient,
+          userId: userId,
+        ),
+      ),
+    ];
+  }
+
+  // =========================================================================
+  // THEME SETUP
+  // =========================================================================
+
+  ThemeData _buildLightTheme() {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color(0xFF4F46E5),
+        brightness: Brightness.light,
+      ),
+      // Tipografi
+      fontFamily: 'Poppins',
+      textTheme: const TextTheme(
+        displayLarge: TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Poppins',
+        ),
+        displayMedium: TextStyle(
+          fontSize: 28,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Poppins',
+        ),
+        displaySmall: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Poppins',
+        ),
+        headlineMedium: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          fontFamily: 'Poppins',
+        ),
+        headlineSmall: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          fontFamily: 'Poppins',
+        ),
+        titleLarge: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          fontFamily: 'Poppins',
+        ),
+        titleMedium: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          fontFamily: 'Poppins',
+        ),
+        titleSmall: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          fontFamily: 'Poppins',
+        ),
+        bodyLarge: TextStyle(
+          fontSize: 16,
+          fontFamily: 'Poppins',
+        ),
+        bodyMedium: TextStyle(
+          fontSize: 14,
+          fontFamily: 'Poppins',
+        ),
+        bodySmall: TextStyle(
+          fontSize: 12,
+          fontFamily: 'Poppins',
+        ),
+        labelLarge: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          fontFamily: 'Poppins',
+        ),
+      ),
+      // AppBar
+      appBarTheme: const AppBarTheme(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+          fontFamily: 'Poppins',
+        ),
+      ),
+      // ElevatedButton
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF4F46E5),
+          foregroundColor: Colors.white,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          textStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            fontFamily: 'Poppins',
+          ),
+        ),
+      ),
+      // OutlinedButton
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: const Color(0xFF4F46E5),
+          side: const BorderSide(color: Color(0xFF4F46E5)),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          textStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            fontFamily: 'Poppins',
+          ),
+        ),
+      ),
+      // TextField
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.grey[100],
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.grey[300]!),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.grey[300]!),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(
+            color: Color(0xFF4F46E5),
+            width: 2,
+          ),
+        ),
+        labelStyle: const TextStyle(
+          fontFamily: 'Poppins',
+          fontWeight: FontWeight.w500,
+        ),
+        hintStyle: TextStyle(
+          fontFamily: 'Poppins',
+          color: Colors.grey[600],
+        ),
+      ),
+      // Card
+      cardTheme: CardTheme(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      // Dialog
+      dialogTheme: DialogTheme(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+      // TabBar
+      tabBarTheme: TabBarTheme(
+        indicatorSize: TabBarIndicatorSize.tab,
+        labelColor: const Color(0xFF4F46E5),
+        unselectedLabelColor: Colors.grey[600],
+        indicator: const UnderlineTabIndicator(
+          borderSide: BorderSide(
+            color: Color(0xFF4F46E5),
+            width: 3,
+          ),
+        ),
+        labelStyle: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          fontFamily: 'Poppins',
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          fontFamily: 'Poppins',
+        ),
+      ),
+    );
+  }
+
+  ThemeData _buildDarkTheme() {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color(0xFF6366F1),
+        brightness: Brightness.dark,
+      ),
+      fontFamily: 'Poppins',
+      scaffoldBackgroundColor: const Color(0xFF1F2937),
+      appBarTheme: const AppBarTheme(
+        elevation: 0,
+        backgroundColor: Color(0xFF111827),
+        foregroundColor: Colors.white,
+        centerTitle: true,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _notificationService.dispose();
+    super.dispose();
+  }
+}
+
+// ============================================================================
+// PLACEHOLDER SCREENS (Gerekli olmayan ekranlar)
+// ============================================================================
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('KPSS Kolay')),
+      body: Center(
+        child: Text('HomeScreen - Ana Sayfa'),
+      ),
+    );
+  }
+}
+
+class StudyPlanScreen extends StatelessWidget {
+  const StudyPlanScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Çalışma Planı')),
+      body: Center(
+        child: Text('StudyPlanScreen'),
+      ),
+    );
+  }
+}
+
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Ayarlar')),
+      body: Center(
+        child: Text('SettingsScreen'),
+      ),
+    );
+  }
+}
+
+class LoginScreen extends StatelessWidget {
+  const LoginScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Giriş Yap')),
+      body: Center(
+        child: Text('LoginScreen'),
+      ),
+    );
+  }
+}
+
+class SignupScreen extends StatelessWidget {
+  const SignupScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Kayıt Ol')),
+      body: Center(
+        child: Text('SignupScreen'),
+      ),
+    );
+  }
+}
+
+class ErrorScreen extends StatelessWidget {
+  final Exception? error;
+
+  const ErrorScreen({this.error, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Hata')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const SizedBox(height: 16),
+            const Text('Bir hata oluştu'),
+            const SizedBox(height: 8),
+            if (error != null)
+              Text(
+                error.toString(),
+                textAlign: TextAlign.center,
+              ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => context.go('/'),
+              child: const Text('Ana Sayfaya Dön'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// END OF MAIN.DART
+// ============================================================================

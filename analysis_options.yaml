@@ -1,0 +1,13 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - docs/legacy_source_archive/**
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+
+linter:
+  rules:
+    avoid_print: true

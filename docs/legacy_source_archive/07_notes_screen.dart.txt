@@ -1,0 +1,645 @@
+// ============================================================================
+// KPSS MOBIL UYGULAMASI - NOTES SCREEN & AUDIO PLAYER BAR
+// Production-Ready: Not CRUD, Sesli Dinleme, Sticky Mini Player
+// ============================================================================
+
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:intl/intl.dart' as intl;
+
+// Import providers and models
+// import '../providers/notes_and_audio_provider.dart';
+// import '../models/dart_models.dart';
+
+// ============================================================================
+// NOTES SCREEN
+// ============================================================================
+
+class NotesScreen extends StatefulWidget {
+  final String? initialSubjectId;
+
+  const NotesScreen({
+    this.initialSubjectId,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<NotesScreen> createState() => _NotesScreenState();
+}
+
+class _NotesScreenState extends State<NotesScreen> {
+  String? _selectedSubjectId;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedSubjectId = widget.initialSubjectId;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NotesAndAudioProvider>().loadNotes(
+            subjectId: _selectedSubjectId,
+          );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        title: const Text('Notlarım'),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        actions: [
+          IconButton(
+            onPressed: () => _showAddNoteDialog(context),
+            icon: const Icon(Icons.add),
+            tooltip: 'Yeni Not',
+          ),
+        ],
+      ),
+      body: Consumer<NotesAndAudioProvider>(
+        builder: (context, provider, _) {
+          if (provider.isLoading) {
+            return Center(
+              child: LoadingAnimationWidget.discreteCircle(
+                color: const Color(0xFF4F46E5),
+                size: 50,
+              ),
+            );
+          }
+
+          if (provider.notes.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.note_outlined,
+                    size: 80,
+                    color: Colors.grey[300],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Henüz not eklemediniz',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () => _showAddNoteDialog(context),
+                    icon: const Icon(Icons.add),
+                    label: const Text('İlk Notunu Ekle'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: provider.notes.length,
+            itemBuilder: (context, index) {
+              final note = provider.notes[index];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _NoteCard(
+                  note: note,
+                  onEdit: () => _showEditNoteDialog(context, note),
+                  onDelete: () => _deleteNote(context, provider, note.id),
+                  onSpeak: () => provider.speakNote(note.id),
+                  isSpeaking: provider.isNoteSpeaking(note.id),
+                ),
+              );
+            },
+          );
+        },
+      ),
+      // Sticky Audio Player (aşağıda)
+      bottomNavigationBar: _AudioPlayerBar(),
+    );
+  }
+
+  void _showAddNoteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => _NoteEditDialog(
+        initialNote: null,
+        onSave: (title, content, subjectId) async {
+          final provider = context.read<NotesAndAudioProvider>();
+          await provider.createNote(
+            title: title,
+            content: content,
+            subjectId: subjectId,
+          );
+          if (mounted) {
+            Navigator.of(context).pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Not oluşturuldu')),
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  void _showEditNoteDialog(BuildContext context, NoteModel note) {
+    showDialog(
+      context: context,
+      builder: (context) => _NoteEditDialog(
+        initialNote: note,
+        onSave: (title, content, subjectId) async {
+          final provider = context.read<NotesAndAudioProvider>();
+          await provider.updateNote(
+            note.id,
+            title: title,
+            content: content,
+            subjectId: subjectId,
+          );
+          if (mounted) {
+            Navigator.of(context).pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Not güncellendi')),
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  void _deleteNote(
+    BuildContext context,
+    NotesAndAudioProvider provider,
+    String noteId,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Notu Sil'),
+        content: const Text('Bu not kalıcı olarak silinecektir.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('İptal'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await provider.deleteNote(noteId);
+              if (mounted) {
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Not silindi')),
+                );
+              }
+            },
+            child: const Text('Sil', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// NOTE CARD
+// ============================================================================
+
+class _NoteCard extends StatelessWidget {
+  final NoteModel note;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+  final VoidCallback onSpeak;
+  final bool isSpeaking;
+
+  const _NoteCard({
+    required this.note,
+    required this.onEdit,
+    required this.onDelete,
+    required this.onSpeak,
+    required this.isSpeaking,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey[200]!),
+      ),
+      child: InkWell(
+        onTap: () => _showNoteDetail(context),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Başlık ve Butonlar
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      note.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  PopupMenuButton(
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        child: const Row(
+                          children: [
+                            Icon(Icons.edit, size: 20),
+                            SizedBox(width: 12),
+                            Text('Düzenle'),
+                          ],
+                        ),
+                        onTap: onEdit,
+                      ),
+                      PopupMenuItem(
+                        child: const Row(
+                          children: [
+                            Icon(Icons.delete, size: 20, color: Colors.red),
+                            SizedBox(width: 12),
+                            Text('Sil', style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                        onTap: onDelete,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              // İçerik Önizlemesi
+              Text(
+                note.content,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[700],
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Tarih ve Sesli Okuma Butonu
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    intl.DateFormat('dd.MM.yyyy HH:mm').format(note.updatedAt),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: onSpeak,
+                    icon: Icon(
+                      isSpeaking ? Icons.pause_circle : Icons.play_circle,
+                      color: const Color(0xFF4F46E5),
+                      size: 28,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    tooltip: isSpeaking ? 'Duraklat' : 'Sesli Oku',
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showNoteDetail(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.8,
+        maxChildSize: 0.95,
+        builder: (context, scrollController) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: Colors.grey[200]!),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        note.title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
+                ),
+              ),
+              // Content
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    note.content,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      height: 1.6,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+              ),
+              // Audio Player
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(color: Colors.grey[200]!),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: onSpeak,
+                        icon: Icon(
+                          isSpeaking ? Icons.pause : Icons.play_arrow,
+                        ),
+                        label: Text(
+                          isSpeaking ? 'Duraklat' : 'Sesli Oku',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: onEdit,
+                      icon: const Icon(Icons.edit),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// NOTE EDIT DIALOG
+// ============================================================================
+
+class _NoteEditDialog extends StatefulWidget {
+  final NoteModel? initialNote;
+  final Function(String title, String content, String? subjectId) onSave;
+
+  const _NoteEditDialog({
+    required this.initialNote,
+    required this.onSave,
+  });
+
+  @override
+  State<_NoteEditDialog> createState() => _NoteEditDialogState();
+}
+
+class _NoteEditDialogState extends State<_NoteEditDialog> {
+  late TextEditingController _titleController;
+  late TextEditingController _contentController;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(
+      text: widget.initialNote?.title ?? '',
+    );
+    _contentController = TextEditingController(
+      text: widget.initialNote?.content ?? '',
+    );
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _contentController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.initialNote != null ? 'Notu Düzenle' : 'Yeni Not Ekle',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: _titleController,
+                decoration: InputDecoration(
+                  labelText: 'Not Başlığı',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _contentController,
+                maxLines: 6,
+                decoration: InputDecoration(
+                  labelText: 'Not İçeriği',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  alignLabelWithHint: true,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('İptal'),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_titleController.text.isEmpty ||
+                          _contentController.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Başlık ve içerik gereklidir'),
+                          ),
+                        );
+                        return;
+                      }
+                      widget.onSave(
+                        _titleController.text,
+                        _contentController.text,
+                        widget.initialNote?.subjectId,
+                      );
+                    },
+                    child: const Text('Kaydet'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// AUDIO PLAYER BAR (STICKY MINI PLAYER)
+// ============================================================================
+
+class _AudioPlayerBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<NotesAndAudioProvider>(
+      builder: (context, provider, _) {
+        // Hiç not dinleniyorsa player'ı göster
+        if (!provider.isSpeaking) {
+          return const SizedBox.shrink();
+        }
+
+        return Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF4F46E5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, -5),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              // Sesli Okuma İkonu
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.volume_up,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Metin İçeriği
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Sesli Dinleme',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white70,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Devam ediyor...',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Duraklat/Devam Butonu
+              IconButton(
+                onPressed: provider.isSpeaking
+                    ? provider.pauseAudio
+                    : provider.resumeAudio,
+                icon: Icon(
+                  provider.isSpeaking ? Icons.pause : Icons.play_arrow,
+                  color: Colors.white,
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minHeight: 50, minWidth: 50),
+                tooltip: provider.isSpeaking ? 'Duraklat' : 'Devam Et',
+              ),
+              // Durdur Butonu
+              IconButton(
+                onPressed: provider.stopAudio,
+                icon: const Icon(Icons.close, color: Colors.white),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minHeight: 50, minWidth: 50),
+                tooltip: 'Durdur',
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ============================================================================
+// END OF NOTES SCREEN
+// ============================================================================

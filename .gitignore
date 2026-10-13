@@ -1,0 +1,36 @@
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+
+# IDE
+.idea/
+.vscode/
+
+# Secrets and credentials
+.env
+.env.*
+!.env.example
+!.env.mediasoup.example
+**/google-services.json
+**/GoogleService-Info.plist
+*.jks
+*.keystore
+*.p12
+*.p8
+*.mobileprovision
+**/*service-account*.json
+**/*service_account*.json
+
+# Local machine configuration
+**/local.properties
+**/local.properties.bak
+
+# Node
+**/node_modules/
+mediasoup-server/.env
+
+# Temporary archives
+*.zip

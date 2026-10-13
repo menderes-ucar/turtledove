@@ -1,0 +1,984 @@
+// ============================================================================
+// KPSS MOBIL UYGULAMASI - PROVIDER STATE LAYER
+// Production-Ready: QuizProvider, NotesAndAudioProvider, StudyPlanProvider
+// ============================================================================
+
+import 'dart:async';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
+
+// Import modelleri (yukarıdaki 02_dart_models.dart dosyasından)
+// import 'dart_models.dart';
+
+// ============================================================================
+// QUIZ PROVIDER
+// ============================================================================
+
+class QuizProvider extends ChangeNotifier {
+  final SupabaseClient supabaseClient;
+  final String userId;
+
+  // State
+  List<QuestionModel> questions = [];
+  QuizAttemptModel? currentQuizAttempt;
+  Map<String, UserAnswerModel> answeredQuestions = {}; // questionId -> answer
+  Timer? _timer;
+  int _remainingSeconds = 0;
+  int _currentQuestionIndex = 0;
+  bool _isLoading = false;
+  bool _isSubmitting = false;
+  String? _errorMessage;
+
+  // Getters
+  bool get isLoading => _isLoading;
+  bool get isSubmitting => _isSubmitting;
+  String? get errorMessage => _errorMessage;
+  int get remainingSeconds => _remainingSeconds;
+  int get currentQuestionIndex => _currentQuestionIndex;
+  bool get hasNextQuestion => _currentQuestionIndex < questions.length - 1;
+  bool get hasPreviousQuestion => _currentQuestionIndex > 0;
+  QuestionModel? get currentQuestion =>
+      _currentQuestionIndex < questions.length ? questions[_currentQuestionIndex] : null;
+  String? get currentAnswerOption => answeredQuestions[currentQuestion?.id]?.selectedOption;
+  bool? get isCurrentAnswerCorrect => answeredQuestions[currentQuestion?.id]?.isCorrect;
+
+  QuizProvider({
+    required this.supabaseClient,
+    required this.userId,
+  });
+
+  // =========================================================================
+  // QUIZ BAŞLATMA VE SORU YÜKLEME
+  // =========================================================================
+
+  Future<void> startQuiz({
+    required String subjectId,
+    int questionCount = 20,
+    bool isTimed = true,
+    int timeLimitMinutes = 30,
+    bool fromErrorNotebook = false,
+  }) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      // Soru listesini yükle
+      if (fromErrorNotebook) {
+        await _loadQuestionsFromErrorNotebook(subjectId, questionCount);
+      } else {
+        await _loadQuestionsFromSubject(subjectId, questionCount);
+      }
+
+      if (questions.isEmpty) {
+        throw Exception('Bu konuda soru bulunamadı');
+      }
+
+      // Quiz attempt oluştur
+      final now = DateTime.now();
+      currentQuizAttempt = QuizAttemptModel(
+        id: const Uuid().v4(),
+        userId: userId,
+        subjectId: subjectId,
+        status: QuizStatus.running,
+        totalQuestions: questions.length,
+        correctAnswers: 0,
+        wrongAnswers: 0,
+        blankAnswers: questions.length,
+        durationSeconds: 0,
+        isTimed: isTimed,
+        timeLimitSeconds: isTimed ? timeLimitMinutes * 60 : null,
+        startedAt: now,
+      );
+
+      answeredQuestions.clear();
+      _currentQuestionIndex = 0;
+
+      // Timer başlat
+      if (isTimed) {
+        _remainingSeconds = timeLimitMinutes * 60;
+        _startTimer();
+      }
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = 'Quiz başlatılamadı: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> _loadQuestionsFromSubject(
+    String subjectId,
+    int limit,
+  ) async {
+    try {
+      final data = await supabaseClient
+          .from('questions')
+          .select()
+          .eq('subject_id', subjectId)
+          .eq('is_deleted', false)
+          .order('difficulty_level', ascending: false)
+          .limit(limit);
+
+      questions = List<Map<String, dynamic>>.from(data)
+          .map((q) => QuestionModel.fromJson(q))
+          .toList();
+
+      // Shuffle et
+      questions.shuffle();
+    } catch (e) {
+      throw Exception('Sorular yüklenemedi: ${e.toString()}');
+    }
+  }
+
+  Future<void> _loadQuestionsFromErrorNotebook(
+    String subjectId,
+    int limit,
+  ) async {
+    try {
+      final errorData = await supabaseClient
+          .from('error_notebook')
+          .select('question_id')
+          .eq('user_id', userId)
+          .eq('resolved', false)
+          .limit(limit);
+
+      final questionIds = List<Map<String, dynamic>>.from(errorData)
+          .map((e) => e['question_id'] as String)
+          .toList();
+
+      if (questionIds.isEmpty) {
+        throw Exception('Yanlış yapılan soru bulunamadı');
+      }
+
+      final questionsData = await supabaseClient
+          .from('questions')
+          .select()
+          .inFilter('id', questionIds)
+          .eq('is_deleted', false);
+
+      questions = List<Map<String, dynamic>>.from(questionsData)
+          .map((q) => QuestionModel.fromJson(q))
+          .toList();
+
+      // Shuffle et
+      questions.shuffle();
+    } catch (e) {
+      throw Exception('Yanlış defterinden sorular yüklenemedi: ${e.toString()}');
+    }
+  }
+
+  // =========================================================================
+  // SORU SEÇIMI VE NAVIGASYON
+  // =========================================================================
+
+  void selectAnswer(String option) {
+    if (currentQuestion == null) return;
+
+    final questionId = currentQuestion!.id;
+    final isCorrect = option.toUpperCase() == currentQuestion!.correctOption;
+
+    answeredQuestions[questionId] = UserAnswerModel(
+      id: const Uuid().v4(),
+      userId: userId,
+      questionId: questionId,
+      quizAttemptId: currentQuizAttempt?.id ?? '',
+      selectedOption: option.toUpperCase(),
+      isCorrect: isCorrect,
+      timeSpentSeconds: _getTimeSpentOnQuestion(),
+      answeredAt: DateTime.now(),
+    );
+
+    notifyListeners();
+  }
+
+  void clearAnswer() {
+    if (currentQuestion == null) return;
+    answeredQuestions.remove(currentQuestion!.id);
+    notifyListeners();
+  }
+
+  void nextQuestion() {
+    if (hasNextQuestion) {
+      _currentQuestionIndex++;
+      notifyListeners();
+    }
+  }
+
+  void previousQuestion() {
+    if (hasPreviousQuestion) {
+      _currentQuestionIndex--;
+      notifyListeners();
+    }
+  }
+
+  void goToQuestion(int index) {
+    if (index >= 0 && index < questions.length) {
+      _currentQuestionIndex = index;
+      notifyListeners();
+    }
+  }
+
+  // =========================================================================
+  // TIMER YÖNETİMİ
+  // =========================================================================
+
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (_remainingSeconds > 0) {
+        _remainingSeconds--;
+        notifyListeners();
+
+        // Süresi bitmek üzere (son 5 dakika)
+        if (_remainingSeconds == 300) {
+          // Uyarı göster
+        }
+
+        // Süresi bitti
+        if (_remainingSeconds == 0) {
+          _timer?.cancel();
+          completeQuiz(timeExpired: true);
+        }
+      }
+    });
+  }
+
+  void pauseTimer() {
+    _timer?.cancel();
+  }
+
+  void resumeTimer() {
+    if (_remainingSeconds > 0) {
+      _startTimer();
+    }
+  }
+
+  String get formattedTime {
+    final minutes = _remainingSeconds ~/ 60;
+    final seconds = _remainingSeconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  int _getTimeSpentOnQuestion() {
+    if (currentQuizAttempt == null) return 0;
+    final elapsed = DateTime.now().difference(currentQuizAttempt!.startedAt).inSeconds;
+    return elapsed;
+  }
+
+  // =========================================================================
+  // QUIZ TAMAMLAMA VE VERİ KAYDETME
+  // =========================================================================
+
+  Future<void> completeQuiz({bool timeExpired = false}) async {
+    if (currentQuizAttempt == null) return;
+
+    try {
+      _isSubmitting = true;
+      notifyListeners();
+
+      _timer?.cancel();
+
+      // Son durum hesapla
+      int correctCount = 0;
+      int wrongCount = 0;
+      int blankCount = 0;
+
+      for (final question in questions) {
+        final answer = answeredQuestions[question.id];
+        if (answer == null) {
+          blankCount++;
+        } else if (answer.isCorrect == true) {
+          correctCount++;
+        } else {
+          wrongCount++;
+        }
+      }
+
+      final totalDuration =
+          DateTime.now().difference(currentQuizAttempt!.startedAt).inSeconds;
+      final score = (correctCount / questions.length * 100).toStringAsFixed(2);
+
+      // Attempt güncelle
+      currentQuizAttempt = currentQuizAttempt!.copyWith(
+        status: QuizStatus.completed,
+        correctAnswers: correctCount,
+        wrongAnswers: wrongCount,
+        blankAnswers: blankCount,
+        durationSeconds: totalDuration,
+        score: double.parse(score),
+        completedAt: DateTime.now(),
+      );
+
+      // Supabase'e batch kaydet
+      await _saveQuizDataToSupabase(correctCount, wrongCount, blankCount);
+
+      _isSubmitting = false;
+      notifyListeners();
+    } catch (e) {
+      _isSubmitting = false;
+      _errorMessage = 'Quiz kaydedilemedi: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> _saveQuizDataToSupabase(
+    int correctCount,
+    int wrongCount,
+    int blankCount,
+  ) async {
+    if (currentQuizAttempt == null) throw Exception('Quiz attempt bulunamadı');
+
+    try {
+      // 1. user_quiz_attempts kaydı ekle
+      await supabaseClient.from('user_quiz_attempts').insert(
+            currentQuizAttempt!.toJson(),
+          );
+
+      // 2. user_answers bulk insert
+      final answersToInsert = answeredQuestions.values
+          .map((answer) => answer.toJson())
+          .toList();
+
+      if (answersToInsert.isNotEmpty) {
+        await supabaseClient.from('user_answers').insert(answersToInsert);
+      }
+
+      // 3. error_notebook güncelle (yanlış cevapları ekle/güncelle)
+      for (final question in questions) {
+        final answer = answeredQuestions[question.id];
+        if (answer != null && answer.isCorrect == false) {
+          // Yanlış yapılan soru
+          try {
+            // Varsa güncelle, yoksa ekle
+            await supabaseClient.from('error_notebook').upsert(
+              {
+                'user_id': userId,
+                'question_id': question.id,
+                'wrong_count': 1,
+                'last_wrong_at': DateTime.now().toIso8601String(),
+                'resolved': false,
+              },
+              onConflict: 'user_id,question_id',
+            );
+          } catch (e) {
+            // Hata durumunda devam et
+            debugPrint('Error notebook kaydedilemedi: ${e.toString()}');
+          }
+        }
+      }
+
+      debugPrint('Quiz verileri başarıyla kaydedildi');
+    } catch (e) {
+      throw Exception('Veri kaydetme hatası: ${e.toString()}');
+    }
+  }
+
+  Future<void> abandonQuiz() async {
+    if (currentQuizAttempt == null) return;
+
+    try {
+      _timer?.cancel();
+
+      currentQuizAttempt = currentQuizAttempt!.copyWith(
+        status: QuizStatus.abandoned,
+        completedAt: DateTime.now(),
+      );
+
+      // Supabase'e kaydet
+      await supabaseClient.from('user_quiz_attempts').insert(
+            currentQuizAttempt!.toJson(),
+          );
+
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Quiz iptal edilemedi: ${e.toString()}';
+      notifyListeners();
+    }
+  }
+
+  // =========================================================================
+  // CLEANUP
+  // =========================================================================
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+}
+
+// ============================================================================
+// NOTES AND AUDIO PROVIDER
+// ============================================================================
+
+class NotesAndAudioProvider extends ChangeNotifier {
+  final SupabaseClient supabaseClient;
+  final String userId;
+
+  late FlutterTts _flutterTts;
+
+  // State
+  List<NoteModel> notes = [];
+  bool _isLoading = false;
+  bool _isCreating = false;
+  bool _isSpeaking = false;
+  String? _errorMessage;
+  String _currentSpeakingNoteId = '';
+
+  // TTS State
+  double _speechRate = 1.0;
+  double _speechPitch = 1.0;
+
+  // Getters
+  bool get isLoading => _isLoading;
+  bool get isCreating => _isCreating;
+  bool get isSpeaking => _isSpeaking;
+  String? get errorMessage => _errorMessage;
+  double get speechRate => _speechRate;
+  double get speechPitch => _speechPitch;
+
+  NotesAndAudioProvider({
+    required this.supabaseClient,
+    required this.userId,
+  }) {
+    _initializeTts();
+  }
+
+  // =========================================================================
+  // TTS INITIALIZATION
+  // =========================================================================
+
+  void _initializeTts() {
+    _flutterTts = FlutterTts();
+
+    _flutterTts.setOnSpeakCompleted((dynamic result) {
+      _isSpeaking = false;
+      _currentSpeakingNoteId = '';
+      notifyListeners();
+    });
+
+    _flutterTts.setOnError((dynamic error) {
+      _errorMessage = 'Ses oynatma hatası: $error';
+      _isSpeaking = false;
+      notifyListeners();
+    });
+
+    _setTtsLanguage();
+    _setTtsRate();
+    _setTtsPitch();
+  }
+
+  void _setTtsLanguage() {
+    if (Platform.isAndroid) {
+      _flutterTts.setLanguage('tr-TR');
+    } else if (Platform.isIOS) {
+      _flutterTts.setLanguage('tr_TR');
+    }
+  }
+
+  void _setTtsRate() {
+    _flutterTts.setSpeechRate(_speechRate);
+  }
+
+  void _setTtsPitch() {
+    _flutterTts.setPitch(_speechPitch);
+  }
+
+  // =========================================================================
+  // NOT CRUD OPERASYONLARI
+  // =========================================================================
+
+  Future<void> loadNotes({String? subjectId}) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      var query = supabaseClient
+          .from('notes')
+          .select()
+          .eq('user_id', userId)
+          .order('created_at', ascending: false);
+
+      if (subjectId != null) {
+        query = query.eq('subject_id', subjectId);
+      }
+
+      final data = await query;
+
+      notes = List<Map<String, dynamic>>.from(data)
+          .map((note) => NoteModel.fromJson(note))
+          .toList();
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = 'Notlar yüklenemedi: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<NoteModel> createNote({
+    required String title,
+    required String content,
+    String? subjectId,
+  }) async {
+    try {
+      _isCreating = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final newNote = NoteModel(
+        id: const Uuid().v4(),
+        userId: userId,
+        subjectId: subjectId,
+        title: title,
+        content: content,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      await supabaseClient.from('notes').insert(newNote.toJson());
+
+      notes.insert(0, newNote);
+      _isCreating = false;
+      notifyListeners();
+
+      return newNote;
+    } catch (e) {
+      _isCreating = false;
+      _errorMessage = 'Not oluşturulamadı: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> updateNote(
+    String noteId, {
+    required String title,
+    required String content,
+    String? subjectId,
+  }) async {
+    try {
+      _errorMessage = null;
+      notifyListeners();
+
+      await supabaseClient.from('notes').update({
+        'title': title,
+        'content': content,
+        'subject_id': subjectId,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', noteId).eq('user_id', userId);
+
+      // Lokal listeyi güncelle
+      final index = notes.indexWhere((note) => note.id == noteId);
+      if (index != -1) {
+        notes[index] = notes[index].copyWith(
+          title: title,
+          content: content,
+          subjectId: subjectId,
+          updatedAt: DateTime.now(),
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      _errorMessage = 'Not güncellenemedi: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> deleteNote(String noteId) async {
+    try {
+      _errorMessage = null;
+      notifyListeners();
+
+      await supabaseClient
+          .from('notes')
+          .delete()
+          .eq('id', noteId)
+          .eq('user_id', userId);
+
+      notes.removeWhere((note) => note.id == noteId);
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Not silinemedi: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  // =========================================================================
+  // TTS (TEXT TO SPEECH) OPERASYONLARI
+  // =========================================================================
+
+  Future<void> speakNote(String noteId) async {
+    try {
+      final note = notes.firstWhere((n) => n.id == noteId);
+
+      _currentSpeakingNoteId = noteId;
+      _isSpeaking = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      // Başlık ve içeriği birleştir
+      final textToSpeak = '${note.title}. ${note.content}';
+
+      await _flutterTts.speak(textToSpeak);
+    } catch (e) {
+      _isSpeaking = false;
+      _currentSpeakingNoteId = '';
+      _errorMessage = 'Metin okunamadı: ${e.toString()}';
+      notifyListeners();
+    }
+  }
+
+  Future<void> pauseAudio() async {
+    try {
+      await _flutterTts.pause();
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Duraklat başarısız: ${e.toString()}';
+      notifyListeners();
+    }
+  }
+
+  Future<void> resumeAudio() async {
+    try {
+      await _flutterTts.resume();
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Devam et başarısız: ${e.toString()}';
+      notifyListeners();
+    }
+  }
+
+  Future<void> stopAudio() async {
+    try {
+      await _flutterTts.stop();
+      _isSpeaking = false;
+      _currentSpeakingNoteId = '';
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Dur başarısız: ${e.toString()}';
+      notifyListeners();
+    }
+  }
+
+  // =========================================================================
+  // TTS AYARLARI
+  // =========================================================================
+
+  Future<void> setSpeechRate(double rate) async {
+    // 0.75 - 2.0 arasında sınırla
+    _speechRate = rate.clamp(0.75, 2.0);
+    await _flutterTts.setSpeechRate(_speechRate);
+    notifyListeners();
+  }
+
+  Future<void> setSpeechPitch(double pitch) async {
+    _speechPitch = pitch.clamp(0.5, 2.0);
+    await _flutterTts.setPitch(_speechPitch);
+    notifyListeners();
+  }
+
+  bool isNoteSpeaking(String noteId) => _currentSpeakingNoteId == noteId;
+
+  // =========================================================================
+  // CLEANUP
+  // =========================================================================
+
+  @override
+  void dispose() {
+    _flutterTts.stop();
+    super.dispose();
+  }
+}
+
+// ============================================================================
+// STUDY PLAN PROVIDER
+// ============================================================================
+
+class StudyPlanProvider extends ChangeNotifier {
+  final SupabaseClient supabaseClient;
+  final String userId;
+
+  // State
+  StudyPlanModel? studyPlan;
+  bool _isLoading = false;
+  bool _isUpdating = false;
+  String? _errorMessage;
+
+  // Getters
+  bool get isLoading => _isLoading;
+  bool get isUpdating => _isUpdating;
+  String? get errorMessage => _errorMessage;
+  StudyPlanModel? get plan => studyPlan;
+
+  StudyPlanProvider({
+    required this.supabaseClient,
+    required this.userId,
+  });
+
+  // =========================================================================
+  // PLAN YÜKLEME
+  // =========================================================================
+
+  Future<void> loadStudyPlan() async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final data = await supabaseClient
+          .from('ai_study_plans')
+          .select()
+          .eq('user_id', userId)
+          .eq('is_active', true)
+          .order('created_at', ascending: false)
+          .limit(1);
+
+      if (data.isEmpty) {
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+
+      studyPlan = StudyPlanModel.fromJson(data.first as Map<String, dynamic>);
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = 'Plan yüklenemedi: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> createStudyPlan(List<StudyPlanWeekModel> weeks) async {
+    try {
+      _isUpdating = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final newPlan = StudyPlanModel(
+        id: const Uuid().v4(),
+        userId: userId,
+        weeks: weeks,
+        isActive: true,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      await supabaseClient.from('ai_study_plans').insert(newPlan.toJson());
+
+      studyPlan = newPlan;
+      _isUpdating = false;
+      notifyListeners();
+    } catch (e) {
+      _isUpdating = false;
+      _errorMessage = 'Plan oluşturulamadı: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  // =========================================================================
+  // GÖREV TAMAMLAMA DURUMU GÜNCELLEME
+  // =========================================================================
+
+  Future<void> toggleTaskCompletion({
+    required int weekIndex,
+    required int dayIndex,
+    required int taskIndex,
+  }) async {
+    if (studyPlan == null) return;
+
+    try {
+      _isUpdating = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      // Lokal state güncelle
+      final week = studyPlan!.weeks[weekIndex];
+      final day = week.days[dayIndex];
+      final task = day.tasks[taskIndex];
+
+      final updatedTask = task.copyWith(
+        isCompleted: !task.isCompleted,
+        completedAt: !task.isCompleted ? DateTime.now() : null,
+      );
+
+      final updatedTasks = List<StudyPlanTaskModel>.from(day.tasks);
+      updatedTasks[taskIndex] = updatedTask;
+
+      final updatedDay = day.copyWith(tasks: updatedTasks);
+
+      final updatedDays = List<StudyPlanDayModel>.from(week.days);
+      updatedDays[dayIndex] = updatedDay;
+
+      final updatedWeek = week.copyWith(days: updatedDays);
+
+      final updatedWeeks = List<StudyPlanWeekModel>.from(studyPlan!.weeks);
+      updatedWeeks[weekIndex] = updatedWeek;
+
+      studyPlan = studyPlan!.copyWith(
+        weeks: updatedWeeks,
+        updatedAt: DateTime.now(),
+      );
+
+      // Supabase'e kaydet
+      await _updatePlanInSupabase(studyPlan!);
+
+      _isUpdating = false;
+      notifyListeners();
+    } catch (e) {
+      _isUpdating = false;
+      _errorMessage = 'Görev güncellenemedi: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  // =========================================================================
+  // GÜN TAMAMLANMA DURUMU GÜNCELLEME
+  // =========================================================================
+
+  Future<void> toggleDayCompletion({
+    required int weekIndex,
+    required int dayIndex,
+  }) async {
+    if (studyPlan == null) return;
+
+    try {
+      _isUpdating = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final week = studyPlan!.weeks[weekIndex];
+      final day = week.days[dayIndex];
+
+      // Tüm görevler tamamlanmış mı kontrol et
+      final allTasksCompleted = day.tasks.every((task) => task.isCompleted);
+
+      final updatedDay = day.copyWith(isCompleted: !allTasksCompleted);
+
+      final updatedDays = List<StudyPlanDayModel>.from(week.days);
+      updatedDays[dayIndex] = updatedDay;
+
+      final updatedWeek = week.copyWith(days: updatedDays);
+
+      final updatedWeeks = List<StudyPlanWeekModel>.from(studyPlan!.weeks);
+      updatedWeeks[weekIndex] = updatedWeek;
+
+      studyPlan = studyPlan!.copyWith(
+        weeks: updatedWeeks,
+        updatedAt: DateTime.now(),
+      );
+
+      // Supabase'e kaydet
+      await _updatePlanInSupabase(studyPlan!);
+
+      _isUpdating = false;
+      notifyListeners();
+    } catch (e) {
+      _isUpdating = false;
+      _errorMessage = 'Gün güncellenemedi: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  // =========================================================================
+  // PLAN DEAKTIVASYONU
+  // =========================================================================
+
+  Future<void> deactivatePlan() async {
+    if (studyPlan == null) return;
+
+    try {
+      _isUpdating = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      studyPlan = studyPlan!.copyWith(isActive: false);
+
+      await supabaseClient.from('ai_study_plans').update({
+        'is_active': false,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', studyPlan!.id);
+
+      _isUpdating = false;
+      notifyListeners();
+    } catch (e) {
+      _isUpdating = false;
+      _errorMessage = 'Plan deaktive edilemedi: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  // =========================================================================
+  // HELPER METHODS
+  // =========================================================================
+
+  Future<void> _updatePlanInSupabase(StudyPlanModel plan) async {
+    try {
+      await supabaseClient.from('ai_study_plans').update({
+        'plan_data': plan.weeks.map((w) => w.toJson()).toList(),
+        'updated_at': plan.updatedAt.toIso8601String(),
+      }).eq('id', plan.id);
+    } catch (e) {
+      throw Exception('Plan güncellenemedi: ${e.toString()}');
+    }
+  }
+
+  // Hafta tarafından filtreleme
+  List<StudyPlanDayModel> getDaysForWeek(int weekIndex) {
+    if (studyPlan == null || weekIndex >= studyPlan!.weeks.length) {
+      return [];
+    }
+    return studyPlan!.weeks[weekIndex].days;
+  }
+
+  // Haftanın ilerleme yüzdesini hesapla
+  double getWeekProgress(int weekIndex) {
+    if (studyPlan == null || weekIndex >= studyPlan!.weeks.length) {
+      return 0.0;
+    }
+
+    final days = studyPlan!.weeks[weekIndex].days;
+    if (days.isEmpty) return 0.0;
+
+    int completedTasks = 0;
+    int totalTasks = 0;
+
+    for (final day in days) {
+      totalTasks += day.tasks.length;
+      completedTasks += day.tasks.where((t) => t.isCompleted).length;
+    }
+
+    if (totalTasks == 0) return 0.0;
+    return (completedTasks / totalTasks) * 100;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+}
+
+// ============================================================================
+// END OF PROVIDER STATE LAYER
+// ============================================================================

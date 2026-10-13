@@ -1,0 +1,2002 @@
+[
+  {
+    "id": "topic_001",
+    "content_type": "topic",
+    "prompt_tr": "Hayalindeki seyahat yerleri",
+    "prompt_en": "Dream destinations",
+    "prompt_de": "Traumreiseziele",
+    "prompt_es": "Destinos soñados",
+    "prompt_fr": "Destinations de rêve",
+    "is_active": true
+  },
+  {
+    "id": "topic_002",
+    "content_type": "topic",
+    "prompt_tr": "Çocukluk anıları",
+    "prompt_en": "Childhood memories",
+    "prompt_de": "Kindheitserinnerungen",
+    "prompt_es": "Recuerdos de la infancia",
+    "prompt_fr": "Souvenirs d’enfance",
+    "is_active": true
+  },
+  {
+    "id": "topic_003",
+    "content_type": "topic",
+    "prompt_tr": "Mükemmel hafta sonu",
+    "prompt_en": "Perfect weekend",
+    "prompt_de": "Perfektes Wochenende",
+    "prompt_es": "Fin de semana perfecto",
+    "prompt_fr": "Week-end parfait",
+    "is_active": true
+  },
+  {
+    "id": "topic_004",
+    "content_type": "topic",
+    "prompt_tr": "En sevdiğin yemekler",
+    "prompt_en": "Favorite foods",
+    "prompt_de": "Lieblingsessen",
+    "prompt_es": "Comidas favoritas",
+    "prompt_fr": "Plats préférés",
+    "is_active": true
+  },
+  {
+    "id": "topic_005",
+    "content_type": "topic",
+    "prompt_tr": "Moralini yükselten müzikler",
+    "prompt_en": "Music that lifts your mood",
+    "prompt_de": "Musik, die deine Stimmung hebt",
+    "prompt_es": "Música que mejora tu ánimo",
+    "prompt_fr": "Musique qui améliore ton humeur",
+    "is_active": true
+  },
+  {
+    "id": "topic_006",
+    "content_type": "topic",
+    "prompt_tr": "Tekrar izleyebileceğin filmler",
+    "prompt_en": "Movies you can rewatch",
+    "prompt_de": "Filme zum Wiederanschauen",
+    "prompt_es": "Películas que puedes volver a ver",
+    "prompt_fr": "Films que tu peux revoir",
+    "is_active": true
+  },
+  {
+    "id": "topic_007",
+    "content_type": "topic",
+    "prompt_tr": "Öğrenmek istediğin bir beceri",
+    "prompt_en": "A skill you want to learn",
+    "prompt_de": "Eine Fähigkeit, die du lernen möchtest",
+    "prompt_es": "Una habilidad que quieres aprender",
+    "prompt_fr": "Une compétence que tu veux apprendre",
+    "is_active": true
+  },
+  {
+    "id": "topic_008",
+    "content_type": "topic",
+    "prompt_tr": "Hayalindeki ev",
+    "prompt_en": "Your ideal home",
+    "prompt_de": "Dein ideales Zuhause",
+    "prompt_es": "Tu hogar ideal",
+    "prompt_fr": "Ton logement idéal",
+    "is_active": true
+  },
+  {
+    "id": "topic_009",
+    "content_type": "topic",
+    "prompt_tr": "Sabah insanı mı gece insanı mı",
+    "prompt_en": "Morning or night person",
+    "prompt_de": "Morgen- oder Nachtmensch",
+    "prompt_es": "¿Persona de mañana o de noche?",
+    "prompt_fr": "Plutôt matin ou soir",
+    "is_active": true
+  },
+  {
+    "id": "topic_010",
+    "content_type": "topic",
+    "prompt_tr": "En sevdiğin mevsim",
+    "prompt_en": "Favorite season",
+    "prompt_de": "Lieblingsjahreszeit",
+    "prompt_es": "Estación favorita",
+    "prompt_fr": "Saison préférée",
+    "is_active": true
+  },
+  {
+    "id": "topic_011",
+    "content_type": "topic",
+    "prompt_tr": "En güzel seyahat anın",
+    "prompt_en": "Best travel memory",
+    "prompt_de": "Schönste Reiseerinnerung",
+    "prompt_es": "Mejor recuerdo de viaje",
+    "prompt_fr": "Meilleur souvenir de voyage",
+    "is_active": true
+  },
+  {
+    "id": "topic_012",
+    "content_type": "topic",
+    "prompt_tr": "Tekrar gitmek istediğin yer",
+    "prompt_en": "A place to revisit",
+    "prompt_de": "Ein Ort zum Wiederbesuchen",
+    "prompt_es": "Un lugar al que volver",
+    "prompt_fr": "Un endroit où retourner",
+    "is_active": true
+  },
+  {
+    "id": "topic_013",
+    "content_type": "topic",
+    "prompt_tr": "Hayal listendeki deneyim",
+    "prompt_en": "Bucket-list experience",
+    "prompt_de": "Erlebnis auf der Wunschliste",
+    "prompt_es": "Experiencia de tu lista de deseos",
+    "prompt_fr": "Expérience de ta liste de rêves",
+    "is_active": true
+  },
+  {
+    "id": "topic_014",
+    "content_type": "topic",
+    "prompt_tr": "Günlük küçük mutluluklar",
+    "prompt_en": "Small daily joys",
+    "prompt_de": "Kleine Freuden im Alltag",
+    "prompt_es": "Pequeñas alegrías diarias",
+    "prompt_fr": "Petits bonheurs du quotidien",
+    "is_active": true
+  },
+  {
+    "id": "topic_015",
+    "content_type": "topic",
+    "prompt_tr": "Seni rahatlatan rutin",
+    "prompt_en": "Comfort routine",
+    "prompt_de": "Wohlfühlroutine",
+    "prompt_es": "Rutina reconfortante",
+    "prompt_fr": "Routine réconfortante",
+    "is_active": true
+  },
+  {
+    "id": "topic_016",
+    "content_type": "topic",
+    "prompt_tr": "En sevdiğin kitaplar",
+    "prompt_en": "Favorite books",
+    "prompt_de": "Lieblingsbücher",
+    "prompt_es": "Libros favoritos",
+    "prompt_fr": "Livres préférés",
+    "is_active": true
+  },
+  {
+    "id": "topic_017",
+    "content_type": "topic",
+    "prompt_tr": "Evcil hayvanlar ve hayvanlar",
+    "prompt_en": "Pets and animals",
+    "prompt_de": "Haustiere und Tiere",
+    "prompt_es": "Mascotas y animales",
+    "prompt_fr": "Animaux et animaux de compagnie",
+    "is_active": true
+  },
+  {
+    "id": "topic_018",
+    "content_type": "topic",
+    "prompt_tr": "Komik okul anıları",
+    "prompt_en": "Funny school memories",
+    "prompt_de": "Lustige Schulerinnerungen",
+    "prompt_es": "Recuerdos divertidos de la escuela",
+    "prompt_fr": "Souvenirs amusants de l’école",
+    "is_active": true
+  },
+  {
+    "id": "topic_019",
+    "content_type": "topic",
+    "prompt_tr": "İlk iş anıları",
+    "prompt_en": "First job memories",
+    "prompt_de": "Erinnerungen an den ersten Job",
+    "prompt_es": "Recuerdos del primer trabajo",
+    "prompt_fr": "Souvenirs du premier emploi",
+    "is_active": true
+  },
+  {
+    "id": "topic_020",
+    "content_type": "topic",
+    "prompt_tr": "Sevdiğin bir hobi",
+    "prompt_en": "A hobby you love",
+    "prompt_de": "Ein Hobby, das du liebst",
+    "prompt_es": "Un hobby que te encanta",
+    "prompt_fr": "Un loisir que tu adores",
+    "is_active": true
+  },
+  {
+    "id": "topic_021",
+    "content_type": "topic",
+    "prompt_tr": "Sevdiğin teknoloji",
+    "prompt_en": "Technology you love",
+    "prompt_de": "Technik, die du liebst",
+    "prompt_es": "Tecnología que te encanta",
+    "prompt_fr": "Technologie que tu aimes",
+    "is_active": true
+  },
+  {
+    "id": "topic_022",
+    "content_type": "topic",
+    "prompt_tr": "Uzak durduğun teknoloji",
+    "prompt_en": "Technology you avoid",
+    "prompt_de": "Technik, die du vermeidest",
+    "prompt_es": "Tecnología que evitas",
+    "prompt_fr": "Technologie que tu évites",
+    "is_active": true
+  },
+  {
+    "id": "topic_023",
+    "content_type": "topic",
+    "prompt_tr": "Sosyal medya alışkanlıkların",
+    "prompt_en": "Social media habits",
+    "prompt_de": "Social-Media-Gewohnheiten",
+    "prompt_es": "Hábitos en redes sociales",
+    "prompt_fr": "Habitudes sur les réseaux sociaux",
+    "is_active": true
+  },
+  {
+    "id": "topic_024",
+    "content_type": "topic",
+    "prompt_tr": "Mükemmel buluşma",
+    "prompt_en": "Perfect date",
+    "prompt_de": "Perfektes Date",
+    "prompt_es": "Cita perfecta",
+    "prompt_fr": "Rendez-vous parfait",
+    "is_active": true
+  },
+  {
+    "id": "topic_025",
+    "content_type": "topic",
+    "prompt_tr": "Mükemmel arkadaşlık günü",
+    "prompt_en": "Perfect friendship day",
+    "prompt_de": "Perfekter Freundschaftstag",
+    "prompt_es": "Día perfecto de amistad",
+    "prompt_fr": "Journée parfaite entre amis",
+    "is_active": true
+  },
+  {
+    "id": "topic_026",
+    "content_type": "topic",
+    "prompt_tr": "Seni güldüren şeyler",
+    "prompt_en": "Things that make you laugh",
+    "prompt_de": "Dinge, die dich zum Lachen bringen",
+    "prompt_es": "Cosas que te hacen reír",
+    "prompt_fr": "Choses qui te font rire",
+    "is_active": true
+  },
+  {
+    "id": "topic_027",
+    "content_type": "topic",
+    "prompt_tr": "En sevdiğin kutlamalar",
+    "prompt_en": "Favorite celebrations",
+    "prompt_de": "Lieblingsfeiern",
+    "prompt_es": "Celebraciones favoritas",
+    "prompt_fr": "Célébrations préférées",
+    "is_active": true
+  },
+  {
+    "id": "topic_028",
+    "content_type": "topic",
+    "prompt_tr": "Aile gelenekleri",
+    "prompt_en": "Family traditions",
+    "prompt_de": "Familientraditionen",
+    "prompt_es": "Tradiciones familiares",
+    "prompt_fr": "Traditions familiales",
+    "is_active": true
+  },
+  {
+    "id": "topic_029",
+    "content_type": "topic",
+    "prompt_tr": "Çocukken sevmediğin yemekler",
+    "prompt_en": "Foods disliked as a child",
+    "prompt_de": "Essen, das du als Kind nicht mochtest",
+    "prompt_es": "Comidas que no te gustaban de niño",
+    "prompt_fr": "Aliments que tu n’aimais pas enfant",
+    "is_active": true
+  },
+  {
+    "id": "topic_030",
+    "content_type": "topic",
+    "prompt_tr": "Son keşfettiğin yemekler",
+    "prompt_en": "Foods discovered recently",
+    "prompt_de": "Kürzlich entdecktes Essen",
+    "prompt_es": "Comidas descubiertas recientemente",
+    "prompt_fr": "Aliments récemment découverts",
+    "is_active": true
+  },
+  {
+    "id": "topic_031",
+    "content_type": "topic",
+    "prompt_tr": "En iyi restoran deneyimin",
+    "prompt_en": "Best restaurant experience",
+    "prompt_de": "Bestes Restaurant-Erlebnis",
+    "prompt_es": "Mejor experiencia en restaurante",
+    "prompt_fr": "Meilleure expérience au restaurant",
+    "is_active": true
+  },
+  {
+    "id": "topic_032",
+    "content_type": "topic",
+    "prompt_tr": "Evde yemek yapmak",
+    "prompt_en": "Cooking at home",
+    "prompt_de": "Zu Hause kochen",
+    "prompt_es": "Cocinar en casa",
+    "prompt_fr": "Cuisiner à la maison",
+    "is_active": true
+  },
+  {
+    "id": "topic_033",
+    "content_type": "topic",
+    "prompt_tr": "Hayalindeki kariyer",
+    "prompt_en": "Dream career",
+    "prompt_de": "Traumkarriere",
+    "prompt_es": "Carrera de tus sueños",
+    "prompt_fr": "Carrière de tes rêves",
+    "is_active": true
+  },
+  {
+    "id": "topic_034",
+    "content_type": "topic",
+    "prompt_tr": "İş ve özel hayat dengesi",
+    "prompt_en": "Work-life balance",
+    "prompt_de": "Work-Life-Balance",
+    "prompt_es": "Equilibrio entre trabajo y vida",
+    "prompt_fr": "Équilibre travail-vie",
+    "is_active": true
+  },
+  {
+    "id": "topic_035",
+    "content_type": "topic",
+    "prompt_tr": "Bir günlüğüne denemek istediğin iş",
+    "prompt_en": "A job for one day",
+    "prompt_de": "Ein Job für einen Tag",
+    "prompt_es": "Un trabajo para un día",
+    "prompt_fr": "Un métier pour une journée",
+    "is_active": true
+  },
+  {
+    "id": "topic_036",
+    "content_type": "topic",
+    "prompt_tr": "Sana ilham veren insanlar",
+    "prompt_en": "People who inspire you",
+    "prompt_de": "Menschen, die dich inspirieren",
+    "prompt_es": "Personas que te inspiran",
+    "prompt_fr": "Personnes qui t’inspirent",
+    "is_active": true
+  },
+  {
+    "id": "topic_037",
+    "content_type": "topic",
+    "prompt_tr": "Zor yoldan öğrendiğin ders",
+    "prompt_en": "A hard lesson",
+    "prompt_de": "Eine harte Lektion",
+    "prompt_es": "Una lección difícil",
+    "prompt_fr": "Une leçon apprise à la dure",
+    "is_active": true
+  },
+  {
+    "id": "topic_038",
+    "content_type": "topic",
+    "prompt_tr": "Seni değiştiren bir karar",
+    "prompt_en": "A decision that changed you",
+    "prompt_de": "Eine Entscheidung, die dich verändert hat",
+    "prompt_es": "Una decisión que te cambió",
+    "prompt_fr": "Une décision qui t’a changé",
+    "is_active": true
+  },
+  {
+    "id": "topic_039",
+    "content_type": "topic",
+    "prompt_tr": "Gurur duyduğun bir şey",
+    "prompt_en": "Something you are proud of",
+    "prompt_de": "Etwas, auf das du stolz bist",
+    "prompt_es": "Algo de lo que estás orgulloso",
+    "prompt_fr": "Une chose dont tu es fier",
+    "is_active": true
+  },
+  {
+    "id": "topic_040",
+    "content_type": "topic",
+    "prompt_tr": "Bu yılki hedefin",
+    "prompt_en": "Goal for this year",
+    "prompt_de": "Ziel für dieses Jahr",
+    "prompt_es": "Objetivo de este año",
+    "prompt_fr": "Objectif de cette année",
+    "is_active": true
+  },
+  {
+    "id": "topic_041",
+    "content_type": "topic",
+    "prompt_tr": "Beş yıllık hedefin",
+    "prompt_en": "Five-year goal",
+    "prompt_de": "Fünfjahresziel",
+    "prompt_es": "Objetivo a cinco años",
+    "prompt_fr": "Objectif à cinq ans",
+    "is_active": true
+  },
+  {
+    "id": "topic_042",
+    "content_type": "topic",
+    "prompt_tr": "İdeal şehrin",
+    "prompt_en": "Ideal city",
+    "prompt_de": "Ideale Stadt",
+    "prompt_es": "Ciudad ideal",
+    "prompt_fr": "Ville idéale",
+    "is_active": true
+  },
+  {
+    "id": "topic_043",
+    "content_type": "topic",
+    "prompt_tr": "Şehir hayatı mı sakin hayat mı",
+    "prompt_en": "City or quiet life",
+    "prompt_de": "Stadtleben oder ruhiges Leben",
+    "prompt_es": "Vida urbana o tranquila",
+    "prompt_fr": "Vie en ville ou tranquille",
+    "is_active": true
+  },
+  {
+    "id": "topic_044",
+    "content_type": "topic",
+    "prompt_tr": "Deniz mi dağ mı",
+    "prompt_en": "Beach or mountains",
+    "prompt_de": "Strand oder Berge",
+    "prompt_es": "Playa o montaña",
+    "prompt_fr": "Plage ou montagne",
+    "is_active": true
+  },
+  {
+    "id": "topic_045",
+    "content_type": "topic",
+    "prompt_tr": "Araba yolculukları",
+    "prompt_en": "Road trips",
+    "prompt_de": "Roadtrips",
+    "prompt_es": "Viajes por carretera",
+    "prompt_fr": "Voyages en voiture",
+    "is_active": true
+  },
+  {
+    "id": "topic_046",
+    "content_type": "topic",
+    "prompt_tr": "Uçmak mı araba kullanmak mı",
+    "prompt_en": "Flying or driving",
+    "prompt_de": "Fliegen oder Autofahren",
+    "prompt_es": "Volar o conducir",
+    "prompt_fr": "Prendre l’avion ou conduire",
+    "is_active": true
+  },
+  {
+    "id": "topic_047",
+    "content_type": "topic",
+    "prompt_tr": "Planlı mı spontane mi seyahat",
+    "prompt_en": "Planned or spontaneous travel",
+    "prompt_de": "Geplant oder spontan reisen",
+    "prompt_es": "Viajar con plan o espontáneamente",
+    "prompt_fr": "Voyager avec un plan ou spontanément",
+    "is_active": true
+  },
+  {
+    "id": "topic_048",
+    "content_type": "topic",
+    "prompt_tr": "Valiz hazırlama alışkanlıkları",
+    "prompt_en": "Packing habits",
+    "prompt_de": "Gepäckpack-Gewohnheiten",
+    "prompt_es": "Hábitos al hacer la maleta",
+    "prompt_fr": "Habitudes pour faire la valise",
+    "is_active": true
+  },
+  {
+    "id": "topic_049",
+    "content_type": "topic",
+    "prompt_tr": "Sakladığın seyahat hatıraları",
+    "prompt_en": "Souvenirs you keep",
+    "prompt_de": "Souvenirs, die du aufbewahrst",
+    "prompt_es": "Recuerdos que conservas",
+    "prompt_fr": "Souvenirs que tu gardes",
+    "is_active": true
+  },
+  {
+    "id": "topic_050",
+    "content_type": "topic",
+    "prompt_tr": "Konuşmak istediğin diller",
+    "prompt_en": "Languages you want to speak",
+    "prompt_de": "Sprachen, die du sprechen möchtest",
+    "prompt_es": "Idiomas que quieres hablar",
+    "prompt_fr": "Langues que tu veux parler",
+    "is_active": true
+  },
+  {
+    "id": "topic_051",
+    "content_type": "topic",
+    "prompt_tr": "Daha iyi tanımak istediğin ülke",
+    "prompt_en": "A country to understand better",
+    "prompt_de": "Ein Land, das du besser verstehen möchtest",
+    "prompt_es": "Un país que quieres conocer mejor",
+    "prompt_fr": "Un pays que tu veux mieux comprendre",
+    "is_active": true
+  },
+  {
+    "id": "topic_052",
+    "content_type": "topic",
+    "prompt_tr": "En sevdiğin hava durumu",
+    "prompt_en": "Favorite weather",
+    "prompt_de": "Lieblingswetter",
+    "prompt_es": "Clima favorito",
+    "prompt_fr": "Temps préféré",
+    "is_active": true
+  },
+  {
+    "id": "topic_053",
+    "content_type": "topic",
+    "prompt_tr": "Yağmurlu gün aktiviteleri",
+    "prompt_en": "Rainy-day activities",
+    "prompt_de": "Aktivitäten an Regentagen",
+    "prompt_es": "Actividades para días lluviosos",
+    "prompt_fr": "Activités pour les jours de pluie",
+    "is_active": true
+  },
+  {
+    "id": "topic_054",
+    "content_type": "topic",
+    "prompt_tr": "Yaz anıları",
+    "prompt_en": "Summer memories",
+    "prompt_de": "Sommererinnerungen",
+    "prompt_es": "Recuerdos de verano",
+    "prompt_fr": "Souvenirs d’été",
+    "is_active": true
+  },
+  {
+    "id": "topic_055",
+    "content_type": "topic",
+    "prompt_tr": "Kış aktiviteleri",
+    "prompt_en": "Winter activities",
+    "prompt_de": "Winteraktivitäten",
+    "prompt_es": "Actividades de invierno",
+    "prompt_fr": "Activités d’hiver",
+    "is_active": true
+  },
+  {
+    "id": "topic_056",
+    "content_type": "topic",
+    "prompt_tr": "Günün en sevdiğin zamanı",
+    "prompt_en": "Favorite time of day",
+    "prompt_de": "Lieblingszeit des Tages",
+    "prompt_es": "Momento favorito del día",
+    "prompt_fr": "Moment préféré de la journée",
+    "is_active": true
+  },
+  {
+    "id": "topic_057",
+    "content_type": "topic",
+    "prompt_tr": "Ev gibi hissettiren yer",
+    "prompt_en": "A place that feels like home",
+    "prompt_de": "Ein Ort, der sich wie Zuhause anfühlt",
+    "prompt_es": "Un lugar que se siente como hogar",
+    "prompt_fr": "Un endroit qui ressemble à chez toi",
+    "is_active": true
+  },
+  {
+    "id": "topic_058",
+    "content_type": "topic",
+    "prompt_tr": "Masanın üzerindeki şeyler",
+    "prompt_en": "Things on your desk",
+    "prompt_de": "Dinge auf deinem Schreibtisch",
+    "prompt_es": "Cosas de tu escritorio",
+    "prompt_fr": "Choses sur ton bureau",
+    "is_active": true
+  },
+  {
+    "id": "topic_059",
+    "content_type": "topic",
+    "prompt_tr": "Telefonundaki en kullanışlı özellik",
+    "prompt_en": "Most useful phone feature",
+    "prompt_de": "Nützlichste Handyfunktion",
+    "prompt_es": "Función más útil del teléfono",
+    "prompt_fr": "Fonction la plus utile du téléphone",
+    "is_active": true
+  },
+  {
+    "id": "topic_060",
+    "content_type": "topic",
+    "prompt_tr": "Her gün kullandığın uygulamalar",
+    "prompt_en": "Daily apps",
+    "prompt_de": "Apps, die du täglich nutzt",
+    "prompt_es": "Apps que usas cada día",
+    "prompt_fr": "Applis que tu utilises chaque jour",
+    "is_active": true
+  },
+  {
+    "id": "topic_061",
+    "content_type": "topic",
+    "prompt_tr": "Olmasını istediğin özellik",
+    "prompt_en": "Feature you wish existed",
+    "prompt_de": "Funktion, die du dir wünschst",
+    "prompt_es": "Función que te gustaría tener",
+    "prompt_fr": "Fonction que tu aimerais avoir",
+    "is_active": true
+  },
+  {
+    "id": "topic_062",
+    "content_type": "topic",
+    "prompt_tr": "Online alışveriş alışkanlıkları",
+    "prompt_en": "Online shopping habits",
+    "prompt_de": "Online-Shopping-Gewohnheiten",
+    "prompt_es": "Hábitos de compras online",
+    "prompt_fr": "Habitudes d’achat en ligne",
+    "is_active": true
+  },
+  {
+    "id": "topic_063",
+    "content_type": "topic",
+    "prompt_tr": "Biriktirmek mi harcamak mı",
+    "prompt_en": "Saving or spending",
+    "prompt_de": "Sparen oder ausgeben",
+    "prompt_es": "Ahorrar o gastar",
+    "prompt_fr": "Épargner ou dépenser",
+    "is_active": true
+  },
+  {
+    "id": "topic_064",
+    "content_type": "topic",
+    "prompt_tr": "Aldığın en güzel hediye",
+    "prompt_en": "Best gift received",
+    "prompt_de": "Bestes Geschenk, das du bekommen hast",
+    "prompt_es": "Mejor regalo recibido",
+    "prompt_fr": "Meilleur cadeau reçu",
+    "is_active": true
+  },
+  {
+    "id": "topic_065",
+    "content_type": "topic",
+    "prompt_tr": "Almak istediğin hediye",
+    "prompt_en": "Gift you want",
+    "prompt_de": "Geschenk, das du gern bekommen würdest",
+    "prompt_es": "Regalo que te gustaría recibir",
+    "prompt_fr": "Cadeau que tu aimerais recevoir",
+    "is_active": true
+  },
+  {
+    "id": "topic_066",
+    "content_type": "topic",
+    "prompt_tr": "Sevdiğin sürprizler",
+    "prompt_en": "Surprises you enjoy",
+    "prompt_de": "Überraschungen, die du magst",
+    "prompt_es": "Sorpresas que disfrutas",
+    "prompt_fr": "Surprises que tu apprécies",
+    "is_active": true
+  },
+  {
+    "id": "topic_067",
+    "content_type": "topic",
+    "prompt_tr": "İyi haberi nasıl kutlarsın",
+    "prompt_en": "Celebrating good news",
+    "prompt_de": "Wie du gute Nachrichten feierst",
+    "prompt_es": "Cómo celebras buenas noticias",
+    "prompt_fr": "Comment tu célèbres une bonne nouvelle",
+    "is_active": true
+  },
+  {
+    "id": "topic_068",
+    "content_type": "topic",
+    "prompt_tr": "Kötü bir günü nasıl geçirirsin",
+    "prompt_en": "Handling a bad day",
+    "prompt_de": "Wie du einen schlechten Tag überstehst",
+    "prompt_es": "Cómo afrontas un mal día",
+    "prompt_fr": "Comment tu gères une mauvaise journée",
+    "is_active": true
+  },
+  {
+    "id": "topic_069",
+    "content_type": "topic",
+    "prompt_tr": "Seni rahatlatan şeyler",
+    "prompt_en": "What helps you relax",
+    "prompt_de": "Was dir beim Entspannen hilft",
+    "prompt_es": "Qué te ayuda a relajarte",
+    "prompt_fr": "Ce qui t’aide à te détendre",
+    "is_active": true
+  },
+  {
+    "id": "topic_070",
+    "content_type": "topic",
+    "prompt_tr": "Enerjini nasıl toplarsın",
+    "prompt_en": "How you recharge",
+    "prompt_de": "Wie du neue Energie bekommst",
+    "prompt_es": "Cómo recuperas energía",
+    "prompt_fr": "Comment tu récupères ton énergie",
+    "is_active": true
+  },
+  {
+    "id": "topic_071",
+    "content_type": "topic",
+    "prompt_tr": "İdeal uyku düzenin",
+    "prompt_en": "Ideal sleep schedule",
+    "prompt_de": "Idealer Schlafrhythmus",
+    "prompt_es": "Horario ideal de sueño",
+    "prompt_fr": "Rythme de sommeil idéal",
+    "is_active": true
+  },
+  {
+    "id": "topic_072",
+    "content_type": "topic",
+    "prompt_tr": "Sabah rutinin",
+    "prompt_en": "Morning routine",
+    "prompt_de": "Morgenroutine",
+    "prompt_es": "Rutina de mañana",
+    "prompt_fr": "Routine du matin",
+    "is_active": true
+  },
+  {
+    "id": "topic_073",
+    "content_type": "topic",
+    "prompt_tr": "Gece rutinin",
+    "prompt_en": "Night routine",
+    "prompt_de": "Abendroutine",
+    "prompt_es": "Rutina de noche",
+    "prompt_fr": "Routine du soir",
+    "is_active": true
+  },
+  {
+    "id": "topic_074",
+    "content_type": "topic",
+    "prompt_tr": "Keyif aldığın egzersiz",
+    "prompt_en": "Exercise you enjoy",
+    "prompt_de": "Sport, der dir Spaß macht",
+    "prompt_es": "Ejercicio que disfrutas",
+    "prompt_fr": "Exercice que tu apprécies",
+    "is_active": true
+  },
+  {
+    "id": "topic_075",
+    "content_type": "topic",
+    "prompt_tr": "En sevdiğin açık hava aktivitesi",
+    "prompt_en": "Favorite outdoor activity",
+    "prompt_de": "Lieblingsaktivität im Freien",
+    "prompt_es": "Actividad favorita al aire libre",
+    "prompt_fr": "Activité préférée en plein air",
+    "is_active": true
+  },
+  {
+    "id": "topic_076",
+    "content_type": "topic",
+    "prompt_tr": "Öğrenmek istediğin spor",
+    "prompt_en": "Sport you would learn",
+    "prompt_de": "Sportart, die du lernen würdest",
+    "prompt_es": "Deporte que aprenderías",
+    "prompt_fr": "Sport que tu aimerais apprendre",
+    "is_active": true
+  },
+  {
+    "id": "topic_077",
+    "content_type": "topic",
+    "prompt_tr": "Asla sıkılmadığın oyun",
+    "prompt_en": "Game you never tire of",
+    "prompt_de": "Spiel, das nie langweilig wird",
+    "prompt_es": "Juego que nunca te aburre",
+    "prompt_fr": "Jeu dont tu ne te lasses jamais",
+    "is_active": true
+  },
+  {
+    "id": "topic_078",
+    "content_type": "topic",
+    "prompt_tr": "Masa oyunları mı video oyunları mı",
+    "prompt_en": "Board games or video games",
+    "prompt_de": "Brettspiele oder Videospiele",
+    "prompt_es": "Juegos de mesa o videojuegos",
+    "prompt_fr": "Jeux de société ou jeux vidéo",
+    "is_active": true
+  },
+  {
+    "id": "topic_079",
+    "content_type": "topic",
+    "prompt_tr": "Bilgi yarışmaları ve quizler",
+    "prompt_en": "Trivia and quizzes",
+    "prompt_de": "Trivia und Quizze",
+    "prompt_es": "Trivial y concursos",
+    "prompt_fr": "Quiz et culture générale",
+    "is_active": true
+  },
+  {
+    "id": "topic_080",
+    "content_type": "topic",
+    "prompt_tr": "Hangisini tercih edersin soruları",
+    "prompt_en": "Would-you-rather questions",
+    "prompt_de": "Entweder-oder-Fragen",
+    "prompt_es": "Preguntas de elegir",
+    "prompt_fr": "Questions « tu préfères »",
+    "is_active": true
+  },
+  {
+    "id": "topic_081",
+    "content_type": "topic",
+    "prompt_tr": "En unutulmaz konuşman",
+    "prompt_en": "Most memorable conversation",
+    "prompt_de": "Unvergesslichstes Gespräch",
+    "prompt_es": "Conversación más memorable",
+    "prompt_fr": "Conversation la plus mémorable",
+    "is_active": true
+  },
+  {
+    "id": "topic_082",
+    "content_type": "topic",
+    "prompt_tr": "Sana yardım eden bir yabancı",
+    "prompt_en": "A stranger who helped",
+    "prompt_de": "Ein Fremder, der dir geholfen hat",
+    "prompt_es": "Un desconocido que te ayudó",
+    "prompt_fr": "Un inconnu qui t’a aidé",
+    "is_active": true
+  },
+  {
+    "id": "topic_083",
+    "content_type": "topic",
+    "prompt_tr": "Hatırladığın bir iyilik",
+    "prompt_en": "Kindness you remember",
+    "prompt_de": "Eine Freundlichkeit, an die du dich erinnerst",
+    "prompt_es": "Una amabilidad que recuerdas",
+    "prompt_fr": "Une gentillesse dont tu te souviens",
+    "is_active": true
+  },
+  {
+    "id": "topic_084",
+    "content_type": "topic",
+    "prompt_tr": "Unutamadığın bir iltifat",
+    "prompt_en": "A compliment you remember",
+    "prompt_de": "Ein unvergessliches Kompliment",
+    "prompt_es": "Un cumplido inolvidable",
+    "prompt_fr": "Un compliment inoubliable",
+    "is_active": true
+  },
+  {
+    "id": "topic_085",
+    "content_type": "topic",
+    "prompt_tr": "Komik bir yanlış anlaşılma",
+    "prompt_en": "Funny misunderstanding",
+    "prompt_de": "Lustiges Missverständnis",
+    "prompt_es": "Malentendido divertido",
+    "prompt_fr": "Malentendu amusant",
+    "is_active": true
+  },
+  {
+    "id": "topic_086",
+    "content_type": "topic",
+    "prompt_tr": "En komik lakabın",
+    "prompt_en": "Funniest nickname",
+    "prompt_de": "Lustigster Spitzname",
+    "prompt_es": "Apodo más gracioso",
+    "prompt_fr": "Surnom le plus drôle",
+    "is_active": true
+  },
+  {
+    "id": "topic_087",
+    "content_type": "topic",
+    "prompt_tr": "Utandıran ama zararsız bir an",
+    "prompt_en": "Harmless embarrassing moment",
+    "prompt_de": "Peinlicher, aber harmloser Moment",
+    "prompt_es": "Momento vergonzoso pero inofensivo",
+    "prompt_fr": "Moment gênant mais sans gravité",
+    "is_active": true
+  },
+  {
+    "id": "topic_088",
+    "content_type": "topic",
+    "prompt_tr": "En komik seyahat hatan",
+    "prompt_en": "Funniest travel mistake",
+    "prompt_de": "Lustigster Reisefehler",
+    "prompt_es": "Error de viaje más divertido",
+    "prompt_fr": "Erreur de voyage la plus drôle",
+    "is_active": true
+  },
+  {
+    "id": "topic_089",
+    "content_type": "topic",
+    "prompt_tr": "Kaybolduğun bir an",
+    "prompt_en": "A time you got lost",
+    "prompt_de": "Ein Moment, in dem du verloren warst",
+    "prompt_es": "Una vez que te perdiste",
+    "prompt_fr": "Une fois où tu t’es perdu",
+    "is_active": true
+  },
+  {
+    "id": "topic_090",
+    "content_type": "topic",
+    "prompt_tr": "Spontane bir kararın",
+    "prompt_en": "A spontaneous decision",
+    "prompt_de": "Eine spontane Entscheidung",
+    "prompt_es": "Una decisión espontánea",
+    "prompt_fr": "Une décision spontanée",
+    "is_active": true
+  },
+  {
+    "id": "topic_091",
+    "content_type": "topic",
+    "prompt_tr": "Para önemli olmasaydı ne yapardın",
+    "prompt_en": "If money did not matter",
+    "prompt_de": "Was du ohne Geldsorgen tun würdest",
+    "prompt_es": "Qué harías si el dinero no importara",
+    "prompt_fr": "Ce que tu ferais si l’argent n’était pas un problème",
+    "is_active": true
+  },
+  {
+    "id": "topic_092",
+    "content_type": "topic",
+    "prompt_tr": "Yakında yaşamak istediğin yeni deneyim",
+    "prompt_en": "New experience you want soon",
+    "prompt_de": "Neue Erfahrung, die du bald machen möchtest",
+    "prompt_es": "Nueva experiencia que quieres vivir pronto",
+    "prompt_fr": "Nouvelle expérience que tu veux bientôt vivre",
+    "is_active": true
+  },
+  {
+    "id": "topic_093",
+    "content_type": "topic",
+    "prompt_tr": "İcat etmek istediğin gelenek",
+    "prompt_en": "Tradition you would invent",
+    "prompt_de": "Tradition, die du erfinden würdest",
+    "prompt_es": "Tradición que inventarías",
+    "prompt_fr": "Tradition que tu inventerais",
+    "is_active": true
+  },
+  {
+    "id": "topic_094",
+    "content_type": "topic",
+    "prompt_tr": "Rutininde değiştirmek istediğin şey",
+    "prompt_en": "Routine you would change",
+    "prompt_de": "Sache, die du an deiner Routine ändern würdest",
+    "prompt_es": "Cosa que cambiarías de tu rutina",
+    "prompt_fr": "Chose que tu changerais dans ta routine",
+    "is_active": true
+  },
+  {
+    "id": "topic_095",
+    "content_type": "topic",
+    "prompt_tr": "Bir yeri sıcak yapan şey",
+    "prompt_en": "What makes a place welcoming",
+    "prompt_de": "Was einen Ort einladend macht",
+    "prompt_es": "Qué hace acogedor un lugar",
+    "prompt_fr": "Ce qui rend un endroit accueillant",
+    "is_active": true
+  },
+  {
+    "id": "topic_096",
+    "content_type": "topic",
+    "prompt_tr": "Konuşmayı unutulmaz yapan şey",
+    "prompt_en": "What makes a conversation memorable",
+    "prompt_de": "Was ein Gespräch unvergesslich macht",
+    "prompt_es": "Qué hace memorable una conversación",
+    "prompt_fr": "Ce qui rend une conversation mémorable",
+    "is_active": true
+  },
+  {
+    "id": "topic_097",
+    "content_type": "topic",
+    "prompt_tr": "İnsanların sana sormasını istediğin soru",
+    "prompt_en": "Question you wish people asked",
+    "prompt_de": "Frage, die andere dir stellen sollten",
+    "prompt_es": "Pregunta que te gustaría que te hicieran",
+    "prompt_fr": "Question que tu aimerais qu’on te pose",
+    "is_active": true
+  },
+  {
+    "id": "topic_098",
+    "content_type": "topic",
+    "prompt_tr": "Ailenle en sevdiğin anı",
+    "prompt_en": "Favorite memory with family",
+    "prompt_de": "Lieblingserinnerung mit der Familie",
+    "prompt_es": "Recuerdo favorito con la familia",
+    "prompt_fr": "Souvenir préféré en famille",
+    "is_active": true
+  },
+  {
+    "id": "topic_099",
+    "content_type": "topic",
+    "prompt_tr": "Kahve içmek için sevdiğin yer",
+    "prompt_en": "Favorite place for coffee",
+    "prompt_de": "Lieblingsort für Kaffee",
+    "prompt_es": "Lugar favorito para tomar café",
+    "prompt_fr": "Endroit préféré pour boire un café",
+    "is_active": true
+  },
+  {
+    "id": "topic_100",
+    "content_type": "topic",
+    "prompt_tr": "Birlikte rahatlamanın en sevdiğin yolu",
+    "prompt_en": "Favorite way to relax together",
+    "prompt_de": "Lieblingsart, gemeinsam zu entspannen",
+    "prompt_es": "Forma favorita de relajarse juntos",
+    "prompt_fr": "Façon préférée de se détendre ensemble",
+    "is_active": true
+  },
+  {
+    "id": "joke_001",
+    "content_type": "joke",
+    "prompt_tr": "kahve neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the coffee go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Kaffee zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el café a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le café est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_002",
+    "content_type": "joke",
+    "prompt_tr": "kahve neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the coffee get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Kaffee befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al café? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le café a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_003",
+    "content_type": "joke",
+    "prompt_tr": "kahve neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the coffee smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Kaffee? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el café? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le café souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_004",
+    "content_type": "joke",
+    "prompt_tr": "kahve neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the coffee bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Kaffee ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el café? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le café a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_005",
+    "content_type": "joke",
+    "prompt_tr": "kahve neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the coffee take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Kaffee eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el café? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le café a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  },
+  {
+    "id": "joke_006",
+    "content_type": "joke",
+    "prompt_tr": "bilgisayar neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the computer go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Computer zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el ordenador a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le ordinateur est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_007",
+    "content_type": "joke",
+    "prompt_tr": "bilgisayar neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the computer get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Computer befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al ordenador? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le ordinateur a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_008",
+    "content_type": "joke",
+    "prompt_tr": "bilgisayar neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the computer smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Computer? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el ordenador? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le ordinateur souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_009",
+    "content_type": "joke",
+    "prompt_tr": "bilgisayar neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the computer bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Computer ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el ordenador? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le ordinateur a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_010",
+    "content_type": "joke",
+    "prompt_tr": "bilgisayar neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the computer take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Computer eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el ordenador? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le ordinateur a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  },
+  {
+    "id": "joke_011",
+    "content_type": "joke",
+    "prompt_tr": "takvim neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the calendar go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Kalender zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el calendario a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le calendrier est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_012",
+    "content_type": "joke",
+    "prompt_tr": "takvim neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the calendar get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Kalender befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al calendario? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le calendrier a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_013",
+    "content_type": "joke",
+    "prompt_tr": "takvim neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the calendar smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Kalender? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el calendario? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le calendrier souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_014",
+    "content_type": "joke",
+    "prompt_tr": "takvim neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the calendar bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Kalender ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el calendario? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le calendrier a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_015",
+    "content_type": "joke",
+    "prompt_tr": "takvim neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the calendar take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Kalender eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el calendario? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le calendrier a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  },
+  {
+    "id": "joke_016",
+    "content_type": "joke",
+    "prompt_tr": "bisiklet neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the bicycle go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Fahrrad zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el bicicleta a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le vélo est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_017",
+    "content_type": "joke",
+    "prompt_tr": "bisiklet neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the bicycle get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Fahrrad befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al bicicleta? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le vélo a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_018",
+    "content_type": "joke",
+    "prompt_tr": "bisiklet neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the bicycle smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Fahrrad? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el bicicleta? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le vélo souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_019",
+    "content_type": "joke",
+    "prompt_tr": "bisiklet neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the bicycle bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Fahrrad ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el bicicleta? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le vélo a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_020",
+    "content_type": "joke",
+    "prompt_tr": "bisiklet neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the bicycle take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Fahrrad eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el bicicleta? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le vélo a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  },
+  {
+    "id": "joke_021",
+    "content_type": "joke",
+    "prompt_tr": "kitap neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the book go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Buch zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el libro a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le livre est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_022",
+    "content_type": "joke",
+    "prompt_tr": "kitap neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the book get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Buch befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al libro? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le livre a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_023",
+    "content_type": "joke",
+    "prompt_tr": "kitap neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the book smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Buch? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el libro? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le livre souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_024",
+    "content_type": "joke",
+    "prompt_tr": "kitap neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the book bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Buch ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el libro? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le livre a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_025",
+    "content_type": "joke",
+    "prompt_tr": "kitap neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the book take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Buch eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el libro? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le livre a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  },
+  {
+    "id": "joke_026",
+    "content_type": "joke",
+    "prompt_tr": "telefon neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the phone go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Handy zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el teléfono a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le téléphone est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_027",
+    "content_type": "joke",
+    "prompt_tr": "telefon neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the phone get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Handy befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al teléfono? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le téléphone a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_028",
+    "content_type": "joke",
+    "prompt_tr": "telefon neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the phone smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Handy? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el teléfono? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le téléphone souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_029",
+    "content_type": "joke",
+    "prompt_tr": "telefon neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the phone bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Handy ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el teléfono? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le téléphone a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_030",
+    "content_type": "joke",
+    "prompt_tr": "telefon neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the phone take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Handy eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el teléfono? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le téléphone a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  },
+  {
+    "id": "joke_031",
+    "content_type": "joke",
+    "prompt_tr": "kalem neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the pencil go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Bleistift zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el lápiz a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le crayon est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_032",
+    "content_type": "joke",
+    "prompt_tr": "kalem neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the pencil get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Bleistift befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al lápiz? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le crayon a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_033",
+    "content_type": "joke",
+    "prompt_tr": "kalem neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the pencil smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Bleistift? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el lápiz? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le crayon souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_034",
+    "content_type": "joke",
+    "prompt_tr": "kalem neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the pencil bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Bleistift ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el lápiz? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le crayon a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_035",
+    "content_type": "joke",
+    "prompt_tr": "kalem neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the pencil take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Bleistift eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el lápiz? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le crayon a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  },
+  {
+    "id": "joke_036",
+    "content_type": "joke",
+    "prompt_tr": "sandalye neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the chair go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Stuhl zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el silla a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le chaise est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_037",
+    "content_type": "joke",
+    "prompt_tr": "sandalye neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the chair get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Stuhl befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al silla? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le chaise a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_038",
+    "content_type": "joke",
+    "prompt_tr": "sandalye neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the chair smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Stuhl? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el silla? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le chaise souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_039",
+    "content_type": "joke",
+    "prompt_tr": "sandalye neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the chair bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Stuhl ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el silla? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le chaise a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_040",
+    "content_type": "joke",
+    "prompt_tr": "sandalye neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the chair take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Stuhl eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el silla? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le chaise a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  },
+  {
+    "id": "joke_041",
+    "content_type": "joke",
+    "prompt_tr": "lamba neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the lamp go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Lampe zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el lámpara a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le lampe est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_042",
+    "content_type": "joke",
+    "prompt_tr": "lamba neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the lamp get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Lampe befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al lámpara? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le lampe a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_043",
+    "content_type": "joke",
+    "prompt_tr": "lamba neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the lamp smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Lampe? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el lámpara? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le lampe souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_044",
+    "content_type": "joke",
+    "prompt_tr": "lamba neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the lamp bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Lampe ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el lámpara? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le lampe a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_045",
+    "content_type": "joke",
+    "prompt_tr": "lamba neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the lamp take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Lampe eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el lámpara? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le lampe a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  },
+  {
+    "id": "joke_046",
+    "content_type": "joke",
+    "prompt_tr": "valiz neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the suitcase go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Koffer zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el maleta a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le valise est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_047",
+    "content_type": "joke",
+    "prompt_tr": "valiz neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the suitcase get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Koffer befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al maleta? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le valise a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_048",
+    "content_type": "joke",
+    "prompt_tr": "valiz neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the suitcase smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Koffer? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el maleta? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le valise souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_049",
+    "content_type": "joke",
+    "prompt_tr": "valiz neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the suitcase bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Koffer ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el maleta? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le valise a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_050",
+    "content_type": "joke",
+    "prompt_tr": "valiz neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the suitcase take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Koffer eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el maleta? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le valise a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  },
+  {
+    "id": "joke_051",
+    "content_type": "joke",
+    "prompt_tr": "kamera neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the camera go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Kamera zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el cámara a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le appareil photo est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_052",
+    "content_type": "joke",
+    "prompt_tr": "kamera neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the camera get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Kamera befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al cámara? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le appareil photo a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_053",
+    "content_type": "joke",
+    "prompt_tr": "kamera neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the camera smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Kamera? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el cámara? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le appareil photo souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_054",
+    "content_type": "joke",
+    "prompt_tr": "kamera neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the camera bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Kamera ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el cámara? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le appareil photo a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_055",
+    "content_type": "joke",
+    "prompt_tr": "kamera neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the camera take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Kamera eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el cámara? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le appareil photo a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  },
+  {
+    "id": "joke_056",
+    "content_type": "joke",
+    "prompt_tr": "şemsiye neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the umbrella go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Regenschirm zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el paraguas a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le parapluie est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_057",
+    "content_type": "joke",
+    "prompt_tr": "şemsiye neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the umbrella get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Regenschirm befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al paraguas? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le parapluie a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_058",
+    "content_type": "joke",
+    "prompt_tr": "şemsiye neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the umbrella smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Regenschirm? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el paraguas? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le parapluie souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_059",
+    "content_type": "joke",
+    "prompt_tr": "şemsiye neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the umbrella bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Regenschirm ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el paraguas? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le parapluie a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_060",
+    "content_type": "joke",
+    "prompt_tr": "şemsiye neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the umbrella take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Regenschirm eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el paraguas? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le parapluie a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  },
+  {
+    "id": "joke_061",
+    "content_type": "joke",
+    "prompt_tr": "sandviç neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the sandwich go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Sandwich zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el sándwich a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le sandwich est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_062",
+    "content_type": "joke",
+    "prompt_tr": "sandviç neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the sandwich get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Sandwich befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al sándwich? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le sandwich a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_063",
+    "content_type": "joke",
+    "prompt_tr": "sandviç neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the sandwich smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Sandwich? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el sándwich? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le sandwich souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_064",
+    "content_type": "joke",
+    "prompt_tr": "sandviç neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the sandwich bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Sandwich ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el sándwich? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le sandwich a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_065",
+    "content_type": "joke",
+    "prompt_tr": "sandviç neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the sandwich take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Sandwich eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el sándwich? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le sandwich a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  },
+  {
+    "id": "joke_066",
+    "content_type": "joke",
+    "prompt_tr": "kurabiye neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the cookie go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Keks zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el galleta a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le biscuit est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_067",
+    "content_type": "joke",
+    "prompt_tr": "kurabiye neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the cookie get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Keks befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al galleta? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le biscuit a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_068",
+    "content_type": "joke",
+    "prompt_tr": "kurabiye neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the cookie smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Keks? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el galleta? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le biscuit souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_069",
+    "content_type": "joke",
+    "prompt_tr": "kurabiye neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the cookie bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Keks ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el galleta? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le biscuit a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_070",
+    "content_type": "joke",
+    "prompt_tr": "kurabiye neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the cookie take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Keks eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el galleta? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le biscuit a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  },
+  {
+    "id": "joke_071",
+    "content_type": "joke",
+    "prompt_tr": "muz neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the banana go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Banane zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el plátano a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le banane est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_072",
+    "content_type": "joke",
+    "prompt_tr": "muz neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the banana get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Banane befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al plátano? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le banane a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_073",
+    "content_type": "joke",
+    "prompt_tr": "muz neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the banana smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Banane? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el plátano? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le banane souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_074",
+    "content_type": "joke",
+    "prompt_tr": "muz neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the banana bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Banane ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el plátano? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le banane a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_075",
+    "content_type": "joke",
+    "prompt_tr": "muz neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the banana take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Banane eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el plátano? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le banane a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  },
+  {
+    "id": "joke_076",
+    "content_type": "joke",
+    "prompt_tr": "domates neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the tomato go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Tomate zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el tomate a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le tomate est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_077",
+    "content_type": "joke",
+    "prompt_tr": "domates neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the tomato get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Tomate befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al tomate? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le tomate a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_078",
+    "content_type": "joke",
+    "prompt_tr": "domates neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the tomato smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Tomate? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el tomate? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le tomate souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_079",
+    "content_type": "joke",
+    "prompt_tr": "domates neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the tomato bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Tomate ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el tomate? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le tomate a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_080",
+    "content_type": "joke",
+    "prompt_tr": "domates neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the tomato take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Tomate eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el tomate? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le tomate a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  },
+  {
+    "id": "joke_081",
+    "content_type": "joke",
+    "prompt_tr": "saat neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the clock go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Uhr zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el reloj a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le horloge est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_082",
+    "content_type": "joke",
+    "prompt_tr": "saat neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the clock get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Uhr befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al reloj? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le horloge a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_083",
+    "content_type": "joke",
+    "prompt_tr": "saat neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the clock smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Uhr? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el reloj? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le horloge souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_084",
+    "content_type": "joke",
+    "prompt_tr": "saat neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the clock bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Uhr ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el reloj? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le horloge a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_085",
+    "content_type": "joke",
+    "prompt_tr": "saat neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the clock take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Uhr eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el reloj? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le horloge a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  },
+  {
+    "id": "joke_086",
+    "content_type": "joke",
+    "prompt_tr": "klavye neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the keyboard go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Tastatur zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el teclado a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le clavier est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_087",
+    "content_type": "joke",
+    "prompt_tr": "klavye neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the keyboard get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Tastatur befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al teclado? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le clavier a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_088",
+    "content_type": "joke",
+    "prompt_tr": "klavye neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the keyboard smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Tastatur? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el teclado? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le clavier souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_089",
+    "content_type": "joke",
+    "prompt_tr": "klavye neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the keyboard bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Tastatur ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el teclado? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le clavier a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_090",
+    "content_type": "joke",
+    "prompt_tr": "klavye neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the keyboard take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Tastatur eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el teclado? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le clavier a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  },
+  {
+    "id": "joke_091",
+    "content_type": "joke",
+    "prompt_tr": "kaşık neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the spoon go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Löffel zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el cuchara a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le cuillère est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_092",
+    "content_type": "joke",
+    "prompt_tr": "kaşık neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the spoon get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Löffel befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al cuchara? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le cuillère a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_093",
+    "content_type": "joke",
+    "prompt_tr": "kaşık neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the spoon smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Löffel? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el cuchara? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le cuillère souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_094",
+    "content_type": "joke",
+    "prompt_tr": "kaşık neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the spoon bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Löffel ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el cuchara? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le cuillère a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_095",
+    "content_type": "joke",
+    "prompt_tr": "kaşık neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the spoon take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Löffel eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el cuchara? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le cuillère a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  },
+  {
+    "id": "joke_096",
+    "content_type": "joke",
+    "prompt_tr": "kapı neden terapiye gitti? Çok fazla sorunu vardı.",
+    "prompt_en": "Why did the door go to therapy? It had too many issues.",
+    "prompt_de": "Warum ging der Tür zur Therapie? Er hatte zu viele Probleme.",
+    "prompt_es": "¿Por qué fue el puerta a terapia? Tenía demasiados problemas.",
+    "prompt_fr": "Pourquoi le porte est-il allé en thérapie ? Il avait trop de problèmes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_097",
+    "content_type": "joke",
+    "prompt_tr": "kapı neden terfi aldı? Baskıyı nasıl yöneteceğini biliyordu.",
+    "prompt_en": "Why did the door get promoted? It always knew how to handle pressure.",
+    "prompt_de": "Warum wurde der Tür befördert? Er wusste mit Druck umzugehen.",
+    "prompt_es": "¿Por qué ascendieron al puerta? Sabía manejar la presión.",
+    "prompt_fr": "Pourquoi le porte a-t-il été promu ? Il savait gérer la pression.",
+    "is_active": true
+  },
+  {
+    "id": "joke_098",
+    "content_type": "joke",
+    "prompt_tr": "kapı neden gülümsedi? Güzel bir gün geçiriyordu.",
+    "prompt_en": "Why did the door smile? It was having a good day.",
+    "prompt_de": "Warum lächelte der Tür? Er hatte einen guten Tag.",
+    "prompt_es": "¿Por qué sonrió el puerta? Estaba teniendo un buen día.",
+    "prompt_fr": "Pourquoi le porte souriait-il ? Il passait une bonne journée.",
+    "is_active": true
+  },
+  {
+    "id": "joke_099",
+    "content_type": "joke",
+    "prompt_tr": "kapı neden defter getirdi? Güzel notlar tutmak istiyordu.",
+    "prompt_en": "Why did the door bring a notebook? It wanted to keep good notes.",
+    "prompt_de": "Warum brachte der Tür ein Notizbuch mit? Er wollte gute Notizen machen.",
+    "prompt_es": "¿Por qué llevó un cuaderno el puerta? Quería tomar buenos apuntes.",
+    "prompt_fr": "Pourquoi le porte a-t-il pris un carnet ? Il voulait prendre de bonnes notes.",
+    "is_active": true
+  },
+  {
+    "id": "joke_100",
+    "content_type": "joke",
+    "prompt_tr": "kapı neden mola verdi? Nesnelerin bile biraz dinlenmeye ihtiyacı olur.",
+    "prompt_en": "Why did the door take a break? Even objects need a little downtime.",
+    "prompt_de": "Warum machte der Tür eine Pause? Auch Dinge brauchen etwas Ruhe.",
+    "prompt_es": "¿Por qué descansó el puerta? Hasta los objetos necesitan un poco de descanso.",
+    "prompt_fr": "Pourquoi le porte a-t-il fait une pause ? Même les objets ont besoin de repos.",
+    "is_active": true
+  }
+]

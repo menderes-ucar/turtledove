@@ -1,0 +1,952 @@
+// ============================================================================
+// KPSS MOBIL UYGULAMASI - DART DATA MODELLERI
+// Production-Ready: Saf Dart, fromJson/toJson Eksiksiz
+// ============================================================================
+
+import 'package:flutter/foundation.dart';
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum ExamType {
+  lisans,
+  onlisans,
+  ortaogretim;
+
+  String get displayName {
+    switch (this) {
+      case ExamType.lisans:
+        return 'Lisans';
+      case ExamType.onlisans:
+        return 'Ön Lisans';
+      case ExamType.ortaogretim:
+        return 'Ortaöğretim';
+    }
+  }
+
+  static ExamType fromString(String value) {
+    return ExamType.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => ExamType.lisans,
+    );
+  }
+}
+
+enum QuizStatus {
+  running,
+  completed,
+  abandoned;
+
+  static QuizStatus fromString(String value) {
+    return QuizStatus.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => QuizStatus.running,
+    );
+  }
+
+  bool get isRunning => this == QuizStatus.running;
+  bool get isCompleted => this == QuizStatus.completed;
+  bool get isAbandoned => this == QuizStatus.abandoned;
+}
+
+// ============================================================================
+// QUESTION MODEL
+// ============================================================================
+
+@immutable
+class QuestionModel {
+  final String id;
+  final String subjectId;
+  final String questionText;
+  final String? imageUrl;
+  final String optionA;
+  final String optionB;
+  final String optionC;
+  final String optionD;
+  final String? optionE;
+  final String? correctOption; // Server response only; never required in public question payload
+  final String? explanation;
+  final int difficultyLevel; // 1-5
+  final String? source;
+  final int? year;
+
+  const QuestionModel({
+    required this.id,
+    required this.subjectId,
+    required this.questionText,
+    this.imageUrl,
+    required this.optionA,
+    required this.optionB,
+    required this.optionC,
+    required this.optionD,
+    this.optionE,
+    required this.correctOption,
+    this.explanation,
+    required this.difficultyLevel,
+    this.source,
+    this.year,
+  });
+
+  // Seçeneği metin olarak al
+  String getOptionText(String option) {
+    switch (option.toUpperCase()) {
+      case 'A':
+        return optionA;
+      case 'B':
+        return optionB;
+      case 'C':
+        return optionC;
+      case 'D':
+        return optionD;
+      case 'E':
+        return optionE ?? '';
+      default:
+        return '';
+    }
+  }
+
+  // Zorluk seviyesi etiketini al
+  String getDifficultyLabel() {
+    switch (difficultyLevel) {
+      case 1:
+        return 'Çok Kolay';
+      case 2:
+        return 'Kolay';
+      case 3:
+        return 'Orta';
+      case 4:
+        return 'Zor';
+      case 5:
+        return 'Çok Zor';
+      default:
+        return 'Bilinmiyor';
+    }
+  }
+
+  factory QuestionModel.fromJson(Map<String, dynamic> json) {
+    return QuestionModel(
+      id: json['id'] as String? ?? '',
+      subjectId: json['subject_id'] as String? ?? '',
+      questionText: json['question_text'] as String? ?? '',
+      imageUrl: json['image_url'] as String?,
+      optionA: json['option_a'] as String? ?? '',
+      optionB: json['option_b'] as String? ?? '',
+      optionC: json['option_c'] as String? ?? '',
+      optionD: json['option_d'] as String? ?? '',
+      optionE: json['option_e'] as String?,
+      correctOption: (json['correct_option'] as String?)?.toUpperCase(),
+      explanation: json['explanation'] as String?,
+      difficultyLevel: json['difficulty_level'] as int? ?? 3,
+      source: json['source'] as String?,
+      year: json['year'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'subject_id': subjectId,
+      'question_text': questionText,
+      'image_url': imageUrl,
+      'option_a': optionA,
+      'option_b': optionB,
+      'option_c': optionC,
+      'option_d': optionD,
+      'option_e': optionE,
+      if (correctOption != null) 'correct_option': correctOption,
+      'explanation': explanation,
+      'difficulty_level': difficultyLevel,
+      'source': source,
+      'year': year,
+    };
+  }
+
+  QuestionModel copyWith({
+    String? id,
+    String? subjectId,
+    String? questionText,
+    String? imageUrl,
+    String? optionA,
+    String? optionB,
+    String? optionC,
+    String? optionD,
+    String? optionE,
+    String? correctOption,
+    String? explanation,
+    int? difficultyLevel,
+    String? source,
+    int? year,
+  }) {
+    return QuestionModel(
+      id: id ?? this.id,
+      subjectId: subjectId ?? this.subjectId,
+      questionText: questionText ?? this.questionText,
+      imageUrl: imageUrl ?? this.imageUrl,
+      optionA: optionA ?? this.optionA,
+      optionB: optionB ?? this.optionB,
+      optionC: optionC ?? this.optionC,
+      optionD: optionD ?? this.optionD,
+      optionE: optionE ?? this.optionE,
+      correctOption: correctOption ?? this.correctOption,
+      explanation: explanation ?? this.explanation,
+      difficultyLevel: difficultyLevel ?? this.difficultyLevel,
+      source: source ?? this.source,
+      year: year ?? this.year,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is QuestionModel &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() => 'QuestionModel(id: $id)';
+}
+
+// ============================================================================
+// USER ANSWER MODEL
+// ============================================================================
+
+@immutable
+class UserAnswerModel {
+  final String id;
+  final String userId;
+  final String questionId;
+  final String quizAttemptId;
+  final String? selectedOption; // Null = boş bırakıldı
+  final bool? isCorrect;
+  final int? timeSpentSeconds;
+  final DateTime answeredAt;
+
+  const UserAnswerModel({
+    required this.id,
+    required this.userId,
+    required this.questionId,
+    required this.quizAttemptId,
+    this.selectedOption,
+    this.isCorrect,
+    this.timeSpentSeconds,
+    required this.answeredAt,
+  });
+
+  bool get isBlank => selectedOption == null;
+
+  bool get isWrong => isCorrect == false;
+
+  factory UserAnswerModel.fromJson(Map<String, dynamic> json) {
+    return UserAnswerModel(
+      id: json['id'] as String? ?? '',
+      userId: json['user_id'] as String? ?? '',
+      questionId: json['question_id'] as String? ?? '',
+      quizAttemptId: json['quiz_attempt_id'] as String? ?? '',
+      selectedOption: json['selected_option'] as String?,
+      isCorrect: json['is_correct'] as bool?,
+      timeSpentSeconds: json['time_spent_seconds'] as int?,
+      answeredAt: DateTime.tryParse(json['answered_at'] as String? ?? '') ??
+          DateTime.now(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'user_id': userId,
+      'question_id': questionId,
+      'quiz_attempt_id': quizAttemptId,
+      'selected_option': selectedOption,
+      'is_correct': isCorrect,
+      'time_spent_seconds': timeSpentSeconds,
+      'answered_at': answeredAt.toIso8601String(),
+    };
+  }
+
+  UserAnswerModel copyWith({
+    String? id,
+    String? userId,
+    String? questionId,
+    String? quizAttemptId,
+    String? selectedOption,
+    bool? isCorrect,
+    int? timeSpentSeconds,
+    DateTime? answeredAt,
+  }) {
+    return UserAnswerModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      questionId: questionId ?? this.questionId,
+      quizAttemptId: quizAttemptId ?? this.quizAttemptId,
+      selectedOption: selectedOption ?? this.selectedOption,
+      isCorrect: isCorrect ?? this.isCorrect,
+      timeSpentSeconds: timeSpentSeconds ?? this.timeSpentSeconds,
+      answeredAt: answeredAt ?? this.answeredAt,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UserAnswerModel &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() => 'UserAnswerModel(id: $id, isCorrect: $isCorrect)';
+}
+
+// ============================================================================
+// QUIZ ATTEMPT MODEL
+// ============================================================================
+
+@immutable
+class QuizAttemptModel {
+  final String id;
+  final String userId;
+  final String subjectId;
+  final QuizStatus status;
+  final int totalQuestions;
+  final int correctAnswers;
+  final int wrongAnswers;
+  final int blankAnswers;
+  final int durationSeconds;
+  final double? score;
+  final bool isTimed;
+  final int? timeLimitSeconds;
+  final DateTime startedAt;
+  final DateTime? completedAt;
+
+  const QuizAttemptModel({
+    required this.id,
+    required this.userId,
+    required this.subjectId,
+    required this.status,
+    required this.totalQuestions,
+    required this.correctAnswers,
+    required this.wrongAnswers,
+    required this.blankAnswers,
+    required this.durationSeconds,
+    this.score,
+    required this.isTimed,
+    this.timeLimitSeconds,
+    required this.startedAt,
+    this.completedAt,
+  });
+
+  // Başarı yüzdesini hesapla
+  double get successPercentage {
+    if (totalQuestions == 0) return 0.0;
+    return (correctAnswers / totalQuestions) * 100;
+  }
+
+  // Quiz devam ediyor mu
+  bool get isRunning => status == QuizStatus.running;
+
+  // Quiz tamamlandı mı
+  bool get isCompleted => status == QuizStatus.completed;
+
+  // Ortalama süre (soru başına saniye)
+  int get averageTimePerQuestion {
+    if (totalQuestions == 0) return 0;
+    return (durationSeconds / totalQuestions).round();
+  }
+
+  factory QuizAttemptModel.fromJson(Map<String, dynamic> json) {
+    return QuizAttemptModel(
+      id: json['id'] as String? ?? '',
+      userId: json['user_id'] as String? ?? '',
+      subjectId: json['subject_id'] as String? ?? '',
+      status: QuizStatus.fromString(json['status'] as String? ?? 'running'),
+      totalQuestions: json['total_questions'] as int? ?? 0,
+      correctAnswers: json['correct_answers'] as int? ?? 0,
+      wrongAnswers: json['wrong_answers'] as int? ?? 0,
+      blankAnswers: json['blank_answers'] as int? ?? 0,
+      durationSeconds: json['duration_seconds'] as int? ?? 0,
+      score: _parseDouble(json['score']),
+      isTimed: json['is_timed'] as bool? ?? true,
+      timeLimitSeconds: json['time_limit_seconds'] as int?,
+      startedAt: DateTime.tryParse(json['started_at'] as String? ?? '') ??
+          DateTime.now(),
+      completedAt: json['completed_at'] != null
+          ? DateTime.tryParse(json['completed_at'] as String)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'user_id': userId,
+      'subject_id': subjectId,
+      'status': status.name,
+      'total_questions': totalQuestions,
+      'correct_answers': correctAnswers,
+      'wrong_answers': wrongAnswers,
+      'blank_answers': blankAnswers,
+      'duration_seconds': durationSeconds,
+      'score': score,
+      'is_timed': isTimed,
+      'time_limit_seconds': timeLimitSeconds,
+      'started_at': startedAt.toIso8601String(),
+      'completed_at': completedAt?.toIso8601String(),
+    };
+  }
+
+  QuizAttemptModel copyWith({
+    String? id,
+    String? userId,
+    String? subjectId,
+    QuizStatus? status,
+    int? totalQuestions,
+    int? correctAnswers,
+    int? wrongAnswers,
+    int? blankAnswers,
+    int? durationSeconds,
+    double? score,
+    bool? isTimed,
+    int? timeLimitSeconds,
+    DateTime? startedAt,
+    DateTime? completedAt,
+  }) {
+    return QuizAttemptModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      subjectId: subjectId ?? this.subjectId,
+      status: status ?? this.status,
+      totalQuestions: totalQuestions ?? this.totalQuestions,
+      correctAnswers: correctAnswers ?? this.correctAnswers,
+      wrongAnswers: wrongAnswers ?? this.wrongAnswers,
+      blankAnswers: blankAnswers ?? this.blankAnswers,
+      durationSeconds: durationSeconds ?? this.durationSeconds,
+      score: score ?? this.score,
+      isTimed: isTimed ?? this.isTimed,
+      timeLimitSeconds: timeLimitSeconds ?? this.timeLimitSeconds,
+      startedAt: startedAt ?? this.startedAt,
+      completedAt: completedAt ?? this.completedAt,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is QuizAttemptModel &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() => 'QuizAttemptModel(id: $id, status: ${status.name})';
+}
+
+// ============================================================================
+// ERROR NOTEBOOK ITEM MODEL
+// ============================================================================
+
+@immutable
+class ErrorNotebookItemModel {
+  final String id;
+  final String userId;
+  final String questionId;
+  final bool resolved;
+  final int wrongCount;
+  final DateTime lastWrongAt;
+  final String? noteText;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  // Opsiyonel: ilişkili soru detayları
+  final QuestionModel? question;
+
+  const ErrorNotebookItemModel({
+    required this.id,
+    required this.userId,
+    required this.questionId,
+    required this.resolved,
+    required this.wrongCount,
+    required this.lastWrongAt,
+    this.noteText,
+    required this.createdAt,
+    required this.updatedAt,
+    this.question,
+  });
+
+  // Gün cinsinden ne kadar zaman geçti
+  int get daysSinceLastWrong {
+    return DateTime.now().difference(lastWrongAt).inDays;
+  }
+
+  factory ErrorNotebookItemModel.fromJson(Map<String, dynamic> json) {
+    return ErrorNotebookItemModel(
+      id: json['id'] as String? ?? '',
+      userId: json['user_id'] as String? ?? '',
+      questionId: json['question_id'] as String? ?? '',
+      resolved: json['resolved'] as bool? ?? false,
+      wrongCount: json['wrong_count'] as int? ?? 1,
+      lastWrongAt: DateTime.tryParse(json['last_wrong_at'] as String? ?? '') ??
+          DateTime.now(),
+      noteText: json['note_text'] as String?,
+      createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
+          DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String? ?? '') ??
+          DateTime.now(),
+      question: json['questions'] != null
+          ? QuestionModel.fromJson(json['questions'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'user_id': userId,
+      'question_id': questionId,
+      'resolved': resolved,
+      'wrong_count': wrongCount,
+      'last_wrong_at': lastWrongAt.toIso8601String(),
+      'note_text': noteText,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+
+  ErrorNotebookItemModel copyWith({
+    String? id,
+    String? userId,
+    String? questionId,
+    bool? resolved,
+    int? wrongCount,
+    DateTime? lastWrongAt,
+    String? noteText,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    QuestionModel? question,
+  }) {
+    return ErrorNotebookItemModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      questionId: questionId ?? this.questionId,
+      resolved: resolved ?? this.resolved,
+      wrongCount: wrongCount ?? this.wrongCount,
+      lastWrongAt: lastWrongAt ?? this.lastWrongAt,
+      noteText: noteText ?? this.noteText,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      question: question ?? this.question,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ErrorNotebookItemModel &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() =>
+      'ErrorNotebookItemModel(id: $id, wrongCount: $wrongCount)';
+}
+
+// ============================================================================
+// NOTE MODEL
+// ============================================================================
+
+@immutable
+class NoteModel {
+  final String id;
+  final String userId;
+  final String? subjectId;
+  final String title;
+  final String content;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  const NoteModel({
+    required this.id,
+    required this.userId,
+    this.subjectId,
+    required this.title,
+    required this.content,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory NoteModel.fromJson(Map<String, dynamic> json) {
+    return NoteModel(
+      id: json['id'] as String? ?? '',
+      userId: json['user_id'] as String? ?? '',
+      subjectId: json['subject_id'] as String?,
+      title: json['title'] as String? ?? '',
+      content: json['content'] as String? ?? '',
+      createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
+          DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String? ?? '') ??
+          DateTime.now(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'user_id': userId,
+      'subject_id': subjectId,
+      'title': title,
+      'content': content,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+
+  NoteModel copyWith({
+    String? id,
+    String? userId,
+    String? subjectId,
+    String? title,
+    String? content,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return NoteModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      subjectId: subjectId ?? this.subjectId,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NoteModel &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() => 'NoteModel(id: $id, title: $title)';
+}
+
+// ============================================================================
+// STUDY PLAN MODEL
+// ============================================================================
+
+@immutable
+class StudyPlanWeekModel {
+  final int weekNumber;
+  final List<StudyPlanDayModel> days;
+  final DateTime startDate;
+  final DateTime endDate;
+
+  const StudyPlanWeekModel({
+    required this.weekNumber,
+    required this.days,
+    required this.startDate,
+    required this.endDate,
+  });
+
+  factory StudyPlanWeekModel.fromJson(Map<String, dynamic> json) {
+    final daysList = (json['days'] as List<dynamic>?)
+            ?.map((day) => StudyPlanDayModel.fromJson(day as Map<String, dynamic>))
+            .toList() ??
+        [];
+
+    return StudyPlanWeekModel(
+      weekNumber: json['week_number'] as int? ?? 0,
+      days: daysList,
+      startDate: DateTime.tryParse(json['start_date'] as String? ?? '') ??
+          DateTime.now(),
+      endDate: DateTime.tryParse(json['end_date'] as String? ?? '') ??
+          DateTime.now().add(const Duration(days: 7)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'week_number': weekNumber,
+      'days': days.map((day) => day.toJson()).toList(),
+      'start_date': startDate.toIso8601String(),
+      'end_date': endDate.toIso8601String(),
+    };
+  }
+
+  StudyPlanWeekModel copyWith({
+    int? weekNumber,
+    List<StudyPlanDayModel>? days,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) {
+    return StudyPlanWeekModel(
+      weekNumber: weekNumber ?? this.weekNumber,
+      days: days ?? this.days,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+    );
+  }
+}
+
+@immutable
+class StudyPlanDayModel {
+  final int dayNumber;
+  final String dayName; // Pazartesi, Salı vb.
+  final List<StudyPlanTaskModel> tasks;
+  final bool isCompleted;
+
+  const StudyPlanDayModel({
+    required this.dayNumber,
+    required this.dayName,
+    required this.tasks,
+    required this.isCompleted,
+  });
+
+  factory StudyPlanDayModel.fromJson(Map<String, dynamic> json) {
+    final tasksList = (json['tasks'] as List<dynamic>?)
+            ?.map((task) => StudyPlanTaskModel.fromJson(task as Map<String, dynamic>))
+            .toList() ??
+        [];
+
+    return StudyPlanDayModel(
+      dayNumber: json['day_number'] as int? ?? 0,
+      dayName: json['day_name'] as String? ?? '',
+      tasks: tasksList,
+      isCompleted: json['is_completed'] as bool? ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'day_number': dayNumber,
+      'day_name': dayName,
+      'tasks': tasks.map((task) => task.toJson()).toList(),
+      'is_completed': isCompleted,
+    };
+  }
+
+  StudyPlanDayModel copyWith({
+    int? dayNumber,
+    String? dayName,
+    List<StudyPlanTaskModel>? tasks,
+    bool? isCompleted,
+  }) {
+    return StudyPlanDayModel(
+      dayNumber: dayNumber ?? this.dayNumber,
+      dayName: dayName ?? this.dayName,
+      tasks: tasks ?? this.tasks,
+      isCompleted: isCompleted ?? this.isCompleted,
+    );
+  }
+}
+
+@immutable
+class StudyPlanTaskModel {
+  final String id;
+  final String subjectName;
+  final String taskDescription;
+  final int estimatedMinutes;
+  final bool isCompleted;
+  final DateTime? completedAt;
+
+  const StudyPlanTaskModel({
+    required this.id,
+    required this.subjectName,
+    required this.taskDescription,
+    required this.estimatedMinutes,
+    required this.isCompleted,
+    this.completedAt,
+  });
+
+  factory StudyPlanTaskModel.fromJson(Map<String, dynamic> json) {
+    return StudyPlanTaskModel(
+      id: json['id'] as String? ?? '',
+      subjectName: json['subject_name'] as String? ?? '',
+      taskDescription: json['task_description'] as String? ?? '',
+      estimatedMinutes: json['estimated_minutes'] as int? ?? 30,
+      isCompleted: json['is_completed'] as bool? ?? false,
+      completedAt: json['completed_at'] != null
+          ? DateTime.tryParse(json['completed_at'] as String)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'subject_name': subjectName,
+      'task_description': taskDescription,
+      'estimated_minutes': estimatedMinutes,
+      'is_completed': isCompleted,
+      'completed_at': completedAt?.toIso8601String(),
+    };
+  }
+
+  StudyPlanTaskModel copyWith({
+    String? id,
+    String? subjectName,
+    String? taskDescription,
+    int? estimatedMinutes,
+    bool? isCompleted,
+    DateTime? completedAt,
+  }) {
+    return StudyPlanTaskModel(
+      id: id ?? this.id,
+      subjectName: subjectName ?? this.subjectName,
+      taskDescription: taskDescription ?? this.taskDescription,
+      estimatedMinutes: estimatedMinutes ?? this.estimatedMinutes,
+      isCompleted: isCompleted ?? this.isCompleted,
+      completedAt: completedAt ?? this.completedAt,
+    );
+  }
+}
+
+@immutable
+class StudyPlanModel {
+  final String id;
+  final String userId;
+  final List<StudyPlanWeekModel> weeks;
+  final bool isActive;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  const StudyPlanModel({
+    required this.id,
+    required this.userId,
+    required this.weeks,
+    required this.isActive,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  // Genel ilerleme yüzdesini hesapla
+  double get overallProgress {
+    int totalTasks = 0;
+    int completedTasks = 0;
+
+    for (final week in weeks) {
+      for (final day in week.days) {
+        totalTasks += day.tasks.length;
+        completedTasks += day.tasks.where((task) => task.isCompleted).length;
+      }
+    }
+
+    if (totalTasks == 0) return 0.0;
+    return (completedTasks / totalTasks) * 100;
+  }
+
+  // Geçmiş haftaları al
+  List<StudyPlanWeekModel> get pastWeeks {
+    final now = DateTime.now();
+    return weeks.where((week) => week.endDate.isBefore(now)).toList();
+  }
+
+  // Mevcut haftayı al
+  StudyPlanWeekModel? get currentWeek {
+    final now = DateTime.now();
+    try {
+      return weeks.firstWhere((week) =>
+          week.startDate.isBefore(now.add(const Duration(days: 1))) &&
+          week.endDate.isAfter(now));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Gelecek haftaları al
+  List<StudyPlanWeekModel> get upcomingWeeks {
+    final now = DateTime.now();
+    return weeks.where((week) => week.startDate.isAfter(now)).toList();
+  }
+
+  factory StudyPlanModel.fromJson(Map<String, dynamic> json) {
+    final weeksList = (json['plan_data'] as List<dynamic>?)
+            ?.map((week) => StudyPlanWeekModel.fromJson(week as Map<String, dynamic>))
+            .toList() ??
+        [];
+
+    return StudyPlanModel(
+      id: json['id'] as String? ?? '',
+      userId: json['user_id'] as String? ?? '',
+      weeks: weeksList,
+      isActive: json['is_active'] as bool? ?? true,
+      createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
+          DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String? ?? '') ??
+          DateTime.now(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'user_id': userId,
+      'plan_data': weeks.map((week) => week.toJson()).toList(),
+      'is_active': isActive,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+
+  StudyPlanModel copyWith({
+    String? id,
+    String? userId,
+    List<StudyPlanWeekModel>? weeks,
+    bool? isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return StudyPlanModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      weeks: weeks ?? this.weeks,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StudyPlanModel &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() => 'StudyPlanModel(id: $id, progress: $overallProgress)';
+}
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+double? _parseDouble(dynamic value) {
+  if (value == null) return null;
+  if (value is double) return value;
+  if (value is int) return value.toDouble();
+  if (value is String) {
+    return double.tryParse(value);
+  }
+  return null;
+}
+
+// ============================================================================
+// END OF DART MODELS
+// ============================================================================

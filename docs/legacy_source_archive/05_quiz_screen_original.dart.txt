@@ -1,0 +1,1201 @@
+// ============================================================================
+// KPSS MOBIL UYGULAMASI - QUIZ SCREEN
+// Production-Ready: Soru Çözüm Ekranı, Karalama, Çözüm Açıklaması
+// ============================================================================
+
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'dart:ui' as ui;
+
+// Import providers and models (from previous files)
+// import '../providers/quiz_provider.dart';
+// import '../models/dart_models.dart';
+
+// ============================================================================
+// QUIZ SCREEN
+// ============================================================================
+
+class QuizScreen extends StatefulWidget {
+  final String subjectId;
+  final bool fromErrorNotebook;
+
+  const QuizScreen({
+    required this.subjectId,
+    this.fromErrorNotebook = false,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<QuizScreen> createState() => _QuizScreenState();
+}
+
+class _QuizScreenState extends State<QuizScreen> {
+  bool _showDrawingMode = false;
+  bool _showExplanation = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeQuiz();
+    });
+  }
+
+  void _initializeQuiz() {
+    final quizProvider = context.read<QuizProvider>();
+    quizProvider.startQuiz(
+      subjectId: widget.subjectId,
+      questionCount: 20,
+      isTimed: true,
+      timeLimitMinutes: 30,
+      fromErrorNotebook: widget.fromErrorNotebook,
+    );
+  }
+
+  void _showExitDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Sınavı Çıkış?'),
+        content: const Text(
+          'Sınavdan çıktığınızda ilerlemeniz kaydedilmeyecektir. Emin misiniz?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Hayır, Devam Et'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final quizProvider = context.read<QuizProvider>();
+              await quizProvider.abandonQuiz();
+              if (mounted) {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              }
+            },
+            child: const Text(
+              'Evet, Çık',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        _showExitDialog();
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Consumer<QuizProvider>(
+          builder: (context, quizProvider, _) {
+            if (quizProvider.isLoading) {
+              return Center(
+                child: LoadingAnimationWidget.discreteCircle(
+                  color: const Color(0xFF4F46E5),
+                  size: 50,
+                ),
+              );
+            }
+
+            if (quizProvider.currentQuestion == null) {
+              return const Center(
+                child: Text('Soru yüklenemedi'),
+              );
+            }
+
+            return Stack(
+              children: [
+                // Ana İçerik
+                Column(
+                  children: [
+                    // Üst Bar
+                    _QuizTopBar(
+                      quizProvider: quizProvider,
+                      onExit: _showExitDialog,
+                      onToggleDrawing: () {
+                        setState(() {
+                          _showDrawingMode = !_showDrawingMode;
+                        });
+                      },
+                      isDrawingMode: _showDrawingMode,
+                    ),
+                    // Soru Gövdesi ve Şıklar
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            // Soru
+                            _QuestionCard(
+                              question: quizProvider.currentQuestion!,
+                            ),
+                            const SizedBox(height: 24),
+                            // Şık Kartları
+                            _OptionsGrid(
+                              question: quizProvider.currentQuestion!,
+                              selectedOption: quizProvider.currentAnswerOption,
+                              isCorrect: quizProvider.isCurrentAnswerCorrect,
+                              onSelect: (option) async {
+                                try {
+                                  await quizProvider.selectAnswer(option);
+                                  if (mounted) _showAnswerFeedback(context, quizProvider, option);
+                                } catch (_) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(quizProvider.errorMessage ?? 'Cevap gönderilemedi.')),
+                                    );
+                                  }
+                                }
+                              },
+                              onExplanationTap: () {
+                                setState(() {
+                                  _showExplanation = true;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // Alt Butonlar
+                    _QuizNavigationBar(
+                      quizProvider: quizProvider,
+                      onComplete: () => _showCompleteDialog(context, quizProvider),
+                    ),
+                  ],
+                ),
+                // Çizim Katmanı
+                if (_showDrawingMode)
+                  _DrawingOverlay(
+                    onClose: () {
+                      setState(() {
+                        _showDrawingMode = false;
+                      });
+                    },
+                  ),
+                // Açıklama Sheet
+                if (_showExplanation)
+                  _ExplanationSheet(
+                    question: quizProvider.currentQuestion!,
+                    correctOption: quizProvider.currentCorrectOption,
+                    explanation: quizProvider.currentExplanation,
+                    onClose: () {
+                      setState(() {
+                        _showExplanation = false;
+                      });
+                    },
+                  ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showAnswerFeedback(
+    BuildContext context,
+    QuizProvider provider,
+    String option,
+  ) {
+    final isCorrect = provider.isCurrentAnswerCorrect == true;
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              isCorrect ? Icons.check_circle : Icons.cancel,
+              color: isCorrect ? Colors.green : Colors.red,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              isCorrect ? 'Doğru!' : 'Yanlış!',
+              style: TextStyle(
+                color: isCorrect ? Colors.green : Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: isCorrect
+            ? Colors.green.withOpacity(0.9)
+            : Colors.red.withOpacity(0.9),
+        duration: const Duration(seconds: 1),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _showCompleteDialog(BuildContext context, QuizProvider provider) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => _QuizCompleteDialog(
+        quizProvider: provider,
+        onConfirm: () async {
+          await provider.completeQuiz();
+          if (mounted) {
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+            // Sonuçlar ekranına yönlendir
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Sınav tamamlandı!')),
+            );
+          }
+        },
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// QUIZ TOP BAR
+// ============================================================================
+
+class _QuizTopBar extends StatelessWidget {
+  final QuizProvider quizProvider;
+  final VoidCallback onExit;
+  final VoidCallback onToggleDrawing;
+  final bool isDrawingMode;
+
+  const _QuizTopBar({
+    required this.quizProvider,
+    required this.onExit,
+    required this.onToggleDrawing,
+    required this.isDrawingMode,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              // Üst Satır: Çıkış ve Seçenekler
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    onPressed: onExit,
+                    icon: const Icon(Icons.close),
+                    tooltip: 'Sınavdan Çık',
+                  ),
+                  // Sınav Sayacı
+                  if (quizProvider.currentQuizAttempt?.isTimed ?? false)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: quizProvider.remainingSeconds < 300
+                            ? Colors.red.withOpacity(0.1)
+                            : const Color(0xFF4F46E5).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        quizProvider.formattedTime,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: quizProvider.remainingSeconds < 300
+                              ? Colors.red
+                              : const Color(0xFF4F46E5),
+                          fontFamily: 'Courier',
+                        ),
+                      ),
+                    ),
+                  // Karalama Toggle
+                  IconButton(
+                    onPressed: onToggleDrawing,
+                    icon: Icon(
+                      isDrawingMode ? Icons.draw : Icons.draw_outlined,
+                      color: isDrawingMode
+                          ? const Color(0xFF4F46E5)
+                          : Colors.grey,
+                    ),
+                    tooltip: 'Çizim Modu',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // İlerleme Barı
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Soru ${quizProvider.currentQuestionIndex + 1} / ${quizProvider.questions.length}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        LinearPercentIndicator(
+                          percent: (quizProvider.currentQuestionIndex + 1) /
+                              quizProvider.questions.length,
+                          lineHeight: 6,
+                          backgroundColor: Colors.grey[200],
+                          progressColor: const Color(0xFF4F46E5),
+                          barRadius: const Radius.circular(3),
+                          animation: true,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// QUESTION CARD
+// ============================================================================
+
+class _QuestionCard extends StatelessWidget {
+  final QuestionModel question;
+
+  const _QuestionCard({required this.question});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey[200]!),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Zorluk seviyesi
+          Chip(
+            label: Text(
+              question.getDifficultyLabel(),
+              style: const TextStyle(fontSize: 12),
+            ),
+            backgroundColor: _getDifficultyColor(question.difficultyLevel)
+                .withOpacity(0.2),
+            labelStyle: TextStyle(
+              color: _getDifficultyColor(question.difficultyLevel),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          // Soru Metni
+          Text(
+            question.questionText,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              height: 1.5,
+            ),
+          ),
+          // Soru Görseli
+          if (question.imageUrl != null) ...[
+            const SizedBox(height: 16),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: CachedNetworkImage(
+                imageUrl: question.imageUrl!,
+                fit: BoxFit.contain,
+                width: double.infinity,
+                height: 200,
+                placeholder: (context, url) => Container(
+                  color: Colors.grey[200],
+                  child: Center(
+                    child: LoadingAnimationWidget.staggeredDotsWave(
+                      color: const Color(0xFF4F46E5),
+                      size: 50,
+                    ),
+                  ),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  color: Colors.grey[200],
+                  child: const Center(
+                    child: Icon(Icons.image_not_supported),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Color _getDifficultyColor(int level) {
+    switch (level) {
+      case 1:
+        return Colors.green;
+      case 2:
+        return Colors.blue;
+      case 3:
+        return Colors.orange;
+      case 4:
+        return Colors.red;
+      case 5:
+        return Colors.deepOrange;
+      default:
+        return Colors.grey;
+    }
+  }
+}
+
+// ============================================================================
+// OPTIONS GRID
+// ============================================================================
+
+class _OptionsGrid extends StatelessWidget {
+  final QuestionModel question;
+  final String? selectedOption;
+  final bool? isCorrect;
+  final Future<void> Function(String) onSelect;
+  final VoidCallback onExplanationTap;
+
+  const _OptionsGrid({
+    required this.question,
+    required this.selectedOption,
+    required this.isCorrect,
+    required this.onSelect,
+    required this.onExplanationTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final options = ['A', 'B', 'C', 'D', 'E'];
+    final availableOptions = options
+        .where((opt) =>
+            opt != 'E' || question.optionE != null)
+        .toList();
+
+    return Column(
+      children: [
+        ...availableOptions.map((option) {
+          final optionText = question.getOptionText(option);
+          final isSelected = selectedOption == option;
+          final shouldShowFeedback = isSelected && isCorrect != null;
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _OptionCard(
+              option: option,
+              text: optionText,
+              isSelected: isSelected,
+              isCorrect: isCorrect,
+              shouldShowFeedback: shouldShowFeedback,
+              onTap: () {
+                onSelect(option);
+              },
+            ),
+          );
+        }),
+      ],
+    );
+  }
+}
+
+// ============================================================================
+// OPTION CARD
+// ============================================================================
+
+class _OptionCard extends StatefulWidget {
+  final String option;
+  final String text;
+  final bool isSelected;
+  final bool? isCorrect;
+  final bool shouldShowFeedback;
+  final VoidCallback onTap;
+
+  const _OptionCard({
+    required this.option,
+    required this.text,
+    required this.isSelected,
+    required this.isCorrect,
+    required this.shouldShowFeedback,
+    required this.onTap,
+  });
+
+  @override
+  State<_OptionCard> createState() => _OptionCardState();
+}
+
+class _OptionCardState extends State<_OptionCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+  }
+
+  @override
+  void didUpdateWidget(_OptionCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.shouldShowFeedback && !oldWidget.shouldShowFeedback) {
+      _animationController.forward();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Color backgroundColor = Colors.white;
+    Color borderColor = Colors.grey[300]!;
+    Color textColor = Colors.black87;
+
+    if (widget.isSelected && widget.shouldShowFeedback) {
+      if (widget.isCorrect == true) {
+        backgroundColor = Colors.green.withOpacity(0.1);
+        borderColor = Colors.green;
+        textColor = Colors.green[700]!;
+      } else {
+        backgroundColor = Colors.red.withOpacity(0.1);
+        borderColor = Colors.red;
+        textColor = Colors.red[700]!;
+      }
+    } else if (widget.isSelected) {
+      backgroundColor = const Color(0xFF4F46E5).withOpacity(0.1);
+      borderColor = const Color(0xFF4F46E5);
+      textColor = const Color(0xFF4F46E5);
+    }
+
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: ScaleTransition(
+        scale: Tween<double>(begin: 1, end: 0.98).animate(
+          CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            border: Border.all(color: borderColor, width: 2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              // Option Letter
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: borderColor,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    widget.option,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Option Text
+              Expanded(
+                child: Text(
+                  widget.text,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: textColor,
+                    fontWeight: FontWeight.w500,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+              // Feedback Icon
+              if (widget.shouldShowFeedback) ...[
+                const SizedBox(width: 8),
+                Icon(
+                  widget.isCorrect == true
+                      ? Icons.check_circle
+                      : Icons.cancel,
+                  color: widget.isCorrect == true ? Colors.green : Colors.red,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+}
+
+// ============================================================================
+// EXPLANATION SHEET (ALTTAN AÇILAN)
+// ============================================================================
+
+class _ExplanationSheet extends StatelessWidget {
+  final QuestionModel question;
+  final String? correctOption;
+  final String? explanation;
+  final VoidCallback onClose;
+
+  const _ExplanationSheet({
+    required this.question,
+    required this.correctOption,
+    required this.explanation,
+    required this.onClose,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onClose,
+      child: Container(
+        color: Colors.black.withOpacity(0.5),
+        child: GestureDetector(
+          onTap: () {}, // Prevent sheet closing on tap
+          child: DraggableScrollableSheet(
+            initialChildSize: 0.6,
+            minChildSize: 0.4,
+            maxChildSize: 0.95,
+            builder: (context, scrollController) => Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              child: SingleChildScrollView(
+                controller: scrollController,
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Çözüm Açıklaması',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: onClose,
+                            icon: const Icon(Icons.close),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      // Doğru Cevap
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.1),
+                          border: Border.all(color: Colors.green),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Doğru Cevap',
+                              style: TextStyle(
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              correctOption == null ? 'Cevap bilgisi henüz alınmadı.' : '$correctOption) ${question.getOptionText(correctOption!)}',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Açıklama
+                      if (explanation != null && explanation!.isNotEmpty) ...[
+                        const Text(
+                          'Açıklama',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          explanation!,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            height: 1.6,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ] else
+                        Text(
+                          'Bu soru için açıklama bulunmamaktadır.',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      if (question.year != null) ...[
+                        const SizedBox(height: 16),
+                        Chip(
+                          label: Text('${question.year} - ${question.source ?? 'KPSS'}'),
+                          backgroundColor: Colors.grey[200],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// DRAWING OVERLAY (ÇİZİM KATMANI)
+// ============================================================================
+
+class _DrawingOverlay extends StatefulWidget {
+  final VoidCallback onClose;
+
+  const _DrawingOverlay({required this.onClose});
+
+  @override
+  State<_DrawingOverlay> createState() => _DrawingOverlayState();
+}
+
+class _DrawingOverlayState extends State<_DrawingOverlay> {
+  late List<DrawingPoint> _drawingPoints;
+  late Color _penColor;
+  late double _penSize;
+
+  @override
+  void initState() {
+    super.initState();
+    _drawingPoints = [];
+    _penColor = const Color(0xFF4F46E5);
+    _penSize = 3.0;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // Çizim Canvas
+        GestureDetector(
+          onPanStart: (details) {
+            _drawingPoints.add(
+              DrawingPoint(
+                offset: details.localPosition,
+                paint: Paint()
+                  ..color = _penColor
+                  ..isAntiAlias = true
+                  ..strokeWidth = _penSize
+                  ..strokeCap = StrokeCap.round
+                  ..strokeJoin = StrokeJoin.round,
+              ),
+            );
+          },
+          onPanUpdate: (details) {
+            _drawingPoints.add(
+              DrawingPoint(
+                offset: details.localPosition,
+                paint: Paint()
+                  ..color = _penColor
+                  ..isAntiAlias = true
+                  ..strokeWidth = _penSize
+                  ..strokeCap = StrokeCap.round
+                  ..strokeJoin = StrokeJoin.round,
+              ),
+            );
+            setState(() {});
+          },
+          onPanEnd: (details) {
+            _drawingPoints.add(DrawingPoint.empty);
+          },
+          child: CustomPaint(
+            painter: DrawingPainter(_drawingPoints),
+            size: Size.infinite,
+          ),
+        ),
+        // Kontrol Paneli
+        Positioned(
+          bottom: 20,
+          left: 20,
+          right: 20,
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                // Kalem Rengi
+                GestureDetector(
+                  onTap: () => _showColorPicker(),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: _penColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey[300]!),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Kalem Kalınlığı
+                Expanded(
+                  child: Slider(
+                    value: _penSize,
+                    min: 1.0,
+                    max: 10.0,
+                    activeColor: _penColor,
+                    onChanged: (value) {
+                      setState(() {
+                        _penSize = value;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Temizle
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _drawingPoints.clear();
+                    });
+                  },
+                  icon: const Icon(Icons.delete_outline),
+                  tooltip: 'Temizle',
+                ),
+                // Kapat
+                IconButton(
+                  onPressed: widget.onClose,
+                  icon: const Icon(Icons.close),
+                  tooltip: 'Kapat',
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showColorPicker() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Kalem Rengi Seç'),
+        content: Wrap(
+          spacing: 8,
+          children: [
+            const Color(0xFF4F46E5),
+            Colors.red,
+            Colors.green,
+            Colors.orange,
+            Colors.purple,
+            Colors.black,
+          ]
+              .map(
+                (color) => GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _penColor = color;
+                    });
+                    Navigator.of(context).pop();
+                  },
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: _penColor == color ? Colors.white : Colors.transparent,
+                        width: 3,
+                      ),
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// DRAWING POINT & PAINTER
+// ============================================================================
+
+class DrawingPoint {
+  final Offset offset;
+  final Paint paint;
+
+  DrawingPoint({
+    required this.offset,
+    required this.paint,
+  });
+
+  DrawingPoint.empty()
+      : offset = Offset.zero,
+        paint = Paint();
+
+  bool get isEmpty => offset == Offset.zero;
+}
+
+class DrawingPainter extends CustomPainter {
+  final List<DrawingPoint> points;
+
+  DrawingPainter(this.points);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (int i = 0; i < points.length - 1; i++) {
+      if (points[i].isEmpty || points[i + 1].isEmpty) {
+        continue;
+      }
+      canvas.drawLine(points[i].offset, points[i + 1].offset, points[i].paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(DrawingPainter oldDelegate) => true;
+}
+
+// ============================================================================
+// QUIZ COMPLETE DIALOG
+// ============================================================================
+
+class _QuizCompleteDialog extends StatelessWidget {
+  final QuizProvider quizProvider;
+  final VoidCallback onConfirm;
+
+  const _QuizCompleteDialog({
+    required this.quizProvider,
+    required this.onConfirm,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final attempt = quizProvider.currentQuizAttempt;
+    if (attempt == null) return const SizedBox.shrink();
+
+    return AlertDialog(
+      title: const Text('Sınav Tamamlandı!'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _ResultRow(
+            label: 'Doğru',
+            value: attempt.correctAnswers.toString(),
+            color: Colors.green,
+          ),
+          const SizedBox(height: 12),
+          _ResultRow(
+            label: 'Yanlış',
+            value: attempt.wrongAnswers.toString(),
+            color: Colors.red,
+          ),
+          const SizedBox(height: 12),
+          _ResultRow(
+            label: 'Boş',
+            value: attempt.blankAnswers.toString(),
+            color: Colors.orange,
+          ),
+          const SizedBox(height: 12),
+          _ResultRow(
+            label: 'Net',
+            value: (attempt.correctAnswers - (attempt.wrongAnswers / 4))
+                .toStringAsFixed(2),
+            color: const Color(0xFF4F46E5),
+          ),
+          const SizedBox(height: 12),
+          _ResultRow(
+            label: 'Başarı %',
+            value: attempt.successPercentage.toStringAsFixed(1),
+            color: Colors.blue,
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('İptal'),
+        ),
+        ElevatedButton(
+          onPressed: onConfirm,
+          child: const Text('Tamamla'),
+        ),
+      ],
+    );
+  }
+}
+
+class _ResultRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+
+  const _ResultRow({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 14),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ============================================================================
+// QUIZ NAVIGATION BAR
+// ============================================================================
+
+class _QuizNavigationBar extends StatelessWidget {
+  final QuizProvider quizProvider;
+  final VoidCallback onComplete;
+
+  const _QuizNavigationBar({
+    required this.quizProvider,
+    required this.onComplete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Colors.grey[200]!)),
+      ),
+      child: Row(
+        children: [
+          if (quizProvider.hasPreviousQuestion)
+            Expanded(
+              child: OutlinedButton(
+                onPressed: quizProvider.previousQuestion,
+                child: const Text('Geri'),
+              ),
+            )
+          else
+            Expanded(child: SizedBox()),
+          const SizedBox(width: 12),
+          if (quizProvider.hasNextQuestion)
+            Expanded(
+              child: ElevatedButton(
+                onPressed: quizProvider.nextQuestion,
+                child: const Text('İleri'),
+              ),
+            )
+          else
+            Expanded(
+              child: ElevatedButton(
+                onPressed: onComplete,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                ),
+                child: const Text('Sınavı Bitir'),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// END OF QUIZ SCREEN
+// ============================================================================
