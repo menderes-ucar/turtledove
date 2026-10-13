@@ -58,18 +58,17 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDn10PjKuTcLMUeNUKcS1RwpAwCC1A6Zdg',
-    appId: '1:513646523265:android:7b0903bbf03e8468bf2e80',
+    appId: '1:513646523265:android:bc94ee962473ab87bf2e80',
     messagingSenderId: '513646523265',
     projectId: 'bestie-17b76',
     storageBucket: 'bestie-17b76.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDwsnln4XoG3XjH3a9SjYMJrzFlzIwkorg',
-    appId: '1:513646523265:ios:fbec9a58d3201229bf2e80',
+    appId: '1:513646523265:ios:5ef1d9e209db847ebf2e80',
     messagingSenderId: '513646523265',
     projectId: 'bestie-17b76',
     storageBucket: 'bestie-17b76.firebasestorage.app',
-    iosBundleId: 'com.example.bestie',
+    iosBundleId: 'com.mndrs.turtledove',
   );
 }
