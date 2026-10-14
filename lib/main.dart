@@ -25,28 +25,6 @@ import 'router/app_router.dart';
 import 'config/theme_config.dart';
 import 'utils/constants.dart';
 
-// Supabase PKCE verifier storage.
-// Avoid Android SharedPreferences during Supabase startup.
-class _MemoryPkceStorage extends GotrueAsyncStorage {
-  final Map<String, String> _values = <String, String>{};
-
-  @override
-  Future<String?> getItem({required String key}) async => _values[key];
-
-  @override
-  Future<void> setItem({
-    required String key,
-    required String value,
-  }) async {
-    _values[key] = value;
-  }
-
-  @override
-  Future<void> removeItem({required String key}) async {
-    _values.remove(key);
-  }
-}
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -85,13 +63,6 @@ void main() async {
     await Supabase.initialize(
       url: url,
       anonKey: key,
-      authOptions: FlutterAuthClientOptions(
-// Persist the real Supabase session without shared_preferences.
-        localStorage: const EmptyLocalStorage(),
-// PKCE verifier is short-lived and does not need Android
-// SharedPreferences for this app's startup path.
-        pkceAsyncStorage: _MemoryPkceStorage(),
-      ),
     );
   } catch (e) {
     print('❌ Supabase init error: $e');
