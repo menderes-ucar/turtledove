@@ -1,0 +1,125 @@
+﻿
+lib\main.dart:255:          create: (_) => AuthService(
+lib\main.dart:261:          create: (_) => ChatService(
+lib\main.dart:267:          create: (_) => TodoService(
+lib\main.dart:273:          create: (_) => SharedPlaceService(
+lib\main.dart:279:          create: (_) => MapSelectionService(
+lib\main.dart:285:          create: (_) => InteractionService(
+lib\main.dart:291:          create: (_) => CallService(
+lib\main.dart:297:          create: (_) => NotificationService(
+lib\main.dart:303:          create: (_) => RelationshipService(
+lib\main.dart:309:          create: (_) => PushNotificationService(
+lib\main.dart:319:          create: (ctx) => AuthProvider(
+lib\main.dart:325:          create: (_) => ThemeProvider(),
+lib\main.dart:329:          create: (_) => LocaleProvider(Supabase.instance.client),
+lib\main.dart:356:  void initState() {
+lib\main.dart:357:    super.initState();
+lib\app\providers\app_providers.dart:66:        create: (_) => AuthProvider(authRepository),
+lib\app\providers\app_providers.dart:69:        create: (_) => SubjectsProvider(
+lib\app\providers\app_providers.dart:74:        create: (_) => NotesProvider(notesRepository),
+lib\app\providers\app_providers.dart:77:        create: (_) => ErrorNotebookProvider(errorNotebookRepository),
+lib\app\providers\app_providers.dart:80:        create: (_) => AnalyticsProvider(analyticsRepository),
+lib\app\providers\app_providers.dart:83:        create: (_) => QuizProvider(
+lib\features\analytics\presentation\screens\analytics_screen.dart:15:  void initState() {
+lib\features\analytics\presentation\screens\analytics_screen.dart:16:    super.initState();
+lib\features\analytics\presentation\screens\analytics_screen.dart:25:    final provider = context.watch<AnalyticsProvider>();
+lib\features\auth\presentation\screens\auth_screen.dart:22:    final provider = context.watch<AuthProvider>();
+lib\features\error_notebook\presentation\screens\error_notebook_screen.dart:15:  void initState() {
+lib\features\error_notebook\presentation\screens\error_notebook_screen.dart:16:    super.initState();
+lib\features\error_notebook\presentation\screens\error_notebook_screen.dart:25:    final provider = context.watch<ErrorNotebookProvider>();
+lib\features\home\presentation\screens\home_screen.dart:14:    final auth = context.watch<AuthProvider>();
+lib\features\home\presentation\screens\home_screen.dart:15:    final analytics = context.watch<AnalyticsProvider>();
+lib\features\notes\presentation\screens\notes_screen.dart:16:  void initState() {
+lib\features\notes\presentation\screens\notes_screen.dart:17:    super.initState();
+lib\features\notes\presentation\screens\notes_screen.dart:26:    final provider = context.watch<NotesProvider>();
+lib\features\quiz\presentation\screens\quiz_screen.dart:12:    final provider = context.watch<QuizProvider>();
+lib\features\subjects\presentation\screens\subjects_screen.dart:15:  void initState() {
+lib\features\subjects\presentation\screens\subjects_screen.dart:16:    super.initState();
+lib\features\subjects\presentation\screens\subjects_screen.dart:25:    final provider = context.watch<SubjectsProvider>();
+lib\lib\screens\games\name_city_animal_screen.dart:52:      create: (_) => NameCityAnimalProvider(
+lib\lib\screens\games\name_city_animal_screen.dart:112:    return Consumer<NameCityAnimalProvider>(
+lib\screens\auth\login_screen.dart:199:                  Consumer<AuthProvider>(
+lib\screens\auth\signup_screen.dart:95:            Consumer<AuthProvider>(
+lib\screens\call\call_screen.dart:62:  void initState() {
+lib\screens\call\call_screen.dart:63:    super.initState();
+lib\screens\call\call_screen_legacy_webrtc.dart:127:  void initState() {
+lib\screens\call\call_screen_legacy_webrtc.dart:128:    super.initState();
+lib\screens\games\game_lobby_screen.dart:39:  void initState() {
+lib\screens\games\game_lobby_screen.dart:40:    super.initState();
+lib\screens\games\game_lobby_screen.dart:125:      create: (_) => GameSessionProvider(
+lib\screens\games\game_lobby_screen.dart:304:    return Consumer<GameSessionProvider>(
+lib\screens\games\game_round_screen.dart:26:      create: (context) => GameRoundProvider(
+lib\screens\games\game_round_screen.dart:69:    return Consumer<GameRoundProvider>(
+lib\screens\games\memory_match_screen.dart:36:  void initState() {
+lib\screens\games\memory_match_screen.dart:37:    super.initState();
+lib\screens\games\name_city_animal_screen.dart:53:      create: (_) => NameCityAnimalProvider(
+lib\screens\games\name_city_animal_screen.dart:113:    return Consumer<NameCityAnimalProvider>(
+lib\screens\games\truth_or_dare_screen.dart:34:  void initState() {
+lib\screens\games\truth_or_dare_screen.dart:35:    super.initState();
+lib\screens\games\word_game_lobby_screen.dart:35:  void initState() {
+lib\screens\games\word_game_lobby_screen.dart:36:    super.initState();
+lib\screens\games\word_game_lobby_screen.dart:102:      create: (_) => WordGameProvider(
+lib\screens\games\word_game_lobby_screen.dart:155:    return Consumer<WordGameProvider>(
+lib\screens\games\word_game_round_screen.dart:27:    return Consumer<WordGameProvider>(
+lib\screens\home\conversation_topics_screen.dart:11:  @override void initState(){super.initState(); final c=Supabase.instance.client; service=ConversationTopicService(c); userId=c.auth.currentUser?.id ?? '';}
+lib\screens\home\home_screen.dart:47:  void initState() {
+lib\screens\home\home_screen.dart:48:    super.initState();
+lib\screens\home\home_screen.dart:467:            Consumer<ThemeProvider>(
+lib\screens\home\home_screen.dart:479:            Consumer<ThemeProvider>(
+lib\screens\home\home_screen.dart:530:  void initState() {
+lib\screens\home\home_screen.dart:531:    super.initState();
+lib\screens\home\home_screen.dart:755:  void initState() {
+lib\screens\home\home_screen.dart:756:    super.initState();
+lib\screens\home\home_screen.dart:1291:  void initState() {
+lib\screens\home\home_screen.dart:1292:    super.initState();
+lib\screens\home\home_screen.dart:1388:  void initState() {
+lib\screens\home\home_screen.dart:1389:    super.initState();
+lib\screens\home\home_screen.dart:1555:  void initState() {
+lib\screens\home\home_screen.dart:1556:    super.initState();
+lib\screens\home\interaction_history_screen.dart:22:  void initState() {
+lib\screens\home\interaction_history_screen.dart:23:    super.initState();
+lib\screens\home\pairing_screen.dart:30:    final authProvider = context.watch<AuthProvider>();
+lib\screens\home\partner_hall_of_fame_screen.dart:24:  void initState() {
+lib\screens\home\partner_hall_of_fame_screen.dart:25:    super.initState();
+lib\screens\home\shared_map_screen.dart:29:  void initState() {
+lib\screens\home\shared_map_screen.dart:30:    super.initState();
+lib\screens\home\shared_map_screen.dart:758:  void initState() {
+lib\screens\home\shared_map_screen.dart:759:    super.initState();
+lib\screens\home\us_screen.dart:18:  void initState() {
+lib\screens\home\us_screen.dart:19:    super.initState();
+lib\screens\pet\pet_avatar_3d.dart:44:  void initState() {
+lib\screens\pet\pet_avatar_3d.dart:45:    super.initState();
+lib\screens\pet\pet_screen.dart:24:      create: (_) => PetProvider(service: context.read<PetService>(), userId: userId),
+lib\screens\pet\pet_screen.dart:42:      create: (_) => PetProvider(service: context.read<PetService>(), userId: userId),
+lib\screens\pet\pet_screen.dart:61:  void initState() {
+lib\screens\pet\pet_screen.dart:62:    super.initState();
+lib\screens\pet\pet_screen.dart:98:    final state = context.watch<PetProvider>();
+lib\screens\pet\pet_screen.dart:243:    final state = context.watch<PetProvider>();
+lib\screens\premium\countdown_screen.dart:26:  void initState() {
+lib\screens\premium\countdown_screen.dart:27:    super.initState();
+lib\screens\premium\countdown_screen.dart:53:        body: Consumer<CountdownProvider>(
+lib\screens\premium\love_letter_screen.dart:29:  void initState() {
+lib\screens\premium\love_letter_screen.dart:30:    super.initState();
+lib\screens\premium\mood_screen.dart:24:  void initState() {
+lib\screens\premium\mood_screen.dart:25:    super.initState();
+lib\screens\premium\mood_screen.dart:75:        body: Consumer<MoodProvider>(
+lib\screens\profile\profile_screen.dart:28:  void initState() {
+lib\screens\profile\profile_screen.dart:29:    super.initState();
+lib\screens\profile\profile_screen.dart:130:    return Consumer<AuthProvider>(
+lib\screens\profile\profile_screen.dart:244:    return Consumer<ThemeProvider>(
+lib\screens\profile\profile_screen.dart:292:    return Consumer<LocaleProvider>(
+lib\screens\profile\voice_message_archive_screen.dart:21:  void initState() {
+lib\screens\profile\voice_message_archive_screen.dart:22:    super.initState();
+lib\screens\profile\voice_message_archive_screen.dart:151:  void initState() {
+lib\screens\profile\voice_message_archive_screen.dart:152:    super.initState();
+lib\widgets\active_call_overlay.dart:24:  void initState() {
+lib\widgets\active_call_overlay.dart:25:    super.initState();
+lib\widgets\active_call_overlay.dart:69:    return Consumer<ActiveCallController>(
+lib\widgets\media_viewer.dart:77:  void initState() {
+lib\widgets\media_viewer.dart:78:    super.initState();
+lib\widgets\media_viewer.dart:178:  void initState() {
+lib\widgets\media_viewer.dart:179:    super.initState();
+lib\widgets\pre_auth_preferences.dart:34:                  child: Consumer<LocaleProvider>(
+lib\widgets\pre_auth_preferences.dart:63:            Consumer<ThemeProvider>(
+
+

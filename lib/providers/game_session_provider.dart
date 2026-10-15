@@ -64,7 +64,7 @@ class GameSessionProvider extends ChangeNotifier {
           await service.createSession(
             gameType: gameType,
             partnerId: partnerId,
-            totalRounds: 15,
+            totalRounds: totalRounds,
             categories: categories,
           );
 

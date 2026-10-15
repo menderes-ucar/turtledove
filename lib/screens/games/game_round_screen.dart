@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -9,6 +9,29 @@ import '../../services/game_round_service.dart';
 import '../../services/game_session_service.dart';
 import '../../utils/game_type_config.dart';
 import '../../localization/app_strings.dart';
+
+String _predictionLabel(String language, String choice) {
+  const labels = <String, Map<String, String>>{
+    'both': {
+      'tr': 'İkimiz de',
+      'en': 'Both of us',
+      'de': 'Wir beide',
+      'es': 'Ambos',
+      'fr': 'Nous deux',
+    },
+    'neither': {
+      'tr': 'Hiçbirimiz',
+      'en': 'Neither of us',
+      'de': 'Keiner von uns',
+      'es': 'Ninguno de los dos',
+      'fr': 'Aucun de nous deux',
+    },
+  };
+  final locale = const {'tr', 'en', 'de', 'es', 'fr'}.contains(language)
+      ? language
+      : 'en';
+  return labels[choice]?[locale] ?? labels[choice]?['en'] ?? choice;
+}
 
 class GameRoundScreen extends StatelessWidget {
   final String sessionId;
@@ -22,10 +45,16 @@ class GameRoundScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final languageCode = AppStrings.of(context).code;
+    final client = Supabase.instance.client;
+
     return ChangeNotifierProvider(
-      create: (context) => GameRoundProvider(
-        roundService: GameRoundService(Supabase.instance.client),
-        sessionService: GameSessionService(Supabase.instance.client),
+      create: (_) => GameRoundProvider(
+        roundService: GameRoundService(
+          client,
+          languageCode: languageCode,
+        ),
+        sessionService: GameSessionService(client),
         sessionId: sessionId,
         initialRoundNumber: roundNumber,
       ),
@@ -76,7 +105,7 @@ class _GameRoundBodyState extends State<_GameRoundBody> {
         return Scaffold(
           appBar: AppBar(
             title: Text(
-              '${appBarConfig.emoji} ${appBarConfig.title} · Round ${provider.roundNumber}',
+              '${appBarConfig.emoji} ${appBarConfig.title} Â· Round ${provider.roundNumber}',
             ),
           ),
           body: _buildBody(context, provider),
@@ -121,7 +150,7 @@ class _GameRoundBodyState extends State<_GameRoundBody> {
         ),
         const SizedBox(height: 6),
         Text(
-          'Round ${provider.roundNumber} · ${question.category}',
+          'Round ${provider.roundNumber} Â· ${question.category}',
           style: Theme.of(context).textTheme.labelMedium,
           textAlign: TextAlign.center,
         ),
@@ -131,11 +160,11 @@ class _GameRoundBodyState extends State<_GameRoundBody> {
         ],
         const SizedBox(height: 24),
         if (question.questionType == 'prediction')
-          const _QuestionModeBadge(label: '💭 Partnerinin cevabını tahmin et')
+          const _QuestionModeBadge(label: 'ğŸ’­ Partnerinin cevabÄ±nÄ± tahmin et')
         else if (question.questionType == 'choice')
-          const _QuestionModeBadge(label: '✨ Bir seçenek seç')
+          const _QuestionModeBadge(label: 'âœ¨ Bir seÃ§enek seÃ§')
         else if (question.questionType == 'word')
-          const _QuestionModeBadge(label: '🔤 Kelimeyi bul')
+          const _QuestionModeBadge(label: 'ğŸ”¤ Kelimeyi bul')
         else
           _QuestionModeBadge(label: config.answerHint),
         const SizedBox(height: 14),
@@ -147,19 +176,39 @@ class _GameRoundBodyState extends State<_GameRoundBody> {
         const SizedBox(height: 24),
         if (!resolved) ...[
           if (question.questionType == 'prediction')
-            ...provider.players.map(
-              (player) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: _AnswerButton(
-                  label: player.userId == provider.currentUserId
-                      ? AppStrings.of(context).t('you')
-                      : AppStrings.of(context).t('partner'),
-                  selected: provider.currentUserAnswer?.answer == player.userId,
-                  enabled: !answered,
-                  onPressed: () => provider.submitAnswer(player.userId),
+            ...[
+              ...provider.players.map(
+                (player) => Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: _AnswerButton(
+                    label: player.userId == provider.currentUserId
+                        ? AppStrings.of(context).t('you')
+                        : AppStrings.of(context).t('partner'),
+                    selected: provider.currentUserAnswer?.answer == player.userId,
+                    enabled: !answered,
+                    onPressed: () => provider.submitAnswer(player.userId),
+                  ),
                 ),
               ),
-            )
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: _AnswerButton(
+                  label: _predictionLabel(AppStrings.of(context).code, 'both'),
+                  selected: provider.currentUserAnswer?.answer == 'both_of_us',
+                  enabled: !answered,
+                  onPressed: () => provider.submitAnswer('both_of_us'),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: _AnswerButton(
+                  label: _predictionLabel(AppStrings.of(context).code, 'neither'),
+                  selected: provider.currentUserAnswer?.answer == 'neither_of_us',
+                  enabled: !answered,
+                  onPressed: () => provider.submitAnswer('neither_of_us'),
+                ),
+              ),
+            ]
           else if (question.options.isNotEmpty)
             ...question.options.map(
               (option) => Padding(
@@ -196,7 +245,7 @@ class _GameRoundBodyState extends State<_GameRoundBody> {
           const SizedBox(height: 24),
           if (answered && !bothAnswered)
             _WaitingCard(
-              title: '${AppStrings.of(context).t('your_answer')} ✓',
+              title: '${AppStrings.of(context).t('your_answer')} âœ“',
               message: config.waitingMessage,
             ),
           if (bothAnswered && !resolved)
@@ -239,6 +288,7 @@ class _GameRoundBodyState extends State<_GameRoundBody> {
             result: myResult,
             gameType: provider.question?.gameType,
             questionType: provider.question?.questionType,
+            answerLabel: _formatAnswerLabel(context, provider, myResult.answer),
           ),
         if (partnerResult != null)
           _ResultCard(
@@ -246,6 +296,7 @@ class _GameRoundBodyState extends State<_GameRoundBody> {
             result: partnerResult,
             gameType: provider.question?.gameType,
             questionType: provider.question?.questionType,
+            answerLabel: _formatAnswerLabel(context, provider, partnerResult.answer),
           ),
         const SizedBox(height: 12),
         if (provider.gameCompleted)
@@ -255,8 +306,8 @@ class _GameRoundBodyState extends State<_GameRoundBody> {
           )
         else if (provider.currentRoundConfirmed)
           _WaitingCard(
-            title: '✓ ${AppStrings.of(context).t('next_round')}',
-            message: 'Partnerinin de onaylaması bekleniyor.',
+            title: 'âœ“ ${AppStrings.of(context).t('next_round')}',
+            message: 'Partnerinin de onaylamasÄ± bekleniyor.',
           )
         else
           FilledButton(
@@ -290,17 +341,36 @@ class _QuestionModeBadge extends StatelessWidget {
   }
 }
 
+String _formatAnswerLabel(
+  BuildContext context,
+  GameRoundProvider provider,
+  String answer,
+) {
+  final language = AppStrings.of(context).code;
+  if (answer == 'both_of_us') return _predictionLabel(language, 'both');
+  if (answer == 'neither_of_us') return _predictionLabel(language, 'neither');
+  if (provider.question?.questionType == 'prediction' &&
+      provider.players.any((player) => player.userId == answer)) {
+    return answer == provider.currentUserId
+        ? AppStrings.of(context).t('you')
+        : AppStrings.of(context).t('partner');
+  }
+  return answer;
+}
+
 class _ResultCard extends StatelessWidget {
   final String title;
   final GameRoundResult result;
   final String? gameType;
   final String? questionType;
+  final String answerLabel;
 
   const _ResultCard({
     required this.title,
     required this.result,
     required this.gameType,
     required this.questionType,
+    required this.answerLabel,
   });
 
   @override
@@ -324,7 +394,7 @@ class _ResultCard extends StatelessWidget {
     return Card(
       child: ListTile(
         title: Text(title),
-        subtitle: Text(result.answer),
+        subtitle: Text(answerLabel),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -392,3 +462,4 @@ class _WaitingCard extends StatelessWidget {
     );
   }
 }
+

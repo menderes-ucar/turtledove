@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +14,36 @@ import '../../services/game_session_service.dart';
 import 'word_game_lobby_screen.dart';
 import '../../localization/app_strings.dart';
 
+String _questionCountLabel(String language) {
+  const values = {'tr': 'Soru sayısı', 'en': 'Number of questions', 'de': 'Fragenanzahl', 'es': 'Número de preguntas', 'fr': 'Nombre de questions'};
+  return values[language] ?? values['en']!;
+}
+
+String _questionCountOptionLabel(String language, int count) {
+  const suffix = {'tr': 'soru', 'en': 'questions', 'de': 'Fragen', 'es': 'preguntas', 'fr': 'questions'};
+  return '$count ${suffix[language] ?? suffix['en']}';
+}
+
+String _availableQuestionsMessage(String language, int available, int selected) {
+  switch (language) {
+    case 'tr': return 'Ortak görülmemiş $available soru bulundu. $selected soru seçilecek.';
+    case 'de': return '$available ungesehene Fragen verfügbar. $selected werden ausgewählt.';
+    case 'es': return 'Hay $available preguntas no vistas. Se elegirán $selected.';
+    case 'fr': return '$available questions inédites disponibles. $selected seront sélectionnées.';
+    default: return '$available unseen questions are available. $selected will be selected.';
+  }
+}
+
+String _insufficientQuestionsMessage(String language, int available, int selected) {
+  switch (language) {
+    case 'tr': return 'Yalnızca $available ortak görülmemiş soru kaldı. En az $selected soru gerekli.';
+    case 'de': return 'Nur noch $available ungesehene Fragen. Mindestens $selected sind erforderlich.';
+    case 'es': return 'Solo quedan $available preguntas no vistas. Se necesitan al menos $selected.';
+    case 'fr': return 'Il ne reste que $available questions inédites. Au moins $selected sont nécessaires.';
+    default: return 'Only $available unseen questions remain. At least $selected are required.';
+  }
+}
+
 class GameLobbyScreen extends StatefulWidget {
   final String gameType;
 
@@ -25,6 +56,7 @@ class GameLobbyScreen extends StatefulWidget {
 class _GameLobbyScreenState extends State<GameLobbyScreen> {
   final Set<String> _selectedCategories = <String>{};
   int? _unseenCount;
+  int _totalRounds = 15;
   bool _checkingAvailability = false;
   bool _started = false;
   bool _checkingActiveSession = true;
@@ -115,7 +147,12 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
         checkingAvailability: _checkingAvailability,
         availabilityError: _availabilityError,
         onCategoryToggle: _toggleCategory,
-        onContinue: _unseenCount != null && _unseenCount! >= 15
+        totalRounds: _totalRounds,
+        onTotalRoundsChanged: (value) async {
+          setState(() { _totalRounds = value; _unseenCount = null; });
+          await _refreshAvailability();
+        },
+        onContinue: _unseenCount != null && _unseenCount! >= _totalRounds
             ? () => setState(() => _started = true)
             : null,
       );
@@ -126,7 +163,7 @@ class _GameLobbyScreenState extends State<GameLobbyScreen> {
         service: GameSessionService(Supabase.instance.client),
         gameType: gameType,
         partnerId: partnerId,
-        totalRounds: 15,
+        totalRounds: _totalRounds,
         categories: _selectedCategories.toList(growable: false),
         initialSession: _activeSession,
       ),
@@ -204,6 +241,8 @@ class _CategorySelectionScreen extends StatelessWidget {
   final GameTypeConfig config;
   final Set<String> selectedCategories;
   final int? unseenCount;
+  final int totalRounds;
+  final ValueChanged<int> onTotalRoundsChanged;
   final bool checkingAvailability;
   final String? availabilityError;
   final ValueChanged<GameCategory> onCategoryToggle;
@@ -213,6 +252,8 @@ class _CategorySelectionScreen extends StatelessWidget {
     required this.config,
     required this.selectedCategories,
     required this.unseenCount,
+    required this.totalRounds,
+    required this.onTotalRoundsChanged,
     required this.checkingAvailability,
     required this.availabilityError,
     required this.onCategoryToggle,
@@ -221,7 +262,7 @@ class _CategorySelectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final enoughQuestions = unseenCount != null && unseenCount! >= 15;
+    final enoughQuestions = unseenCount != null && unseenCount! >= totalRounds;
 
     return Scaffold(
       appBar: AppBar(title: Text('${config.emoji} ${config.title}')),
@@ -234,6 +275,23 @@ class _CategorySelectionScreen extends StatelessWidget {
           const SizedBox(height: 8),
           Text(AppStrings.of(context).t('category_help')),
           const SizedBox(height: 18),
+          DropdownButtonFormField<int>(
+            value: totalRounds,
+            decoration: InputDecoration(
+              labelText: _questionCountLabel(config.locale),
+              border: OutlineInputBorder(),
+            ),
+            items: const [5, 10, 15, 20, 25]
+                .map((count) => DropdownMenuItem<int>(
+              value: count,
+              child: Text(_questionCountOptionLabel(config.locale, count)),
+            ))
+                .toList(),
+            onChanged: (value) {
+              if (value != null) onTotalRoundsChanged(value);
+            },
+          ),
+          const SizedBox(height: 18),
           Row(
             children: [
               Chip(
@@ -243,13 +301,13 @@ class _CategorySelectionScreen extends StatelessWidget {
               const SizedBox(width: 8),
               Chip(
                 avatar: const Icon(Icons.quiz_outlined, size: 18),
-                label: Text(AppStrings.of(context).t('questions_count_15')),
+                label: Text(_questionCountOptionLabel(config.locale, totalRounds)),
               ),
             ],
           ),
           const SizedBox(height: 18),
           ...config.categories.map(
-            (category) => Card(
+                (category) => Card(
               margin: const EdgeInsets.only(bottom: 10),
               child: CheckboxListTile(
                 value: selectedCategories.contains(category.id),
@@ -270,6 +328,8 @@ class _CategorySelectionScreen extends StatelessWidget {
             availabilityError: availabilityError,
             unseenCount: unseenCount,
             enoughQuestions: enoughQuestions,
+            config: config,
+            totalRounds: totalRounds,
           ),
           const SizedBox(height: 22),
           SizedBox(
@@ -373,7 +433,7 @@ class _GameLobbyBody extends StatelessWidget {
                     runSpacing: 6,
                     children: categories.map((item) {
                       final category = config.categories.firstWhere(
-                        (c) => c.id == item,
+                            (c) => c.id == item,
                         orElse: () => GameCategory(
                           id: item,
                           title: item,
@@ -398,7 +458,7 @@ class _GameLobbyBody extends StatelessWidget {
           Text(AppStrings.of(context).t('players'), style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
           ...provider.players.map(
-            (player) => _PlayerTile(
+                (player) => _PlayerTile(
               player: player,
               isCurrentUser: player.userId == provider.currentUserId,
             ),
@@ -414,21 +474,21 @@ class _GameLobbyBody extends StatelessWidget {
               height: 52,
               child: ElevatedButton.icon(
                 onPressed: provider.currentPlayer == null ||
-                        provider.isReadyLoading ||
-                        provider.isStarting
+                    provider.isReadyLoading ||
+                    provider.isStarting
                     ? null
                     : provider.toggleReady,
                 icon: provider.isReadyLoading
                     ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
                     : Icon(
-                        provider.currentPlayer?.ready == true
-                            ? Icons.check_circle
-                            : Icons.play_arrow,
-                      ),
+                  provider.currentPlayer?.ready == true
+                      ? Icons.check_circle
+                      : Icons.play_arrow,
+                ),
                 label: Text(
                   provider.currentPlayer?.ready == true ? 'Hazırım ✓' : 'Hazırım',
                 ),
@@ -544,12 +604,16 @@ class _AvailabilityStatus extends StatelessWidget {
   final String? availabilityError;
   final int? unseenCount;
   final bool enoughQuestions;
+  final GameTypeConfig config;
+  final int totalRounds;
 
   const _AvailabilityStatus({
     required this.checkingAvailability,
     required this.availabilityError,
     required this.unseenCount,
     required this.enoughQuestions,
+    required this.config,
+    required this.totalRounds,
   });
 
   @override
@@ -595,8 +659,8 @@ class _AvailabilityStatus extends StatelessWidget {
           Expanded(
             child: Text(
               enoughQuestions
-                  ? '$unseenCount ortak görülmemiş soru bulundu. 15 soru seçilecek.'
-                  : 'Sadece $unseenCount ortak görülmemiş soru kaldı. En az 15 soru gerekli.',
+                  ? _availableQuestionsMessage(config.locale, unseenCount!, totalRounds)
+                  : _insufficientQuestionsMessage(config.locale, unseenCount!, totalRounds),
             ),
           ),
         ],
@@ -658,3 +722,4 @@ class _ErrorState extends StatelessWidget {
     );
   }
 }
+

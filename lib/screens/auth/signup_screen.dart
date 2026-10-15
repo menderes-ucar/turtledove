@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/locale_provider.dart';
 import '../../widgets/pre_auth_preferences.dart';
+import '../../widgets/neon_infinity_overlay.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -32,7 +33,10 @@ class _SignupScreenState extends State<SignupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(AppStrings.of(context).signUp)),
-      body: SingleChildScrollView(
+      body: Stack(
+        children: [
+          const Positioned.fill(child: NeonInfinityOverlay()),
+          SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
@@ -144,6 +148,8 @@ class _SignupScreenState extends State<SignupScreen> {
             ]),
           ],
         ),
+          ),
+        ],
       ),
     );
   }

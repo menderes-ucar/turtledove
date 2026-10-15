@@ -101,8 +101,9 @@ class ChatService {
     String senderId,
     String receiverId,
     String? content,
-    String? mediaUrl,
-  ) async {
+    String? mediaUrl, {
+    String? messageId,
+  }) async {
     final currentUser = client.auth.currentUser;
     if (currentUser == null || currentUser.id != senderId) {
       throw const AuthException('You must be signed in to send a message');
@@ -118,7 +119,7 @@ class ChatService {
     }
 
     await client.from('messages').insert({
-      'id': const Uuid().v4(),
+      'id': messageId ?? const Uuid().v4(),
       'sender_id': senderId,
       'receiver_id': receiverId,
       'content': normalizedContent,
@@ -126,17 +127,29 @@ class ChatService {
       'is_read': false,
       'created_at': DateTime.now().toIso8601String(),
     });
-    try {
-      await NotificationService(client).create(
-        userId: receiverId,
-        title: 'Yeni mesaj',
-        body: normalizedContent.isNotEmpty ? normalizedContent : 'Yeni bir medya mesajı gönderildi.',
-        type: 'message',
-        data: {
-          'action': normalizedContent.isEmpty ? 'media' : 'text',
-        },
-      );
-    } catch (e) { debugPrint('Notification insert skipped: $e'); }
+    // Do not block the sender's message flow on recipient profile lookup,
+    // notification-row creation, or the remote push Edge Function.
+    // The message is already persisted above; push delivery runs independently.
+    unawaited(() async {
+      try {
+        final delivered = await NotificationService(client).create(
+          userId: receiverId,
+          title: 'Yeni mesaj',
+          body: normalizedContent.isNotEmpty
+              ? normalizedContent
+              : 'Yeni bir medya mesajı gönderildi.',
+          type: 'message',
+          data: {
+            'action': normalizedContent.isEmpty ? 'media' : 'text',
+          },
+        );
+        if (!delivered) {
+          debugPrint('[FCM] message push was not confirmed for receiver $receiverId');
+        }
+      } catch (e, st) {
+        debugPrint('[FCM] message notification failed: $e\n$st');
+      }
+    }());
   }
 
   Future<void> markMessagesAsRead(String userId, String partnerId) async {

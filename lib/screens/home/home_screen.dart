@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:video_player/video_player.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:record/record.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../models/message_model.dart';
 import '../../models/todo_model.dart';
@@ -744,6 +745,7 @@ class _ChatTabScreenState extends State<ChatTabScreen> {
   bool _sending = false;
   bool _recording = false;
   bool _markedAsRead = false;
+  final List<Message> _pendingMessages = <Message>[];
   String? _recordingPath;
   DateTime? _recordingStartedAt;
   Duration _recordingElapsed = Duration.zero;
@@ -943,26 +945,65 @@ class _ChatTabScreenState extends State<ChatTabScreen> {
 
   Future<void> _send() async {
     final content = msgCtrl.text.trim();
-    if (content.isEmpty || _sending) return;
+    if (content.isEmpty) return;
 
-    setState(() => _sending = true);
+    // Optimistic UI: show the bubble immediately and let the user continue typing.
+    final now = DateTime.now();
+    final pending = Message(
+      id: const Uuid().v4(),
+      senderId: widget.userId,
+      receiverId: widget.partnerId,
+      content: content,
+      mediaUrl: null,
+      isRead: false,
+      createdAt: now,
+    );
+    final service = context.read<ChatService>();
+    setState(() {
+      _pendingMessages.add(pending);
+      msgCtrl.clear();
+    });
+
     try {
-      await context.read<ChatService>().sendMessage(
+      await service.sendMessage(
         widget.userId,
         widget.partnerId,
         content,
         null,
+        messageId: pending.id,
       );
-      msgCtrl.clear();
     } catch (e) {
       if (mounted) {
+        setState(() => _pendingMessages.removeWhere((m) => m.id == pending.id));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${AppStrings.of(context).sendFailed}: $e')),
         );
       }
-    } finally {
-      if (mounted) setState(() => _sending = false);
     }
+  }
+
+  List<Message> _messagesWithPending(List<Message> persisted) {
+    final persistedIds = persisted.map((m) => m.id).toSet();
+    final confirmedPendingIds = _pendingMessages
+        .where((m) => persistedIds.contains(m.id))
+        .map((m) => m.id)
+        .toSet();
+    if (confirmedPendingIds.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() => _pendingMessages.removeWhere((m) => confirmedPendingIds.contains(m.id)));
+      });
+    }
+    final result = List<Message>.of(persisted);
+    for (final pending in _pendingMessages) {
+      final exists = persistedIds.contains(pending.id);
+      if (!exists) result.add(pending);
+    }
+    result.sort((a, b) {
+      final byTime = a.createdAt.compareTo(b.createdAt);
+      return byTime != 0 ? byTime : a.id.compareTo(b.id);
+    });
+    return result;
   }
 
   Future<void> _showInteractions(BuildContext context) async {
@@ -1065,7 +1106,7 @@ class _ChatTabScreenState extends State<ChatTabScreen> {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              final messages = snapshot.data!;
+              final messages = _messagesWithPending(snapshot.data!);
               if (messages.isEmpty) {
                 return _HomeStateView(
                   icon: Icons.favorite_border,

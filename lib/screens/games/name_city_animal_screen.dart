@@ -238,7 +238,7 @@ class _PlayingBodyState extends State<_PlayingBody> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 14),
-            child: Center(child: Text('${s.round} ${state.roundNumber}/${state.totalRounds}')),
+            child: Center(child: Text('${s.round} ${state.roundNumber}/${state.totalRounds}', maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.labelMedium)),
           ),
         ],
       ),
@@ -378,7 +378,7 @@ class _ReviewBodyState extends State<_ReviewBody> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 14),
-            child: Center(child: Text('${s.round} ${state.roundNumber}/${state.totalRounds}')),
+            child: Center(child: Text('${s.round} ${state.roundNumber}/${state.totalRounds}', maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.labelMedium)),
           ),
         ],
       ),
@@ -450,42 +450,48 @@ class _ReviewRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 4),
-                  Text(answer.isEmpty ? '—' : answer),
-                  const SizedBox(height: 3),
-                  Text(valid ? '✓ Sistem: geçerli' : '✕ Sistem: geçersiz'),
-                ],
-              ),
-            ),
-            if (onChanged != null)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+                ),
+                if (onChanged != null) ...[
                   IconButton(
+                    visualDensity: VisualDensity.compact,
+                    constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
                     tooltip: 'Kabul et',
                     onPressed: () => onChanged!(true),
-                    icon: Icon(Icons.check_circle, color: value == true ? Colors.green : Colors.grey),
+                    icon: Icon(Icons.check_circle, color: value == true ? Colors.green : scheme.onSurfaceVariant),
                   ),
                   IconButton(
+                    visualDensity: VisualDensity.compact,
+                    constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
                     tooltip: 'Reddet',
                     onPressed: () => onChanged!(false),
-                    icon: Icon(Icons.cancel, color: value == false ? Colors.red : Colors.grey),
+                    icon: Icon(Icons.cancel, color: value == false ? Colors.red : scheme.onSurfaceVariant),
                   ),
-                ],
-              )
-            else
-              Icon(value == true ? Icons.check_circle : Icons.pending, color: value == true ? Colors.green : Colors.orange),
+                ] else
+                  Icon(value == true ? Icons.check_circle : Icons.pending,
+                      color: value == true ? Colors.green : Colors.orange),
+              ],
+            ),
+            const SizedBox(height: 2),
+            Text(answer.isEmpty ? '—' : answer, softWrap: true),
+            const SizedBox(height: 4),
+            Text(
+              valid ? '✓ Sistem: geçerli' : '✕ Sistem: geçersiz',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: valid ? Colors.green : scheme.error,
+              ),
+            ),
           ],
         ),
       ),

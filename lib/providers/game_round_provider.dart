@@ -21,6 +21,7 @@ class GameRoundProvider extends ChangeNotifier {
   List<GameRoundResult> _results = const [];
   StreamSubscription<List<Map<String, dynamic>>>? _answersSubscription;
   StreamSubscription<GameSession>? _sessionSubscription;
+  StreamSubscription<List<GamePlayer>>? _playersSubscription;
   bool _isAdvancing = false;
   bool _roundResolved = false;
   int? _nextRoundNumber;
@@ -96,6 +97,7 @@ class GameRoundProvider extends ChangeNotifier {
       _gameCompleted = false;
       _results = const [];
       _players = await sessionService.getPlayers(sessionId);
+      _listenToPlayers();
       _listenToAnswers(round.id);
       if (_roundResolved) {
         _results = await roundService.getRoundResults(round.id);
@@ -107,6 +109,21 @@ class GameRoundProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  void _listenToPlayers() {
+    _playersSubscription?.cancel();
+    _playersSubscription = sessionService.watchPlayers(sessionId).listen(
+      (players) {
+        _players = players;
+        notifyListeners();
+      },
+      onError: (Object error) {
+        // Keep the last known state; the session/answer streams remain usable.
+        _error = error.toString();
+        notifyListeners();
+      },
+    );
   }
 
   void _listenToAnswers(String roundId) {
@@ -223,6 +240,7 @@ class GameRoundProvider extends ChangeNotifier {
   void dispose() {
     unawaited(_answersSubscription?.cancel());
     unawaited(_sessionSubscription?.cancel());
+    unawaited(_playersSubscription?.cancel());
     super.dispose();
   }
 }

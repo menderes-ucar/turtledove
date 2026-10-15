@@ -7,8 +7,9 @@ import 'notification_service.dart';
 
 class GameRoundService {
   final SupabaseClient client;
+  final String languageCode;
 
-  GameRoundService(this.client);
+  GameRoundService(this.client, {this.languageCode = 'en'});
 
   Future<GameRound> getCurrentRound(String sessionId, int roundNumber) async {
     _requireAuthenticatedUser();
@@ -29,8 +30,11 @@ class GameRoundService {
     _requireAuthenticatedUser();
 
     final response = await client.rpc(
-      'get_game_question_public',
-      params: {'p_question_id': questionId},
+      'get_game_question_public_localized',
+      params: {
+        'p_question_id': questionId,
+        'p_language_code': languageCode,
+      },
     );
 
     final row = _singleRpcRow(response);

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/pre_auth_preferences.dart';
+import '../../widgets/neon_infinity_overlay.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -32,7 +33,10 @@ class _LoginScreenState extends State<LoginScreen> {
     final scheme = theme.colorScheme;
 
     return Scaffold(
-      body: SafeArea(
+      body: Stack(
+        children: [
+          const Positioned.fill(child: NeonInfinityOverlay()),
+          SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
@@ -245,7 +249,9 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
-        ),
+          ),
+          ),
+        ],
       ),
     );
   }

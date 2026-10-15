@@ -32,8 +32,8 @@ class GameSessionService {
     if (partnerId.trim().isEmpty || partnerId == userId) {
       throw const FormatException('Invalid partner');
     }
-    if (totalRounds != 15) {
-      throw const FormatException('Game always has exactly 15 questions');
+    if (![5, 10, 15, 20, 25].contains(totalRounds)) {
+      throw const FormatException('Choose 5, 10, 15, 20 or 25 questions');
     }
 
     final normalizedCategories = categories
@@ -47,11 +47,12 @@ class GameSessionService {
     }
 
     final row = await client.rpc(
-      'bestie_create_or_join_game_session_v3',
+      'bestie_create_or_join_game_session_v4',
       params: {
         'p_game_type': normalizedType,
         'p_partner_id': partnerId,
         'p_categories': normalizedCategories,
+        'p_total_rounds': totalRounds,
       },
     );
 
