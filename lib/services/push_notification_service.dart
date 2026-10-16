@@ -58,14 +58,16 @@ final FlutterLocalNotificationsPlugin _localNotifications =
     FlutterLocalNotificationsPlugin();
 
 int _callNotificationId(Map<String, dynamic> data) {
-  final callId = data['call_id']?.toString() ?? data['notification_id']?.toString() ?? 'bestie-call';
+  final callId =
+      data['call_id']?.toString() ??
+      data['notification_id']?.toString() ??
+      'bestie-call';
   var hash = 0;
   for (final codeUnit in callId.codeUnits) {
     hash = (hash * 31 + codeUnit) & 0x7fffffff;
   }
   return hash == 0 ? 2147483646 : hash;
 }
-
 
 Future<void> _showBackgroundLocalNotification(RemoteMessage message) async {
   if (!Platform.isAndroid && !Platform.isIOS) return;
@@ -88,21 +90,30 @@ Future<void> _showBackgroundLocalNotification(RemoteMessage message) async {
     );
 
     if (Platform.isAndroid) {
-      final android = _localNotifications.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
+      final android = _localNotifications
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
       await android?.createNotificationChannel(_bestieChannel('en'));
       await android?.createNotificationChannel(_bestieCallChannel('en'));
     }
 
     final data = Map<String, dynamic>.from(message.data);
     final type = data['type']?.toString() ?? '';
-    final title = data['title']?.toString() ?? message.notification?.title ?? 'Turtle Dove';
+    final title =
+        data['title']?.toString() ??
+        message.notification?.title ??
+        'Turtle Dove';
     final body = data['body']?.toString() ?? message.notification?.body ?? '';
 
     // Android calls are owned by BestieFirebaseMessagingService +
     // BestieCallRingingService. Do not also create a one-shot Flutter local
     // notification: that was the source of the single-ring behaviour.
-    if (Platform.isAndroid && (type == 'call' || type == 'call_end' || data['action']?.toString() == 'incoming_call' || data['action']?.toString() == 'call_ended')) {
+    if (Platform.isAndroid &&
+        (type == 'call' ||
+            type == 'call_end' ||
+            data['action']?.toString() == 'incoming_call' ||
+            data['action']?.toString() == 'call_ended')) {
       return;
     }
 
@@ -146,7 +157,9 @@ Future<void> _showBackgroundLocalNotification(RemoteMessage message) async {
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  debugPrint('[FCM] background message: ${message.messageId} data=${message.data}');
+  debugPrint(
+    '[FCM] background message: ${message.messageId} data=${message.data}',
+  );
   await _showBackgroundLocalNotification(message);
 }
 
@@ -155,7 +168,9 @@ class PushNotificationService {
 
   Future<void> cancelCallNotification(String callId) async {
     try {
-      await _localNotifications.cancel(_callNotificationId({'call_id': callId}));
+      await _localNotifications.cancel(
+        _callNotificationId({'call_id': callId}),
+      );
       if (Platform.isAndroid) {
         try {
           await _nativeSystemChannel.invokeMethod('stopIncomingCallRinging');
@@ -165,6 +180,7 @@ class PushNotificationService {
       debugPrint('[FCM] call notification cancel failed: $e');
     }
   }
+
   PushNotificationService(this.client);
 
   FirebaseMessaging? _messaging;
@@ -222,7 +238,9 @@ class PushNotificationService {
       await _initializeLocalNotifications();
       if (Platform.isAndroid) {
         try {
-          final pending = await _nativeSystemChannel.invokeMethod<dynamic>('getPendingIncomingCall');
+          final pending = await _nativeSystemChannel.invokeMethod<dynamic>(
+            'getPendingIncomingCall',
+          );
           if (pending is Map) {
             _handleNavigation(Map<String, dynamic>.from(pending));
           }
@@ -257,7 +275,9 @@ class PushNotificationService {
         // APNs registration can finish after app startup. Retry in the
         // background so a temporary null APNs token doesn't permanently
         // prevent this installation from being registered in Supabase.
-        _iosTokenRetryTimer ??= Timer.periodic(const Duration(seconds: 10), (_) {
+        _iosTokenRetryTimer ??= Timer.periodic(const Duration(seconds: 10), (
+          _,
+        ) {
           if (client.auth.currentUser != null) unawaited(_syncToken());
         });
       }
@@ -312,11 +332,17 @@ class PushNotificationService {
     );
 
     if (Platform.isAndroid) {
-      final androidPlugin = _localNotifications.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
+      final androidPlugin = _localNotifications
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
       final channelLanguage = await _currentLanguageCode();
-      await androidPlugin?.createNotificationChannel(_bestieChannel(channelLanguage));
-      await androidPlugin?.createNotificationChannel(_bestieCallChannel(channelLanguage));
+      await androidPlugin?.createNotificationChannel(
+        _bestieChannel(channelLanguage),
+      );
+      await androidPlugin?.createNotificationChannel(
+        _bestieCallChannel(channelLanguage),
+      );
       await androidPlugin?.requestNotificationsPermission();
       try {
         await androidPlugin?.requestFullScreenIntentPermission();
@@ -327,7 +353,8 @@ class PushNotificationService {
 
     // Recover a notification that launched the process/full-screen Activity.
     // This is required for call actions when the app was not already running.
-    final launchDetails = await _localNotifications.getNotificationAppLaunchDetails();
+    final launchDetails = await _localNotifications
+        .getNotificationAppLaunchDetails();
     final launchPayload = launchDetails?.notificationResponse?.payload;
     if (launchDetails?.didNotificationLaunchApp == true &&
         launchPayload != null &&
@@ -356,9 +383,12 @@ class PushNotificationService {
       provisional: false,
     );
     final status = settings.authorizationStatus;
-    final allowed = status == AuthorizationStatus.authorized ||
+    final allowed =
+        status == AuthorizationStatus.authorized ||
         status == AuthorizationStatus.provisional;
-    debugPrint('[FCM] permission status: ${status.name}; notificationsAllowed=$allowed');
+    debugPrint(
+      '[FCM] permission status: ${status.name}; notificationsAllowed=$allowed',
+    );
     if (!allowed) {
       debugPrint(
         '[FCM] notifications are not authorized. The user may need to enable '
@@ -390,8 +420,10 @@ class PushNotificationService {
   Future<void> _verifyAndroidNotificationState() async {
     if (!Platform.isAndroid) return;
     try {
-      final android = _localNotifications.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
+      final android = _localNotifications
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
       final enabled = await android?.areNotificationsEnabled() ?? true;
       debugPrint('[FCM] Android notifications enabled=$enabled');
     } catch (e) {
@@ -406,6 +438,13 @@ class PushNotificationService {
       debugPrint('[FCM] token sync skipped: no authenticated user');
       return;
     }
+    debugPrint(
+      '[FCM] token sync started: platform=${Platform.isIOS ? 'ios' : 'android'}, user=${user.id}',
+    );
+    await _reportPushDiagnostic(
+      'token_sync_started',
+      'platform=${Platform.isIOS ? 'ios' : 'android'}',
+    );
 
     _tokenSyncInProgress = true;
     try {
@@ -423,27 +462,57 @@ class PushNotificationService {
           await Future<void>.delayed(const Duration(milliseconds: 500));
         }
         if (apns == null || apns.isEmpty) {
-          debugPrint('[FCM] APNs token not ready; will retry in 10 seconds. Check APNs key, Push Notifications capability, and TestFlight signing entitlement.');
+          debugPrint(
+            '[FCM][IOS_APNS_TOKEN_MISSING] APNs token is null after 5 seconds; background retry in 10 seconds.',
+          );
+          await _reportPushDiagnostic(
+            'ios_apns_token_missing',
+            'getAPNSToken returned null after 10 attempts',
+          );
           return;
         }
-        debugPrint('[FCM] APNs token available; requesting FCM token');
+        debugPrint(
+          '[FCM][IOS_APNS_TOKEN_OK] APNs token received; requesting FCM token',
+        );
+        await _reportPushDiagnostic(
+          'ios_apns_token_ok',
+          'APNs token received; token value intentionally not logged',
+        );
       }
 
       try {
         final token = await _messaging!.getToken();
         if (token == null || token.isEmpty) {
-          debugPrint('[FCM] ERROR: getToken returned an empty FCM token');
+          debugPrint(
+            '[FCM][FCM_TOKEN_EMPTY] getToken returned an empty FCM token',
+          );
+          await _reportPushDiagnostic(
+            'fcm_token_empty',
+            'FirebaseMessaging.getToken returned null/empty',
+          );
           return;
         }
+        debugPrint(
+          '[FCM][FCM_TOKEN_OK] FCM token obtained; value intentionally not logged',
+        );
+        await _reportPushDiagnostic(
+          'fcm_token_ok',
+          'FCM token obtained; token value intentionally not logged',
+        );
         // Avoid attaching a token to a different account if auth changed while
         // getToken was awaiting the native Firebase SDK.
         if (client.auth.currentUser?.id != user.id) {
-          debugPrint('[FCM] token sync discarded: account changed during token request');
+          debugPrint(
+            '[FCM] token sync discarded: account changed during token request',
+          );
           return;
         }
         await _saveToken(token);
       } catch (e, st) {
-        debugPrint('[FCM] getToken/save token sync failed: $e\n$st');
+        debugPrint(
+          '[FCM][FCM_TOKEN_OR_SAVE_ERROR] getToken/save token sync failed: $e\n$st',
+        );
+        await _reportPushDiagnostic('fcm_token_or_save_error', e.toString());
       }
     } finally {
       _tokenSyncInProgress = false;
@@ -455,37 +524,73 @@ class PushNotificationService {
     if (user == null || token.isEmpty) return;
     final platform = Platform.isIOS ? 'ios' : 'android';
 
-    _lastRegisteredToken = token;
-    _lastRegisteredUserId = user.id;
+    // Don't mark the token as registered until the server confirms the write.
+    // The auth/session may be missing or the request may fail on iOS.
 
     // The RPC is an optional server-side helper. Older/already-provisioned
     // Supabase projects may not have it in PostgREST's schema cache yet.
     // Token registration must never make app startup fail in that case, so
     // fall back to the RLS-protected table directly.
     try {
-      await client.rpc('register_device_token', params: {
-        'p_token': token,
-        'p_platform': platform,
-      });
-      debugPrint('[FCM] token synced successfully via RPC');
+      await client.rpc(
+        'register_device_token',
+        params: {'p_token': token, 'p_platform': platform},
+      );
+      _lastRegisteredToken = token;
+      _lastRegisteredUserId = user.id;
+      debugPrint(
+        '[FCM][TOKEN_REGISTERED] device token synced via RPC; platform=$platform user=${user.id}',
+      );
+      await _reportPushDiagnostic('token_registered_rpc', 'platform=$platform');
       return;
     } catch (e) {
-      debugPrint('[FCM] register_device_token RPC unavailable; using table fallback: $e');
+      debugPrint(
+        '[FCM][TOKEN_RPC_FAILED] register_device_token failed; trying table fallback: $e',
+      );
+      await _reportPushDiagnostic('token_rpc_failed', e.toString());
     }
 
     try {
-      await client.from('device_tokens').upsert(
-        {
-          'user_id': user.id,
-          'token': token,
-          'platform': platform,
-          'updated_at': DateTime.now().toUtc().toIso8601String(),
-        },
-        onConflict: 'token',
+      await client.from('device_tokens').upsert({
+        'user_id': user.id,
+        'token': token,
+        'platform': platform,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      }, onConflict: 'token');
+      _lastRegisteredToken = token;
+      _lastRegisteredUserId = user.id;
+      debugPrint(
+        '[FCM][TOKEN_REGISTERED] device token synced via table fallback; platform=$platform user=${user.id}',
       );
-      debugPrint('[FCM] token synced successfully via table fallback');
+      await _reportPushDiagnostic(
+        'token_registered_table',
+        'platform=$platform',
+      );
     } catch (e, st) {
-      debugPrint('[FCM] device_tokens fallback failed: $e\n$st');
+      debugPrint(
+        '[FCM][TOKEN_TABLE_FAILED] device_tokens fallback failed: $e\n$st',
+      );
+      await _reportPushDiagnostic('token_table_failed', e.toString());
+    }
+  }
+
+  Future<void> _reportPushDiagnostic(String stage, String details) async {
+    // Diagnostics are best-effort and never block token registration. No device
+    // token or credential is written to the diagnostics table.
+    try {
+      if (client.auth.currentUser == null) return;
+      await client.rpc(
+        'log_push_device_diagnostic',
+        params: {
+          'p_stage': stage,
+          'p_details': details.length > 1000
+              ? details.substring(0, 1000)
+              : details,
+          'p_platform': Platform.isIOS ? 'ios' : 'android',
+        },
+      );
+    } catch (e) {
+      debugPrint('[FCM][DIAGNOSTICS_WRITE_FAILED] $e');
     }
   }
 
@@ -509,11 +614,16 @@ class PushNotificationService {
             .eq('id', user.id)
             .maybeSingle();
         switch (row?['language_code']?.toString()) {
-          case 'de': return 'Eingehender Anruf';
-          case 'es': return 'Llamada entrante';
-          case 'fr': return 'Appel entrant';
-          case 'en': return 'Incoming call';
-          default: return 'Gelen arama';
+          case 'de':
+            return 'Eingehender Anruf';
+          case 'es':
+            return 'Llamada entrante';
+          case 'fr':
+            return 'Appel entrant';
+          case 'en':
+            return 'Incoming call';
+          default:
+            return 'Gelen arama';
         }
       }
       return 'Gelen arama';
@@ -523,12 +633,17 @@ class PushNotificationService {
   }
 
   Future<void> _showForegroundNotification(RemoteMessage message) async {
-    debugPrint('[FCM] foreground message: ${message.messageId} ${message.data}');
+    debugPrint(
+      '[FCM] foreground message: ${message.messageId} ${message.data}',
+    );
     if (!_localReady) return;
 
     final data = Map<String, dynamic>.from(message.data);
     final type = data['type']?.toString() ?? '';
-    final title = message.notification?.title ?? data['title']?.toString() ?? 'Turtle Dove';
+    final title =
+        message.notification?.title ??
+        data['title']?.toString() ??
+        'Turtle Dove';
     final body = message.notification?.body ?? data['body']?.toString() ?? '';
 
     if (type == 'call_end' || data['action']?.toString() == 'call_ended') {
@@ -539,14 +654,16 @@ class PushNotificationService {
       return;
     }
 
-    final isCall = type == 'call' || data['action']?.toString() == 'incoming_call';
+    final isCall =
+        type == 'call' || data['action']?.toString() == 'incoming_call';
     // Do not skip the local call notification while the app is in the
     // foreground. The native ringing service is primarily the background /
     // terminated-app transport; when Flutter is already active we still need
     // the call channel to play its ringtone. The Flutter route below remains
     // the single incoming-call UI.
-    final notificationId = isCall ? _callNotificationId(data) :
-        DateTime.now().millisecondsSinceEpoch.remainder(2147483647);
+    final notificationId = isCall
+        ? _callNotificationId(data)
+        : DateTime.now().millisecondsSinceEpoch.remainder(2147483647);
     await _localNotifications.show(
       notificationId,
       title,
@@ -555,14 +672,22 @@ class PushNotificationService {
         android: AndroidNotificationDetails(
           isCall ? _bestieCallChannelId : _bestieNotificationChannelId,
           isCall ? 'Turtle Dove Calls' : 'Turtle Dove Notifications',
-          channelDescription: isCall ? 'Incoming Turtle Dove calls' : 'Turtle Dove notifications',
+          channelDescription: isCall
+              ? 'Incoming Turtle Dove calls'
+              : 'Turtle Dove notifications',
           importance: isCall ? Importance.max : Importance.high,
           priority: isCall ? Priority.max : Priority.high,
           playSound: true,
-          sound: isCall ? RawResourceAndroidNotificationSound('bestie_call_ringtone') : null,
-          audioAttributesUsage: isCall ? AudioAttributesUsage.alarm : AudioAttributesUsage.notificationEvent,
+          sound: isCall
+              ? RawResourceAndroidNotificationSound('bestie_call_ringtone')
+              : null,
+          audioAttributesUsage: isCall
+              ? AudioAttributesUsage.alarm
+              : AudioAttributesUsage.notificationEvent,
           fullScreenIntent: isCall,
-          category: isCall ? AndroidNotificationCategory.call : AndroidNotificationCategory.message,
+          category: isCall
+              ? AndroidNotificationCategory.call
+              : AndroidNotificationCategory.message,
           visibility: NotificationVisibility.public,
           ongoing: isCall,
           autoCancel: !isCall,
