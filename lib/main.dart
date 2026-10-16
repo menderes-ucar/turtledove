@@ -86,10 +86,10 @@ void main() async {
       url: url,
       anonKey: key,
       authOptions: FlutterAuthClientOptions(
-// Persist the real Supabase session without shared_preferences.
-        localStorage: const EmptyLocalStorage(),
-// PKCE verifier is short-lived and does not need Android
-// SharedPreferences for this app's startup path.
+// Keep PKCE verifier storage separate, but use Supabase Flutter's default
+// persistent localStorage for the actual signed-in session. EmptyLocalStorage
+// deliberately discards sessions and causes auth.currentUser to be null after
+// a cold restart, which also prevents per-user push-token registration.
         pkceAsyncStorage: _MemoryPkceStorage(),
       ),
     );
