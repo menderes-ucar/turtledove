@@ -78,6 +78,9 @@ class GameRoundService {
     return const [];
   }
 
+  /// Advances the shared round through the server RPC. Question selection and
+  /// pair-wide historical de-duplication are enforced atomically in Postgres;
+  /// the client must not select or substitute a question locally.
   Future<GameSession> advanceToNextRound({
     required String sessionId,
     required String roundId,
