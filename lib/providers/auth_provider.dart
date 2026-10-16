@@ -34,9 +34,49 @@ class AuthProvider extends ChangeNotifier {
       if (data.event == AuthChangeEvent.initialSession) return;
 
       // signIn/signUp already load the profile themselves. Avoid racing them
-      // with a second request from the auth listener.
+      // with a second request from the auth listener. Supabase emits SIGNED_UP
+      // with a null session when email confirmation is required; that is not a
+      // sign-out and must not clear a profile or trigger a login redirect.
       if (_authActionInProgress) return;
 
+      void _listenToAuthChanges() {
+        _authSubscription =
+            authService.client.auth.onAuthStateChange.listen((data) async {
+              if (data.event == AuthChangeEvent.initialSession) return;
+
+              // Kayıt ve giriş işlemleri kendi profillerini yüklüyor.
+              // Bu sırada auth listener'ın ikinci bir istek yapmasını önle.
+              if (_authActionInProgress) return;
+
+              final session = data.session;
+
+              if (session == null) {
+                await _removeProfileChannel();
+                _profile = null;
+                _lastError = null;
+                _isLoading = false;
+                notifyListeners();
+                return;
+              }
+
+              try {
+                final profile = await authService.getProfile();
+                _profile = profile;
+
+                if (profile != null) {
+                  _subscribeToOwnProfile(profile.id);
+                }
+
+                _lastError = null;
+              } catch (e) {
+                debugPrint('AuthProvider auth state error: $e');
+                _lastError = e.toString();
+              } finally {
+                _isLoading = false;
+                notifyListeners();
+              }
+            });
+      }
       final session = data.session;
       if (session == null) {
         _removeProfileChannel();
@@ -156,7 +196,7 @@ class AuthProvider extends ChangeNotifier {
       return _profile != null;
     } catch (e) {
       print('🔴 AuthProvider.signUp error: $e');
-      _lastError = e.toString();
+      _lastError = e is AuthException ? e.message : e.toString();
       _isLoading = false;
       _authActionInProgress = false;
       notifyListeners();

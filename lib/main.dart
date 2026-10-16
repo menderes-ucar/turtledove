@@ -86,8 +86,9 @@ void main() async {
       url: url,
       anonKey: key,
       authOptions: FlutterAuthClientOptions(
-        // Keep Supabase's default persistent session storage.
-        // Only the short-lived PKCE verifier uses in-memory storage.
+// Let supabase_flutter use its persistent platform storage for the auth
+// session. EmptyLocalStorage is intentionally a no-op and caused sessions
+// to disappear after app restarts.
         pkceAsyncStorage: _MemoryPkceStorage(),
       ),
     );
