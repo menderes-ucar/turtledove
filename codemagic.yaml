@@ -136,13 +136,12 @@ workflows:
         script: |
           set -euo pipefail
 
-          BUILD_NUMBER="${CM_BUILD_NUMBER:-8}"
+          BUILD_NUMBER="${CM_BUILD_NUMBER:-9}"
 
           echo "Bundle ID: $BUNDLE_ID"
           echo "Build number: $BUILD_NUMBER"
 
           echo "BUILD_NUMBER=$BUILD_NUMBER" >> "$CM_ENV"
-
 
       - name: Build signed IPA for TestFlight
         script: |
@@ -168,7 +167,61 @@ workflows:
           fi
 
           echo "IPA generated successfully: $IPA_PATH"
-    
+
+          # Verify the APNs entitlement in the signed IPA.
+          VERIFY_DIR="$(mktemp -d)"
+          trap 'rm -rf "$VERIFY_DIR"' EXIT
+
+          /usr/bin/unzip -q "$IPA_PATH" -d "$VERIFY_DIR"
+
+          APP_PATH="$(find "$VERIFY_DIR/Payload" \
+            -maxdepth 1 -type d -name '*.app' -print -quit)"
+
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: No .app bundle found inside the IPA."
+            exit 1
+          fi
+
+          ENTITLEMENTS_PATH="$VERIFY_DIR/signed-entitlements.plist"
+
+          if ! /usr/bin/codesign \
+            -d --entitlements :- "$APP_PATH" \
+            > "$ENTITLEMENTS_PATH" 2>/dev/null; then
+            echo "ERROR: Could not read signed IPA entitlements."
+            exit 1
+          fi
+
+          if [ ! -s "$ENTITLEMENTS_PATH" ]; then
+            echo "ERROR: Signed entitlements are empty."
+            exit 1
+          fi
+
+          APNS_ENVIRONMENT=$(
+            /usr/libexec/PlistBuddy \
+              -c 'Print :aps-environment' \
+              "$ENTITLEMENTS_PATH" 2>/dev/null || true
+          )
+
+          if [ "$APNS_ENVIRONMENT" != "production" ]; then
+            echo "ERROR: Expected aps-environment=production."
+            echo "Actual aps-environment: ${APNS_ENVIRONMENT:-MISSING}"
+            exit 1
+          fi
+
+          echo "Verified signed IPA aps-environment: production"
+
+          SIGNED_BUNDLE_ID=$(
+            /usr/libexec/PlistBuddy \
+              -c 'Print :CFBundleIdentifier' \
+              "$APP_PATH/Info.plist"
+          )
+
+          if [ "$SIGNED_BUNDLE_ID" != "$BUNDLE_ID" ]; then
+            echo "ERROR: Signed IPA bundle ID mismatch: $SIGNED_BUNDLE_ID"
+            exit 1
+          fi
+
+          echo "Verified signed IPA bundle ID: $SIGNED_BUNDLE_ID"
 
     artifacts:
       - build/ios/ipa/*.ipa
