@@ -86,10 +86,8 @@ void main() async {
       url: url,
       anonKey: key,
       authOptions: FlutterAuthClientOptions(
-// Persist the real Supabase session without shared_preferences.
-        localStorage: const EmptyLocalStorage(),
-// PKCE verifier is short-lived and does not need Android
-// SharedPreferences for this app's startup path.
+        // Keep Supabase's default persistent session storage.
+        // Only the short-lived PKCE verifier uses in-memory storage.
         pkceAsyncStorage: _MemoryPkceStorage(),
       ),
     );
