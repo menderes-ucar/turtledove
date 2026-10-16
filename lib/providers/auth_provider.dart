@@ -14,7 +14,9 @@ class AuthProvider extends ChangeNotifier {
   String? _lastError;
   StreamSubscription<AuthState>? _authSubscription;
   RealtimeChannel? _profileChannel;
+  String? _profileChannelUserId;
   bool _authActionInProgress = false;
+  int _authGeneration = 0;
 
   AuthProvider(this.authService) {
     _init();
@@ -29,57 +31,17 @@ class AuthProvider extends ChangeNotifier {
 
   void _listenToAuthChanges() {
     _authSubscription = authService.client.auth.onAuthStateChange.listen((data) async {
-      // _init() handles the initial restored session. Ignore that event here
-      // to prevent a second profile request during app startup.
+      // _init() handles the initial restored session.
       if (data.event == AuthChangeEvent.initialSession) return;
 
-      // signIn/signUp already load the profile themselves. Avoid racing them
-      // with a second request from the auth listener. Supabase emits SIGNED_UP
-      // with a null session when email confirmation is required; that is not a
-      // sign-out and must not clear a profile or trigger a login redirect.
+      // Explicit sign-in/sign-up/sign-out methods own their state transition.
       if (_authActionInProgress) return;
 
-      void _listenToAuthChanges() {
-        _authSubscription =
-            authService.client.auth.onAuthStateChange.listen((data) async {
-              if (data.event == AuthChangeEvent.initialSession) return;
-
-              // Kayıt ve giriş işlemleri kendi profillerini yüklüyor.
-              // Bu sırada auth listener'ın ikinci bir istek yapmasını önle.
-              if (_authActionInProgress) return;
-
-              final session = data.session;
-
-              if (session == null) {
-                await _removeProfileChannel();
-                _profile = null;
-                _lastError = null;
-                _isLoading = false;
-                notifyListeners();
-                return;
-              }
-
-              try {
-                final profile = await authService.getProfile();
-                _profile = profile;
-
-                if (profile != null) {
-                  _subscribeToOwnProfile(profile.id);
-                }
-
-                _lastError = null;
-              } catch (e) {
-                debugPrint('AuthProvider auth state error: $e');
-                _lastError = e.toString();
-              } finally {
-                _isLoading = false;
-                notifyListeners();
-              }
-            });
-      }
+      final generation = ++_authGeneration;
       final session = data.session;
       if (session == null) {
-        _removeProfileChannel();
+        await _removeProfileChannel();
+        if (generation != _authGeneration) return;
         _profile = null;
         _lastError = null;
         _isLoading = false;
@@ -87,62 +49,79 @@ class AuthProvider extends ChangeNotifier {
         return;
       }
 
+      _isLoading = true;
+      _lastError = null;
+      notifyListeners();
+      await _removeProfileChannel();
       try {
-        final profile = await authService.getProfile();
+        final profile = await authService.getProfile().timeout(
+          const Duration(seconds: 20),
+        );
+        if (generation != _authGeneration ||
+            authService.client.auth.currentUser?.id != session.user.id) return;
         _profile = profile;
-        if (profile != null) {
-          _subscribeToOwnProfile(profile.id);
-        }
-        _lastError = null;
+        if (profile != null) _subscribeToOwnProfile(profile.id);
       } catch (e) {
-        print('🔴 AuthProvider auth state error: $e');
+        if (generation != _authGeneration) return;
+        debugPrint('🔴 AuthProvider auth state error: $e');
         _lastError = e.toString();
+        _profile = null;
       } finally {
-        _isLoading = false;
-        notifyListeners();
+        if (generation == _authGeneration) {
+          _isLoading = false;
+          notifyListeners();
+        }
       }
     });
   }
 
   Future<void> _init() async {
+    final generation = _authGeneration;
+    final initialUserId = authService.client.auth.currentUser?.id;
     try {
-      final hasSession = authService.client.auth.currentSession != null;
-      if (!hasSession) {
-        _profile = null;
-        _isLoading = false;
-        notifyListeners();
+      if (initialUserId == null) {
+        if (authService.client.auth.currentUser == null && generation == _authGeneration) {
+          _profile = null;
+          _isLoading = false;
+          notifyListeners();
+        }
         return;
       }
 
-      // Supabase may restore the auth session immediately while the profile
-      // query is still settling. Keep the router on /splash during these
-      // short retries so the login screen never flashes for a valid session.
-      for (var attempt = 0; attempt < 4 && _profile == null; attempt++) {
-        _profile = await authService.getProfile();
-        if (_profile != null) break;
-        if (attempt < 3) {
-          await Future<void>.delayed(Duration(milliseconds: 90 * (attempt + 1)));
-        }
-      }
-
-      if (_profile != null) {
-        _subscribeToOwnProfile(_profile!.id);
-      }
-      _isLoading = false;
-      notifyListeners();
+      final profile = await authService.getProfile().timeout(
+        const Duration(seconds: 20),
+      );
+      // Ignore an old startup request if the user changed while it was loading.
+      if (generation != _authGeneration ||
+          authService.client.auth.currentUser?.id != initialUserId) return;
+      _profile = profile;
+      if (profile != null) _subscribeToOwnProfile(profile.id);
+      _lastError = null;
     } catch (e) {
-      print('🔴 AuthProvider._init error: $e');
+      if (generation != _authGeneration) return;
+      debugPrint('🔴 AuthProvider._init error: $e');
       _lastError = e.toString();
-      _isLoading = false;
-      notifyListeners();
+      _profile = null;
+    } finally {
+      if (generation == _authGeneration) {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
   }
 
   void _subscribeToOwnProfile(String userId) {
-    if (_profileChannel != null) return;
+    if (_profileChannel != null && _profileChannelUserId == userId) return;
+    if (_profileChannel != null) {
+      final oldChannel = _profileChannel;
+      _profileChannel = null;
+      _profileChannelUserId = null;
+      unawaited(authService.client.removeChannel(oldChannel!));
+    }
 
     final channel = authService.client.channel('bestie-profile-$userId');
     _profileChannel = channel;
+    _profileChannelUserId = userId;
 
     channel
         .onPostgresChanges(
@@ -175,12 +154,14 @@ class AuthProvider extends ChangeNotifier {
   Future<void> _removeProfileChannel() async {
     final channel = _profileChannel;
     _profileChannel = null;
+    _profileChannelUserId = null;
     if (channel != null) {
       await authService.client.removeChannel(channel);
     }
   }
 
   Future<bool> signUp(String email, String password, String username) async {
+    ++_authGeneration;
     _authActionInProgress = true;
     _isLoading = true;
     _lastError = null;
@@ -196,7 +177,7 @@ class AuthProvider extends ChangeNotifier {
       return _profile != null;
     } catch (e) {
       print('🔴 AuthProvider.signUp error: $e');
-      _lastError = e is AuthException ? e.message : e.toString();
+      _lastError = e.toString();
       _isLoading = false;
       _authActionInProgress = false;
       notifyListeners();
@@ -205,6 +186,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<bool> signIn(String email, String password) async {
+    ++_authGeneration;
     _authActionInProgress = true;
     _isLoading = true;
     _lastError = null;
@@ -229,14 +211,22 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
+    ++_authGeneration;
+    _authActionInProgress = true;
+    _isLoading = true;
+    _lastError = null;
+    notifyListeners();
     try {
       await _removeProfileChannel();
       await authService.signOut();
       _profile = null;
-      notifyListeners();
     } catch (e) {
-      print('🔴 AuthProvider.signOut error: $e');
+      debugPrint('🔴 AuthProvider.signOut error: $e');
       _lastError = e.toString();
+    } finally {
+      _authActionInProgress = false;
+      _isLoading = false;
+      notifyListeners();
     }
   }
 

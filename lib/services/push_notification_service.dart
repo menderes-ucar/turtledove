@@ -176,6 +176,8 @@ class PushNotificationService {
   bool _localReady = false;
   String? _lastRegisteredToken;
   String? _lastRegisteredUserId;
+  Timer? _iosTokenRetryTimer;
+  bool _tokenSyncInProgress = false;
 
   void Function(Map<String, dynamic> data)? _navigationHandler;
   Map<String, dynamic>? _pendingNavigation;
@@ -251,6 +253,14 @@ class PushNotificationService {
         }
         unawaited(_syncToken());
       });
+      if (Platform.isIOS) {
+        // APNs registration can finish after app startup. Retry in the
+        // background so a temporary null APNs token doesn't permanently
+        // prevent this installation from being registered in Supabase.
+        _iosTokenRetryTimer ??= Timer.periodic(const Duration(seconds: 10), (_) {
+          if (client.auth.currentUser != null) unawaited(_syncToken());
+        });
+      }
       _tokenSubscription = _messaging!.onTokenRefresh.listen((token) {
         final previous = _lastRegisteredToken;
         if (previous != null && previous != token) {
@@ -390,29 +400,53 @@ class PushNotificationService {
   }
 
   Future<void> _syncToken() async {
-    if (!_enabled || _messaging == null) return;
+    if (!_enabled || _messaging == null || _tokenSyncInProgress) return;
     final user = client.auth.currentUser;
-    if (user == null) return;
-
-    if (Platform.isIOS) {
-      String? apns;
-      for (var i = 0; i < 20; i++) {
-        apns = await _messaging!.getAPNSToken();
-        if (apns != null && apns.isNotEmpty) break;
-        await Future<void>.delayed(const Duration(milliseconds: 500));
-      }
-      if (apns == null || apns.isEmpty) {
-        debugPrint('[FCM] APNs token not available yet');
-        return;
-      }
+    if (user == null) {
+      debugPrint('[FCM] token sync skipped: no authenticated user');
+      return;
     }
 
+    _tokenSyncInProgress = true;
     try {
-      final token = await _messaging!.getToken();
-      if (token == null || token.isEmpty) return;
-      await _saveToken(token);
-    } catch (e, st) {
-      debugPrint('[FCM] getToken failed: $e\n$st');
+      if (Platform.isIOS) {
+        String? apns;
+        // Short bounded wait per attempt; the periodic retry above handles
+        // APNs tokens that become available later without blocking for a minute.
+        for (var i = 0; i < 10; i++) {
+          try {
+            apns = await _messaging!.getAPNSToken();
+          } catch (e) {
+            debugPrint('[FCM] APNs token check ${i + 1}/10 failed: $e');
+          }
+          if (apns != null && apns.isNotEmpty) break;
+          await Future<void>.delayed(const Duration(milliseconds: 500));
+        }
+        if (apns == null || apns.isEmpty) {
+          debugPrint('[FCM] APNs token not ready; will retry in 10 seconds. Check APNs key, Push Notifications capability, and TestFlight signing entitlement.');
+          return;
+        }
+        debugPrint('[FCM] APNs token available; requesting FCM token');
+      }
+
+      try {
+        final token = await _messaging!.getToken();
+        if (token == null || token.isEmpty) {
+          debugPrint('[FCM] ERROR: getToken returned an empty FCM token');
+          return;
+        }
+        // Avoid attaching a token to a different account if auth changed while
+        // getToken was awaiting the native Firebase SDK.
+        if (client.auth.currentUser?.id != user.id) {
+          debugPrint('[FCM] token sync discarded: account changed during token request');
+          return;
+        }
+        await _saveToken(token);
+      } catch (e, st) {
+        debugPrint('[FCM] getToken/save token sync failed: $e\n$st');
+      }
+    } finally {
+      _tokenSyncInProgress = false;
     }
   }
 
@@ -551,6 +585,7 @@ class PushNotificationService {
   }
 
   Future<void> dispose() async {
+    _iosTokenRetryTimer?.cancel();
     await _authSubscription?.cancel();
     await _tokenSubscription?.cancel();
     await _messageSubscription?.cancel();

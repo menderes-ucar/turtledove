@@ -86,9 +86,10 @@ void main() async {
       url: url,
       anonKey: key,
       authOptions: FlutterAuthClientOptions(
-// Let supabase_flutter use its persistent platform storage for the auth
-// session. EmptyLocalStorage is intentionally a no-op and caused sessions
-// to disappear after app restarts.
+// Persist the real Supabase session without shared_preferences.
+        localStorage: const EmptyLocalStorage(),
+// PKCE verifier is short-lived and does not need Android
+// SharedPreferences for this app's startup path.
         pkceAsyncStorage: _MemoryPkceStorage(),
       ),
     );

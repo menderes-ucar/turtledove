@@ -37,7 +37,9 @@ GoRouter buildRouter(AuthProvider auth) {
 
       // Keep the splash visible while Supabase restores the persisted session.
       if (auth.isLoading) return isSplashRoute ? null : '/splash';
-      if (auth.hasSession && auth.profile == null) return isSplashRoute ? null : '/splash';
+      // A profile request can fail even while the Supabase session exists.
+      // Do not trap the user on the splash forever once loading has finished.
+      if (auth.hasSession && auth.profile == null) return isAuthRoute ? null : '/login';
       final isPairingRoute = location == '/pairing';
       final hasProfile = auth.profile != null;
 

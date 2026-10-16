@@ -7,7 +7,7 @@ import '../models/profile_model.dart';
 
 class AuthService {
   final SupabaseClient client;
-  Future<Profile>? _profileLoadFuture;
+  final Map<String, Future<Profile>> _profileLoadFutures = {};
 
   AuthService(this.client);
 
@@ -28,44 +28,19 @@ class AuthService {
 
       print('📝 Signing up: $normalizedEmail');
 
-      final res = await client.auth.signUp(
-        email: normalizedEmail,
-        password: password,
-        data: {'username': normalizedUsername},
-      );
-      final user = res.user;
-      if (user == null) {
-        throw const AuthException('Supabase kayıt yanıtında kullanıcı döndürmedi.');
+      final res = await client.auth.signUp(email: normalizedEmail, password: password);
+      if (res.user == null) {
+        print('❌ Auth signup failed: no user returned');
+        return null;
       }
 
-      // Supabase can return a user with no identities when this email is
-      // already registered (depending on the project's email-confirmation
-      // settings). Do not pretend that a new account was created.
-      if (user.identities != null && user.identities!.isEmpty) {
-        throw const AuthException(
-          'Bu e-posta adresiyle zaten bir hesap var. Giriş yapmayı veya şifreni sıfırlamayı dene.',
-        );
-      }
-
-      // When email confirmation is enabled, signUp succeeds but Supabase
-      // intentionally returns no session. The old code tried to insert into
-      // profiles anyway; RLS could reject it, and auth-state changes could
-      // then send the user back to login without explaining why. Keep the user
-      // on this screen and tell them to verify their email. Profile recovery
-      // after the first confirmed login uses the username stored in metadata.
-      if (res.session == null) {
-        throw const AuthException(
-          'Kayıt isteği alındı. E-posta doğrulaması açıksa gelen kutunu ve spam klasörünü kontrol edip hesabını doğrula; sonra giriş yap.',
-        );
-      }
-
-      print('✅ Auth signup success: ${user.id}');
+      print('✅ Auth signup success: ${res.user!.id}');
       final pairCode = _generatePairCode();
 
       print('📝 Creating profile in database...');
 
       await client.from('profiles').insert({
-        'id': user.id,
+        'id': res.user!.id,
         'email': normalizedEmail,
         'username': normalizedUsername,
         'pair_code': pairCode,
@@ -80,7 +55,7 @@ class AuthService {
       print('✅ Profile created successfully');
 
       return Profile(
-        id: user.id,
+        id: res.user!.id,
         username: normalizedUsername,
         pairCode: pairCode,
         avatarUrl: null,
@@ -230,16 +205,19 @@ class AuthService {
   }
 
   Future<Profile> _loadOrCreateProfile(User user) {
-    final existing = _profileLoadFuture;
+    // A single global in-flight future can return the previous account's
+    // profile when sign-out/sign-in happens while a request is still running.
+    // Keep the in-flight request scoped to its Supabase user ID.
+    final existing = _profileLoadFutures[user.id];
     if (existing != null) return existing;
 
     late Future<Profile> future;
     future = _getOrCreateProfile(user).whenComplete(() {
-      if (identical(_profileLoadFuture, future)) {
-        _profileLoadFuture = null;
+      if (identical(_profileLoadFutures[user.id], future)) {
+        _profileLoadFutures.remove(user.id);
       }
     });
-    _profileLoadFuture = future;
+    _profileLoadFutures[user.id] = future;
     return future;
   }
 
@@ -258,11 +236,7 @@ class AuthService {
 
     final email = user.email?.trim().toLowerCase() ?? '';
     final emailName = email.contains('@') ? email.split('@').first : '';
-    final metadataUsername = user.userMetadata?['username']?.toString().trim() ?? '';
-    final preferred = metadataUsername.length >= 3 && metadataUsername.length <= 20
-        ? metadataUsername
-        : emailName;
-    final safeBase = preferred.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '_');
+    final safeBase = emailName.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '_');
     final base = safeBase.isNotEmpty ? safeBase : 'bestie_user';
     final suffix = '_${user.id.substring(0, 8)}';
     final maxBaseLength = 20 - suffix.length;
