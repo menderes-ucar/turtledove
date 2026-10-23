@@ -12,6 +12,7 @@ import '../screens/profile/voice_message_archive_screen.dart';
 import '../screens/games/most_likely_to_screen.dart';
 import '../screens/games/trivia_screen.dart';
 import '../screens/games/game_lobby_screen.dart';
+import '../screens/games/dove_deck_lobby_screen.dart';
 import '../screens/games/game_round_screen.dart';
 import '../screens/games/word_game_lobby_screen.dart';
 import '../screens/games/word_game_round_screen.dart';
@@ -95,6 +96,7 @@ GoRouter buildRouter(AuthProvider auth) {
         routes: [
           GoRoute(path: 'most-likely-to', builder: (_, __) => const MostLikelyToScreen()),
           GoRoute(path: 'trivia', builder: (_, __) => const TriviaScreen()),
+          GoRoute(path: 'dove-deck', builder: (_, __) => const DoveDeckLobbyScreen()),
           GoRoute(path: 'word-game', builder: (_, __) => const WordGameLobbyScreen()),
           GoRoute(
             path: 'word-game-round/:sessionId',
