@@ -1678,6 +1678,7 @@ class GamesTabScreen extends StatelessWidget {
       children: [
         GameCard(title: AppStrings.of(context).gameMostLikely, emoji: '🎯', onTap: () => context.go('/home/game-lobby/most_likely_to')),
         GameCard(title: AppStrings.of(context).gameTrivia, emoji: '🧠', onTap: () => context.go('/home/game-lobby/trivia')),
+        GameCard(title: 'Dove Deck', emoji: '🃏', onTap: () => context.go('/home/dove-deck')),
         GameCard(title: AppStrings.of(context).gameWord, emoji: '🔤', onTap: () => context.go('/home/game-lobby/word_game')),
         GameCard(title: AppStrings.of(context).gameNameCityAnimal, emoji: '🎯', onTap: () => context.go('/home/game-lobby/name_city_animal')),
       ],
