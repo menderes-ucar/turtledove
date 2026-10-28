@@ -20,6 +20,7 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
   StreamSubscription<DoveDeckSession>? _subscription;
   bool _loading = true;
   bool _actionBusy = false;
+  bool _startingAutomatically = false;
   String? _error;
 
   @override
@@ -70,7 +71,9 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
     if (game != null) {
       _game = game;
       _subscription = _service.watch(game.id).listen((next) {
-        if (mounted) setState(() => _game = next);
+        if (!mounted) return;
+        setState(() => _game = next);
+        _maybeAutoStart(next);
       }, onError: (Object e) {
         if (mounted) setState(() => _error = 'Canlı bağlantı kesildi. Yeniden dene.');
       });
@@ -88,8 +91,23 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
     } catch (e) {
       if (mounted) setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
     } finally {
-      if (mounted) setState(() => _actionBusy = false);
+      if (mounted) {
+        setState(() => _actionBusy = false);
+        final latest = _game;
+        if (latest != null) _maybeAutoStart(latest);
+      }
     }
+  }
+
+  void _maybeAutoStart(DoveDeckSession game) {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (!mounted || _actionBusy || _startingAutomatically ||
+        !game.isWaiting || !game.bothReady || userId != game.playerOne) return;
+    _startingAutomatically = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) { _startingAutomatically = false; return; }
+      _startGame().whenComplete(() => _startingAutomatically = false);
+    });
   }
 
   Future<void> _startGame() async {
@@ -171,9 +189,9 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
                   const SizedBox(height: 8),
                   OutlinedButton(onPressed: _actionBusy ? null : () => _setReady(!iAmReady),
                     child: Text(iAmReady ? 'Hazır değilim' : 'Hazırım')),
-                  if (isCreator) FilledButton(onPressed: _actionBusy || !game.bothReady ? null : _startGame,
-                    child: Text(_actionBusy ? 'Başlatılıyor…' : 'İkiniz de hazırsınız — oyunu başlat')),
-                  if (!isCreator && game.bothReady) const Text('İkiniz de hazırsınız. Oyunu başlatması için partnerini bekle.'),
+                  if (isCreator && !game.bothReady) const Text('Partnerin de hazır olduğunda oyun otomatik başlayacak.'),
+                  if (isCreator && game.bothReady) const Text('İkiniz de hazırsınız. Oyun başlatılıyor…'),
+                  if (!isCreator && game.bothReady) const Text('İkiniz de hazırsınız. Oyun otomatik başlayacak.'),
                 ],
                 if (game.isPlaying) FilledButton.icon(
                   onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => DoveDeckGameScreen(gameId: game.id))),
