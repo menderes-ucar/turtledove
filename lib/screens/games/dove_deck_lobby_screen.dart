@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/dove_deck_session.dart';
 import '../../services/dove_deck_service.dart';
+import 'dove_deck_game_screen.dart';
 
 class DoveDeckLobbyScreen extends StatefulWidget {
   const DoveDeckLobbyScreen({super.key});
@@ -113,7 +114,13 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
                         const SizedBox(height: 6),
                         Text(game.isWaiting ? 'Partnerinin bağlanmasını bekliyor.' : game.isPlaying ? 'Oyun başladı.' : game.isFinished ? 'Oyun tamamlandı.' : 'Oda durumu: ${game.status}'),
                         const SizedBox(height: 8),
-                        const Text('Bu aşamada oda ve canlı senkronizasyon altyapısı kuruluyor; kart hamleleri henüz etkinleştirilmedi.', style: TextStyle(color: Colors.black54)),
+                        const Text('Kartlarını oyna, sıranı bekle ve maçı tamamla.', style: TextStyle(color: Colors.black54)),
+                        const SizedBox(height: 14),
+                        SizedBox(width: double.infinity, child: FilledButton.icon(
+                          onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => DoveDeckGameScreen(gameId: game.id))),
+                          icon: const Icon(Icons.style),
+                          label: Text(game.isPlaying ? 'Oyuna devam et' : 'Oyun masasına geç'),
+                        )),
                       ]),
                     ),
                   ),
