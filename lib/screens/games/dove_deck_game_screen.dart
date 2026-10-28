@@ -40,7 +40,7 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
       'ruleSpecial':'ATLA ve TERS iki kişilik oyunda rakibin sırasını atlatır. +2 rakibe iki, +4 dört kart çektirir.',
       'ruleWild':'Joker oynadığında aktif rengi seç. +4 oynandığında rakip dört kart çeker.',
       'ruleWin':'Elindeki son kartı oynadığında kazanırsın. Hamleler iki cihaz arasında otomatik eşitlenir.',
-      'loading':'Oyun yükleniyor…','status':'Oyun durumu'
+      'loading':'Oyun yükleniyor…','status':'Oyun durumu','connection':'Canlı bağlantı kesildi. Yeniden deneyin.'
     };
     const en = <String, String>{
       'rules':'Game rules','yourTurn':'YOUR TURN','partnerTurn':\"PARTNER'S TURN\",'youWin':'You win! 🎉','gameOver':'Game over',
@@ -54,7 +54,7 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
       'ruleSpecial':'SKIP and REVERSE skip your opponent in this two-player game. +2 makes them draw two cards; +4 makes them draw four.',
       'ruleWild':'When playing a Wild, choose the active colour. A Wild +4 makes your opponent draw four cards.',
       'ruleWin':'Play your last card to win. Moves sync automatically between both devices.',
-      'loading':'Loading game…','status':'Game status'
+      'loading':'Loading game…','status':'Game status','connection':'Live connection lost. Please try again.'
     };
     const de = <String, String>{
       'rules':'Spielregeln','yourTurn':'DU BIST DRAN','partnerTurn':'PARTNER IST DRAN','youWin':'Du gewinnst! 🎉','gameOver':'Spiel beendet',
@@ -68,7 +68,7 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
       'ruleSpecial':'Aussetzen und Richtungswechsel überspringen im Zweierspiel den Gegner. +2 zieht zwei, +4 vier Karten.',
       'ruleWild':'Wähle nach einem Joker die aktive Farbe. Joker +4 lässt den Gegner vier Karten ziehen.',
       'ruleWin':'Lege deine letzte Karte ab, um zu gewinnen. Züge werden automatisch auf beiden Geräten synchronisiert.',
-      'loading':'Spiel wird geladen…','status':'Spielstatus'
+      'loading':'Spiel wird geladen…','status':'Spielstatus','connection':'Live-Verbindung unterbrochen. Bitte erneut versuchen.'
     };
     const es = <String, String>{
       'rules':'Reglas del juego','yourTurn':'TU TURNO','partnerTurn':'TURNO DE TU PAREJA','youWin':'¡Has ganado! 🎉','gameOver':'Fin del juego',
@@ -82,7 +82,7 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
       'ruleSpecial':'Salto y Reversa saltan al rival en partidas de dos. +2 hace robar dos cartas y +4 cuatro.',
       'ruleWild':'Al jugar un comodín, elige el color activo. El comodín +4 hace que el rival robe cuatro cartas.',
       'ruleWin':'Juega tu última carta para ganar. Los movimientos se sincronizan entre ambos dispositivos.',
-      'loading':'Cargando partida…','status':'Estado de la partida'
+      'loading':'Cargando partida…','status':'Estado de la partida','connection':'Se perdió la conexión en vivo. Inténtalo de nuevo.'
     };
     const fr = <String, String>{
       'rules':'Règles du jeu','yourTurn':'À TOI DE JOUER','partnerTurn':'AU TOUR DU PARTENAIRE','youWin':'Tu as gagné ! 🎉','gameOver':'Partie terminée',
@@ -96,7 +96,7 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
       'ruleSpecial':'Passer et Inversion sautent le tour adverse à deux joueurs. +2 fait piocher deux cartes, +4 en fait piocher quatre.',
       'ruleWild':'Après un joker, choisis la couleur active. Le joker +4 oblige le partenaire à piocher quatre cartes.',
       'ruleWin':'Joue ta dernière carte pour gagner. Les coups sont synchronisés automatiquement sur les deux appareils.',
-      'loading':'Chargement…','status':'État de la partie'
+      'loading':'Chargement…','status':'État de la partie','connection':'Connexion en direct perdue. Réessaie.'
     };
     final map = <String, Map<String, String>>{'tr':tr,'en':en,'de':de,'es':es,'fr':fr}[_lang] ?? en;
     return map[key] ?? en[key] ?? key;
@@ -330,7 +330,7 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
           ])))
         : Column(children: [
           const SizedBox(height: 10),
-          Text(session.isFinished ? (session.winner == userId ? _t('youWin') : _t('gameOver')) : myTurn ? 'YOUR TURN' : "PARTNER'S TURN", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: 1.4, color: Color(0xFFF7F1E4))),
+          Text(session.isFinished ? (session.winner == userId ? _t('youWin') : _t('gameOver')) : myTurn ? _t('yourTurn') : _t('partnerTurn'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: 1.4, color: Color(0xFFF7F1E4))),
           const SizedBox(height: 8),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             _pile(_t('drawPile'), rules.drawPile.length, const Color(0xFF55466E)),
@@ -357,7 +357,7 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
             Expanded(child: OutlinedButton.icon(onPressed: myTurn && !_busy && !rules.mustPassAfterDraw && !session.isFinished ? () => _saveMove((r) => r.draw()) : null, icon: const Icon(Icons.add), label: Text(_t('draw')))),
             const SizedBox(width: 10),
             Expanded(child: FilledButton.icon(onPressed: myTurn && !_busy && rules.mustPassAfterDraw && !session.isFinished ? () => _saveMove((r) => r.pass()) : null, icon: const Icon(Icons.skip_next), label: Text(_t('pass')))),
-          ]),
+          ])),
           if (_busy) const LinearProgressIndicator(),
         ]),
       ),
