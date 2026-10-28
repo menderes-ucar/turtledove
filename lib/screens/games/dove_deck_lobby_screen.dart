@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/locale_provider.dart';
 import '../../models/dove_deck_session.dart';
 import '../../models/dove_deck_rules.dart';
 import '../../services/dove_deck_service.dart';
@@ -23,6 +24,17 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
   bool _startingAutomatically = false;
   String? _openedGameId;
   String? _error;
+
+  String _t(String key) {
+    final lang = context.read<LocaleProvider>().locale.languageCode;
+    const tr = {'refresh':'Devam eden oyunu yenile','headline':'Aynı maçta kalın. Hazır olduğunuzda birlikte başlayın.','pair':'Dove Deck oynamak için önce partnerinle eşleşmelisin.','new':'Yeni oyun başlat','playing':'Devam eden maç','waiting':'Bekleyen maç','room':'Oda','running':'Oyun sürüyor. Bu oturuma devam et.','waitingText':'İkiniz de hazır olmadan maç başlamaz.','yourStatus':'Senin durumun','ready':'Hazırsın','notReady':'Henüz hazır değilsin','partner':'Partnerin','wait':'Bekleniyor','notReadyButton':'Hazır değilim','readyButton':'Hazırım','partnerWait':'Partnerin de hazır olduğunda oyun otomatik başlayacak.','starting':'İkiniz de hazırsınız. Oyun başlatılıyor…','bothReady':'İkiniz de hazırsınız. Oyun otomatik başlayacak.','continue':'Oyuna devam et','unpaired':_t('unpaired')};
+    const en = {'refresh':'Refresh active game','headline':'Stay in the same match. Start together when you are ready.','pair':'Pair with your partner before playing Dove Deck.','new':'Start a new game','playing':'Match in progress','waiting':'Waiting match','room':'Room','running':'The game is in progress. Continue this session.','waitingText':'The match starts when both players are ready.','yourStatus':'Your status','ready':'Ready','notReady':'Not ready yet','partner':'Partner','wait':'Waiting','notReadyButton':'Not ready','readyButton':'I’m ready','partnerWait':'The game starts automatically when your partner is ready.','starting':'You are both ready. Starting…','bothReady':'You are both ready. The game will start automatically.','continue':'Continue game','unpaired':'Pair with your partner first.'};
+    const de = {'refresh':'Aktuelles Spiel laden','headline':'Bleibt im selben Spiel. Startet gemeinsam, wenn ihr bereit seid.','pair':'Kopple dich zuerst mit deinem Partner.','new':'Neues Spiel starten','playing':'Laufendes Spiel','waiting':'Wartendes Spiel','room':'Raum','running':'Das Spiel läuft. Setze diese Partie fort.','waitingText':'Beide Spieler müssen bereit sein.','yourStatus':'Dein Status','ready':'Bereit','notReady':'Noch nicht bereit','partner':'Partner','wait':'Wartet','notReadyButton':'Nicht bereit','readyButton':'Bereit','partnerWait':'Das Spiel startet automatisch, sobald dein Partner bereit ist.','starting':'Ihr seid beide bereit. Startet…','bothReady':'Ihr seid beide bereit. Das Spiel startet automatisch.','continue':'Spiel fortsetzen','unpaired':'Kopple dich zuerst mit deinem Partner.'};
+    const es = {'refresh':'Actualizar partida activa','headline':'Seguid en la misma partida. Empezad cuando ambos estéis listos.','pair':'Vincúlate con tu pareja antes de jugar.','new':'Iniciar partida','playing':'Partida en curso','waiting':'Partida en espera','room':'Sala','running':'La partida está en curso. Continúa esta sesión.','waitingText':'Ambos deben estar listos para empezar.','yourStatus':'Tu estado','ready':'Listo','notReady':'Aún no estás listo','partner':'Pareja','wait':'Esperando','notReadyButton':'No estoy listo','readyButton':'Estoy listo','partnerWait':'La partida empezará cuando tu pareja esté lista.','starting':'Ambos estáis listos. Iniciando…','bothReady':'Ambos estáis listos. La partida empezará automáticamente.','continue':'Continuar partida','unpaired':'Vincúlate con tu pareja primero.'};
+    const fr = {'refresh':'Actualiser la partie','headline':'Restez dans la même partie. Lancez-la quand vous êtes prêts.','pair':'Associe-toi à ton partenaire avant de jouer.','new':'Nouvelle partie','playing':'Partie en cours','waiting':'Partie en attente','room':'Salon','running':'La partie est en cours. Reprends cette session.','waitingText':'Les deux joueurs doivent être prêts.','yourStatus':'Ton état','ready':'Prêt','notReady':'Pas encore prêt','partner':'Partenaire','wait':'En attente','notReadyButton':'Pas prêt','readyButton':'Je suis prêt','partnerWait':'La partie démarre automatiquement quand ton partenaire est prêt.','starting':'Vous êtes prêts tous les deux. Démarrage…','bothReady':'Vous êtes prêts tous les deux. La partie démarre automatiquement.','continue':'Continuer la partie','unpaired':'Associe-toi d’abord à ton partenaire.'};
+    final maps = <String, Map<String, String>>{'tr':tr,'en':en,'de':de,'es':es,'fr':fr};
+    return (maps[lang] ?? en)[key] ?? en[key] ?? key;
+  }
 
   @override
   void initState() {
@@ -167,7 +179,7 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F2EC),
       appBar: AppBar(title: const Text('Dove Deck'), backgroundColor: const Color(0xFFF6F2EC),
-        actions: [IconButton(tooltip: 'Devam eden oyunu yenile', onPressed: _loading ? null : _restoreActiveGame, icon: const Icon(Icons.refresh))]),
+        actions: [IconButton(tooltip: _t('refresh'), onPressed: _loading ? null : _restoreActiveGame, icon: const Icon(Icons.refresh))]),
       body: SafeArea(child: Center(child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 480), child: Column(
@@ -180,34 +192,34 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
                 Icon(Icons.style_rounded, color: Colors.white, size: 42), SizedBox(height: 14),
                 Text('Dove Deck', style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w800)),
                 SizedBox(height: 8),
-                Text('Aynı maçta kalın. Hazır olduğunuzda birlikte başlayın.', style: TextStyle(color: Colors.white70)),
+                Text(_t('headline'), style: TextStyle(color: Colors.white70)),
               ])),
             const SizedBox(height: 20),
             if (_loading) const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator())),
-            if (!paired && !_loading) const Card(child: Padding(padding: EdgeInsets.all(18), child: Text('Dove Deck oynamak için önce partnerinle eşleşmelisin.'))),
+            if (!paired && !_loading) const Card(child: Padding(padding: EdgeInsets.all(18), child: Text(_t('pair')))),
             if (paired && !_loading && game == null) FilledButton.icon(
               onPressed: _actionBusy ? null : _createGame,
-              icon: const Icon(Icons.add_circle_outline), label: const Text('Yeni oyun başlat')),
+              icon: const Icon(Icons.add_circle_outline), label: Text(_t('new'))),
             if (game != null) Card(child: Padding(padding: const EdgeInsets.all(18), child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                Text(game.isPlaying ? 'Devam eden maç' : 'Bekleyen maç', style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800)),
+                Text(game.isPlaying ? _t('playing') : _t('waiting'), style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 8),
-                Text('Oda: ${game.id.substring(0, 8).toUpperCase()}'),
-                Text(game.isPlaying ? 'Oyun sürüyor. Bu oturuma devam et.' : 'İkiniz de hazır olmadan maç başlamaz.'),
+                Text('${_t('room')}: ${game.id.substring(0, 8).toUpperCase()}'),
+                Text(game.isPlaying ? _t('running') : _t('waitingText')),
                 const SizedBox(height: 12),
                 if (game.isWaiting) ...[
-                  Text('Senin durumun: ${iAmReady ? "Hazırsın" : "Henüz hazır değilsin"}'),
-                  Text('Partnerin: ${game.isReady(userId == game.playerOne ? game.playerTwo : game.playerOne) ? "Hazır" : "Bekleniyor"}'),
+                  Text('${_t('yourStatus')}: ${iAmReady ? _t('ready') : _t('notReady')}'),
+                  Text('${_t('partner')}: ${game.isReady(userId == game.playerOne ? game.playerTwo : game.playerOne) ? _t('ready') : _t('wait')}'),
                   const SizedBox(height: 8),
                   OutlinedButton(onPressed: _actionBusy ? null : () => _setReady(!iAmReady),
-                    child: Text(iAmReady ? 'Hazır değilim' : 'Hazırım')),
-                  if (isCreator && !game.bothReady) const Text('Partnerin de hazır olduğunda oyun otomatik başlayacak.'),
-                  if (isCreator && game.bothReady) const Text('İkiniz de hazırsınız. Oyun başlatılıyor…'),
-                  if (!isCreator && game.bothReady) const Text('İkiniz de hazırsınız. Oyun otomatik başlayacak.'),
+                    child: Text(iAmReady ? _t('notReadyButton') : _t('readyButton'))),
+                  if (isCreator && !game.bothReady) Text(_t('partnerWait')),
+                  if (isCreator && game.bothReady) Text(_t('starting')),
+                  if (!isCreator && game.bothReady) Text(_t('bothReady')),
                 ],
                 if (game.isPlaying) FilledButton.icon(
                   onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => DoveDeckGameScreen(gameId: game.id))),
-                  icon: const Icon(Icons.play_arrow_rounded), label: const Text('Oyuna devam et')),
+                  icon: const Icon(Icons.play_arrow_rounded), label: Text(_t('continue'))),
               ]))),
             if (_error != null) Padding(padding: const EdgeInsets.only(top: 12), child: Text(_error!, style: const TextStyle(color: Colors.redAccent))),
           ],
