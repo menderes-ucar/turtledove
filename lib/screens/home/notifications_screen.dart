@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../localization/app_strings.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -30,7 +31,13 @@ class NotificationsScreen extends StatelessWidget {
                 title:Text(n.title,style:TextStyle(fontWeight:n.isRead?FontWeight.normal:FontWeight.w800)),
                 subtitle:Text(n.body),
                 trailing:n.isRead?null:const Icon(Icons.circle,size:10),
-                onTap:()=>service.markRead(n.id),
+                onTap:() async {
+                  await service.markRead(n.id);
+                  if (!context.mounted) return;
+                  if (n.type == 'game' && n.data['game_type'] == 'dove_deck') {
+                    context.go('/home/dove-deck');
+                  }
+                },
               ),
             );}
           );
