@@ -117,7 +117,7 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
         _error = null;
       });
     }, onError: (_) {
-      if (mounted) setState(() => _error = _t('connection'));
+      if (mounted) { setState(() => _error = _t('connection')); }
     });
     _refreshTimer = Timer.periodic(const Duration(seconds: 3), (_) => unawaited(_load(silent: true)));
   }
@@ -178,6 +178,7 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
     'mustPassAfterDraw': r.mustPassAfterDraw,
   };
 
+  // Game starts from the lobby after both players are ready.
   Future<void> _start() async {
     final session = _session;
     if (session == null || _busy) return;
@@ -352,7 +353,7 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
               } : null,
               child: Transform.translate(offset: Offset(0, index.isEven ? 8 : 0), child: Transform.rotate(angle: (index - (rules.hands[myIndex].length - 1) / 2) * 0.035, child: Container(width: 82, height: 142, margin: const EdgeInsets.symmetric(horizontal: 3), decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [_suitColor(card.suit).withValues(alpha: .96), _suitColor(card.suit)]), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xFFFFF4DC), width: 2.5), boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 12, offset: Offset(0, 7))]), child: Stack(alignment: Alignment.center, children: [Transform.rotate(angle: -.35, child: Container(width: 56, height: 100, decoration: BoxDecoration(color: Colors.white.withValues(alpha: .16), borderRadius: BorderRadius.circular(40), border: Border.all(color: Colors.white.withValues(alpha: .75), width: 2)))), Text(_cardLabel(card), style: const TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.w900, shadows: [Shadow(color: Colors.black26, blurRadius: 4, offset: Offset(1, 2))])), Positioned(top: 8, left: 10, child: Text(_cardLabel(card), style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w900))), Positioned(bottom: 8, right: 10, child: Icon(Icons.favorite_rounded, size: 13, color: Colors.white.withValues(alpha: .85)))])))),
             );
-          }).toList()))))),
+          }).toList())))),
           Padding(padding: const EdgeInsets.all(14), child: Row(children: [
             Expanded(child: OutlinedButton.icon(onPressed: myTurn && !_busy && !rules.mustPassAfterDraw && !session.isFinished ? () => _saveMove((r) => r.draw()) : null, icon: const Icon(Icons.add), label: Text(_t('draw')))),
             const SizedBox(width: 10),
