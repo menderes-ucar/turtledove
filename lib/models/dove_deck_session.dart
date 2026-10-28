@@ -7,6 +7,8 @@ class DoveDeckSession {
   final int version;
   final String currentTurn;
   final String? winner;
+  final bool playerOneReady;
+  final bool playerTwoReady;
 
   const DoveDeckSession({
     required this.id,
@@ -17,6 +19,8 @@ class DoveDeckSession {
     required this.version,
     required this.currentTurn,
     required this.winner,
+    this.playerOneReady = false,
+    this.playerTwoReady = false,
   });
 
   factory DoveDeckSession.fromMap(Map<String, dynamic> row) => DoveDeckSession(
@@ -28,9 +32,15 @@ class DoveDeckSession {
     version: (row['version'] as num?)?.toInt() ?? 0,
     currentTurn: row['current_turn']?.toString() ?? '',
     winner: row['winner']?.toString(),
+    playerOneReady: row['player_one_ready'] == true,
+    playerTwoReady: row['player_two_ready'] == true,
   );
 
   bool get isWaiting => status == 'waiting';
   bool get isPlaying => status == 'playing';
   bool get isFinished => status == 'finished';
+  bool get bothReady => playerOneReady && playerTwoReady;
+  bool isReady(String userId) =>
+      userId == playerOne ? playerOneReady :
+      userId == playerTwo ? playerTwoReady : false;
 }
