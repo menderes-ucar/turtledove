@@ -34,7 +34,7 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
         _rules = next.isPlaying && next.state.isNotEmpty ? _decode(next.state) : null;
       });
     }, onError: (Object error) {
-      if (mounted && !_busy) setState(() => _error = 'Canlı bağlantı hatası. Yenile düğmesini kullan.');
+      // Mobile realtime can briefly reconnect; don't interrupt the game for a transient channel error.
     });
   }
 
@@ -108,7 +108,7 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
     final current = _rules;
     if (session == null || current == null || _busy) return;
     if (session.currentTurn != Supabase.instance.client.auth.currentUser?.id) {
-      setState(() => _error = 'Sıra partnerinde.');
+      setState(() => _error = "It's your partner's turn.");
       return;
     }
     final before = _encode(current);
@@ -134,7 +134,7 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
         setState(() {
           _rules = _decode(before);
           _error = e.toString().contains('STALE_GAME_STATE')
-              ? 'Oyun diğer cihazda güncellendi. Yeniden yükleniyor.'
+              ? 'The game changed on the other device. Refreshing…'
               : e.toString();
         });
         await _load();
@@ -155,7 +155,7 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
   Future<DoveSuit?> _chooseSuit() async => showDialog<DoveSuit>(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: const Text('Joker rengi'),
+      title: const Text('Choose a colour'),
       content: Wrap(spacing: 8, children: DoveSuit.values.map((s) => InkWell(
         onTap: () => Navigator.pop(ctx, s),
         child: CircleAvatar(backgroundColor: _suitColor(s), child: Text(['K','M','Y','S'][s.index], style: const TextStyle(color: Colors.white))),
@@ -168,41 +168,41 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
     final session = _session;
     final rules = _rules;
     final userId = context.watch<AuthProvider>().profile?.id ?? Supabase.instance.client.auth.currentUser?.id;
-    if (session == null) return Scaffold(appBar: AppBar(title: const Text('Dove Deck')), body: Center(child: _error == null ? const CircularProgressIndicator() : Text(_error!)));
+    if (session == null) return Scaffold(appBar: AppBar(title: const Text('DOVE DECK')), body: Center(child: _error == null ? const CircularProgressIndicator() : Text(_error!)));
     final myIndex = userId == session.playerOne ? 0 : 1;
     final myTurn = session.currentTurn == userId;
     return Scaffold(
       backgroundColor: const Color(0xFFF6F2EC),
-      appBar: AppBar(title: const Text('Dove Deck'), backgroundColor: const Color(0xFFF6F2EC), actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))]),
+      appBar: AppBar(title: const Text('DOVE DECK'), backgroundColor: const Color(0xFFF6F2EC), actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))]),
       body: SafeArea(child: rules == null
         ? Center(child: Padding(padding: const EdgeInsets.all(24), child: Column(mainAxisSize: MainAxisSize.min, children: [
             const Icon(Icons.style, size: 64, color: Color(0xFF55466E)),
             const SizedBox(height: 12),
-            Text(session.isWaiting ? 'Partnerin odaya davet edildi.' : 'Oyun durumu: ${session.status}', textAlign: TextAlign.center),
+            Text(session.isWaiting ? 'Your partner has been invited.' : 'GAME STATUS: ${session.status.toUpperCase()}', textAlign: TextAlign.center),
             const SizedBox(height: 16),
             if (session.isWaiting) const Text(
-              'Maç lobisinde iki oyuncunun da Hazırım demesi gerekiyor. Lobiye dönüp hazır durumunu bildir.',
+              'Both players must tap Ready in the lobby before the match begins.',
               textAlign: TextAlign.center,
             ),
             if (session.isWaiting) FilledButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Lobiye dön'),
+              child: const Text('Back to lobby'),
             ),
             if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
           ])))
         : Column(children: [
           const SizedBox(height: 10),
-          Text(session.isFinished ? (session.winner == userId ? 'Kazandın! 🎉' : 'Oyun bitti') : myTurn ? 'Sıra sende' : 'Partnerinin sırası', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(session.isFinished ? (session.winner == userId ? 'YOU WIN! 🎉' : 'GAME OVER') : myTurn ? 'YOUR TURN' : "PARTNER'S TURN", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            _pile('Çekme destesi', rules.drawPile.length, const Color(0xFF55466E)),
+            _pile('DRAW PILE', rules.drawPile.length, const Color(0xFF55466E)),
             const SizedBox(width: 18),
-            _pile('Ortadaki kart', rules.discardPile.length, _suitColor(rules.topCard.suit), label: rules.topCard.label),
+            _pile('DISCARD PILE', rules.discardPile.length, _suitColor(rules.topCard.suit), label: rules.topCard.label),
           ]),
-          if (rules.chosenSuit != null) Padding(padding: const EdgeInsets.all(6), child: Text('Aktif renk: ${rules.chosenSuit!.name}')),
+          if (rules.chosenSuit != null) Padding(padding: const EdgeInsets.all(6), child: Text('Active colour: ${rules.chosenSuit!.name.toUpperCase()}')),
           if (_error != null) Padding(padding: const EdgeInsets.all(8), child: Text(_error!, style: const TextStyle(color: Colors.red))),
           const SizedBox(height: 8),
-          Text('Partnerinin kartı: ${rules.hands[1-myIndex].length} adet'),
+          Text("PARTNER'S HAND  ·  ${rules.hands[1-myIndex].length} CARDS"),
           const Divider(),
           Expanded(child: SingleChildScrollView(padding: const EdgeInsets.all(12), child: Wrap(spacing: 8, runSpacing: 8, alignment: WrapAlignment.center, children: rules.hands[myIndex].map((card) {
             final enabled = myTurn && !_busy && !session.isFinished && rules.currentPlayer == myIndex && rules.canPlay(card);
@@ -216,9 +216,9 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
             );
           }).toList()))),
           Padding(padding: const EdgeInsets.all(14), child: Row(children: [
-            Expanded(child: OutlinedButton.icon(onPressed: myTurn && !_busy && !rules.mustPassAfterDraw && !session.isFinished ? () => _saveMove((r) => r.draw()) : null, icon: const Icon(Icons.add), label: const Text('Kart çek'))),
+            Expanded(child: OutlinedButton.icon(onPressed: myTurn && !_busy && !rules.mustPassAfterDraw && !session.isFinished ? () => _saveMove((r) => r.draw()) : null, icon: const Icon(Icons.add), label: const Text('Draw card'))),
             const SizedBox(width: 10),
-            Expanded(child: FilledButton.icon(onPressed: myTurn && !_busy && rules.mustPassAfterDraw && !session.isFinished ? () => _saveMove((r) => r.pass()) : null, icon: const Icon(Icons.skip_next), label: const Text('Pas geç'))),
+            Expanded(child: FilledButton.icon(onPressed: myTurn && !_busy && rules.mustPassAfterDraw && !session.isFinished ? () => _saveMove((r) => r.pass()) : null, icon: const Icon(Icons.skip_next), label: const Text('Pass'))),
           ]),
           if (_busy) const LinearProgressIndicator(),
         ]),
