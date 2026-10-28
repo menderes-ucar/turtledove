@@ -1674,7 +1674,7 @@ class GamesTabScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       mainAxisSpacing: 14,
       crossAxisSpacing: 14,
-      childAspectRatio: 0.95,
+      childAspectRatio: 0.80,
       children: [
         GameCard(title: AppStrings.of(context).gameMostLikely, emoji: '🎯', onTap: () => context.go('/home/game-lobby/most_likely_to')),
         GameCard(title: AppStrings.of(context).gameTrivia, emoji: '🧠', onTap: () => context.go('/home/game-lobby/trivia')),
@@ -1703,20 +1703,20 @@ class GameCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(24),
         child: Padding(
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 58, height: 58,
-                decoration: BoxDecoration(color: scheme.primaryContainer, borderRadius: BorderRadius.circular(18)),
+                width: 48, height: 48,
+                decoration: BoxDecoration(color: scheme.primaryContainer, borderRadius: BorderRadius.circular(15)),
                 alignment: Alignment.center,
-                child: Text(emoji, style: const TextStyle(fontSize: 30)),
+                child: Text(emoji, style: const TextStyle(fontSize: 26)),
               ),
               Spacer(),
               Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900)),
-              SizedBox(height: 8),
-              Row(children: [Expanded(child: Text(AppStrings.of(context).open, style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w700))), Icon(Icons.arrow_forward_rounded, color: scheme.primary)]),
+              SizedBox(height: 4),
+              Row(children: [Expanded(child: Text(AppStrings.of(context).open, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: scheme.primary, fontWeight: FontWeight.w700))), Icon(Icons.arrow_forward_rounded, size: 18, color: scheme.primary)]),
             ],
           ),
         ),
