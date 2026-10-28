@@ -196,7 +196,7 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
               ])),
             const SizedBox(height: 20),
             if (_loading) const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator())),
-            if (!paired && !_loading) Card(child: Padding(padding: const EdgeInsets.all(18), child: Text(_t('pair'))),
+            if (!paired && !_loading) Card(child: Padding(padding: const EdgeInsets.all(18), child: Text(_t('pair')))),
             if (paired && !_loading && game == null) FilledButton.icon(
               onPressed: _actionBusy ? null : _createGame,
               icon: const Icon(Icons.add_circle_outline), label: Text(_t('new'))),
