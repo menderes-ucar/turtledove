@@ -43,7 +43,7 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
       'loading':'Oyun yükleniyor…','status':'Oyun durumu'
     };
     const en = <String, String>{
-      'rules':'Game rules','yourTurn':_t('yourTurn'),'partnerTurn':_t('partnerTurn'),'youWin':'You win! 🎉','gameOver':'Game over',
+      'rules':'Game rules','yourTurn':'YOUR TURN','partnerTurn':\"PARTNER'S TURN\",'youWin':'You win! 🎉','gameOver':'Game over',
       'draw':'Draw card','pass':'Pass','drawPile':'DRAW PILE','discardPile':'DISCARD PILE','partnerHand':"PARTNER'S HAND",
       'activeColor':'Active colour','chooseColor':'Choose a colour','coral':'Coral','ocean':'Ocean','leaf':'Leaf','sun':'Sun',
       'waiting':'The game starts when your partner is ready.','readyLobby':'Both players must tap Ready in the lobby.','backLobby':'Back to lobby',
