@@ -172,8 +172,8 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
     final myIndex = userId == session.playerOne ? 0 : 1;
     final myTurn = session.currentTurn == userId;
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F2EC),
-      appBar: AppBar(title: const Text('DOVE DECK'), backgroundColor: const Color(0xFFF6F2EC), actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))]),
+      backgroundColor: const Color(0xFF102B28),
+      appBar: AppBar(title: const Text('DOVE DECK'), backgroundColor: const Color(0xFF102B28), foregroundColor: const Color(0xFFF7F1E4), actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))]),
       body: SafeArea(child: rules == null
         ? Center(child: Padding(padding: const EdgeInsets.all(24), child: Column(mainAxisSize: MainAxisSize.min, children: [
             const Icon(Icons.style, size: 64, color: Color(0xFF55466E)),
@@ -192,7 +192,7 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
           ])))
         : Column(children: [
           const SizedBox(height: 10),
-          Text(session.isFinished ? (session.winner == userId ? 'YOU WIN! 🎉' : 'GAME OVER') : myTurn ? 'YOUR TURN' : "PARTNER'S TURN", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(session.isFinished ? (session.winner == userId ? 'YOU WIN! 🎉' : 'GAME OVER') : myTurn ? 'YOUR TURN' : "PARTNER'S TURN", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: 1.4, color: Color(0xFFF7F1E4))),
           const SizedBox(height: 8),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             _pile('DRAW PILE', rules.drawPile.length, const Color(0xFF55466E)),
@@ -203,8 +203,8 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
           if (_error != null) Padding(padding: const EdgeInsets.all(8), child: Text(_error!, style: const TextStyle(color: Colors.red))),
           const SizedBox(height: 8),
           Text("PARTNER'S HAND  ·  ${rules.hands[1-myIndex].length} CARDS"),
-          const Divider(),
-          Expanded(child: SingleChildScrollView(padding: const EdgeInsets.all(12), child: Wrap(spacing: 8, runSpacing: 8, alignment: WrapAlignment.center, children: rules.hands[myIndex].map((card) {
+          const Divider(color: Color(0x33FFFFFF)),
+          Expanded(child: Align(alignment: Alignment.bottomCenter, child: SizedBox(height: 220, child: SingleChildScrollView(scrollDirection: Axis.horizontal, padding: const EdgeInsets.fromLTRB(18, 12, 18, 18), child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: rules.hands[myIndex].asMap().entries.map((entry) { final card = entry.value; final index = entry.key;
             final enabled = myTurn && !_busy && !session.isFinished && rules.currentPlayer == myIndex && rules.canPlay(card);
             return InkWell(
               onTap: enabled ? () async {
@@ -212,9 +212,9 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
                 if (card.isWild) { suit = await _chooseSuit(); if (suit == null || !mounted) return; }
                 await _saveMove((r) => r.play(card.id, wildSuit: suit));
               } : null,
-              child: Container(width: 66, height: 100, decoration: BoxDecoration(color: _suitColor(card.suit), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white, width: 2), boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))]), child: Center(child: Text(card.label, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)))),
+              child: Transform.translate(offset: Offset(0, index.isEven ? 8 : 0), child: Transform.rotate(angle: (index - (rules.hands[myIndex].length - 1) / 2) * 0.035, child: Container(width: 82, height: 142, margin: const EdgeInsets.symmetric(horizontal: 3), decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [_suitColor(card.suit).withValues(alpha: .96), _suitColor(card.suit)]), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xFFFFF4DC), width: 2.5), boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 12, offset: Offset(0, 7))]), child: Stack(alignment: Alignment.center, children: [Transform.rotate(angle: -.35, child: Container(width: 56, height: 100, decoration: BoxDecoration(color: Colors.white.withValues(alpha: .16), borderRadius: BorderRadius.circular(40), border: Border.all(color: Colors.white.withValues(alpha: .75), width: 2)))), Text(card.label, style: const TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.w900, shadows: [Shadow(color: Colors.black26, blurRadius: 4, offset: Offset(1, 2))])), Positioned(top: 8, left: 10, child: Text(card.label, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w900))), Positioned(bottom: 8, right: 10, child: Icon(Icons.favorite_rounded, size: 13, color: Colors.white.withValues(alpha: .85)))])))),
             );
-          }).toList()))),
+          }).toList()))))),
           Padding(padding: const EdgeInsets.all(14), child: Row(children: [
             Expanded(child: OutlinedButton.icon(onPressed: myTurn && !_busy && !rules.mustPassAfterDraw && !session.isFinished ? () => _saveMove((r) => r.draw()) : null, icon: const Icon(Icons.add), label: const Text('Draw card'))),
             const SizedBox(width: 10),
@@ -227,7 +227,7 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
   }
 
   Widget _pile(String title, int count, Color color, {String? label}) => Column(children: [
-    Container(width: 82, height: 112, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white, width: 2)), child: Center(child: Text(label ?? 'DOVE\n$count', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 17)))),
-    const SizedBox(height: 5), Text('$title ($count)', style: const TextStyle(fontSize: 12)),
+    Container(width: 94, height: 132, decoration: BoxDecoration(gradient: LinearGradient(colors: [color, color.withValues(alpha: .72)]), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xFFFFF4DC), width: 2.5), boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 14, offset: Offset(0, 7))]), child: Center(child: Container(width: 70, height: 106, decoration: BoxDecoration(borderRadius: BorderRadius.circular(38), border: Border.all(color: Colors.white.withValues(alpha: .7), width: 2)), child: Center(child: Text(label ?? '♡\\n$count', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 23))))),
+    const SizedBox(height: 5), Text('$title ($count)', style: const TextStyle(fontSize: 11, color: Color(0xFFE8E1D4), fontWeight: FontWeight.w800, letterSpacing: 1.1)),
   ]);
 }
