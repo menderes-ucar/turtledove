@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/dove_deck_session.dart';
+import '../../models/dove_deck_rules.dart';
 import '../../services/dove_deck_service.dart';
 import 'dove_deck_game_screen.dart';
 
@@ -17,36 +18,104 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
   late final DoveDeckService _service;
   DoveDeckSession? _game;
   StreamSubscription<DoveDeckSession>? _subscription;
-  bool _loading = false;
+  bool _loading = true;
+  bool _actionBusy = false;
   String? _error;
 
   @override
   void initState() {
     super.initState();
     _service = DoveDeckService(Supabase.instance.client);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _restoreActiveGame());
   }
 
-  Future<void> _invitePartner() async {
+  Future<void> _restoreActiveGame() async {
+    final partnerId = context.read<AuthProvider>().profile?.pairedWith;
+    if (partnerId == null || partnerId.isEmpty) {
+      if (mounted) setState(() { _loading = false; _error = 'Önce partnerinle eşleşmelisin.'; });
+      return;
+    }
+    if (mounted) setState(() { _loading = true; _error = null; });
+    try {
+      final game = await _service.findActiveGame(partnerId);
+      if (!mounted) return;
+      await _attachGame(game);
+    } catch (e) {
+      if (mounted) setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _createGame() async {
     final partnerId = context.read<AuthProvider>().profile?.pairedWith;
     if (partnerId == null || partnerId.isEmpty) {
       setState(() => _error = 'Önce partnerinle eşleşmelisin.');
       return;
     }
-    setState(() { _loading = true; _error = null; });
+    setState(() { _actionBusy = true; _error = null; });
     try {
       final game = await _service.createOrGetPartnerGame(partnerId);
-      await _subscription?.cancel();
-      _game = game;
-      _subscription = _service.watch(game.id).listen((next) {
-        if (mounted) setState(() => _game = next);
-      }, onError: (Object error) {
-        if (mounted) setState(() => _error = 'Canlı bağlantı kesildi. Bağlantını kontrol et.');
-      });
-      if (mounted) setState(() {});
+      await _attachGame(game);
     } catch (e) {
       if (mounted) setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) setState(() => _actionBusy = false);
+    }
+  }
+
+  Future<void> _attachGame(DoveDeckSession? game) async {
+    await _subscription?.cancel();
+    _subscription = null;
+    if (game != null) {
+      _game = game;
+      _subscription = _service.watch(game.id).listen((next) {
+        if (mounted) setState(() => _game = next);
+      }, onError: (Object e) {
+        if (mounted) setState(() => _error = 'Canlı bağlantı kesildi. Yeniden dene.');
+      });
+    }
+    if (mounted) setState(() => _game = game);
+  }
+
+  Future<void> _setReady(bool ready) async {
+    final game = _game;
+    if (game == null || _actionBusy) return;
+    setState(() { _actionBusy = true; _error = null; });
+    try {
+      final updated = await _service.setReady(game.id, ready);
+      if (mounted) setState(() => _game = updated);
+    } catch (e) {
+      if (mounted) setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
+    } finally {
+      if (mounted) setState(() => _actionBusy = false);
+    }
+  }
+
+  Future<void> _startGame() async {
+    final game = _game;
+    if (game == null || !game.bothReady || _actionBusy) return;
+    setState(() { _actionBusy = true; _error = null; });
+    try {
+      final rules = DoveDeckRules()..start();
+      final started = await _service.start(game.id, {
+        'hands': rules.hands.map((h) => h.map((c) => c.toJson()).toList()).toList(),
+        'drawPile': rules.drawPile.map((c) => c.toJson()).toList(),
+        'discardPile': rules.discardPile.map((c) => c.toJson()).toList(),
+        'currentPlayer': rules.currentPlayer,
+        'chosenSuit': rules.chosenSuit?.name,
+        'finished': rules.finished,
+        'winner': rules.winner,
+        'mustPassAfterDraw': rules.mustPassAfterDraw,
+      });
+      if (mounted) {
+        setState(() => _game = started);
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => DoveDeckGameScreen(gameId: started.id)));
+      }
+    } catch (e) {
+      if (mounted) setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
+    } finally {
+      if (mounted) setState(() => _actionBusy = false);
     }
   }
 
@@ -58,78 +127,62 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<AuthProvider>().profile;
-    final paired = user?.pairedWith != null && user!.pairedWith!.isNotEmpty;
+    final profile = context.watch<AuthProvider>().profile;
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    final partnerId = profile?.pairedWith;
+    final paired = partnerId != null && partnerId.isNotEmpty;
     final game = _game;
+    final iAmReady = game != null && userId != null && game.isReady(userId);
+    final isCreator = game != null && userId == game.playerOne;
     return Scaffold(
       backgroundColor: const Color(0xFFF6F2EC),
-      appBar: AppBar(title: const Text('Dove Deck'), backgroundColor: const Color(0xFFF6F2EC)),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(colors: [Color(0xFF55466E), Color(0xFF8274A0)], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                    child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Icon(Icons.spa_rounded, color: Colors.white, size: 42),
-                      SizedBox(height: 18),
-                      Text('İkinize özel bir oyun.', style: TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.w800)),
-                      SizedBox(height: 8),
-                      Text('Kartlarını hazırla, partnerini davet et ve sırayla oyna.', style: TextStyle(color: Colors.white70, height: 1.4)),
-                    ]),
-                  ),
-                  const SizedBox(height: 22),
-                  if (!paired) const Card(child: Padding(
-                    padding: EdgeInsets.all(18),
-                    child: Text('Dove Deck oynamak için önce partnerinle eşleşmelisin.'),
-                  )),
-                  if (paired) FilledButton.icon(
-                    onPressed: _loading ? null : _invitePartner,
-                    icon: _loading ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.mark_email_read_outlined),
-                    label: Text(game == null ? 'Partneri oyuna davet et' : 'Oyun odasına yeniden bağlan'),
-                    style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), backgroundColor: const Color(0xFF55466E)),
-                  ),
-                  if (_error != null) Padding(
-                    padding: const EdgeInsets.only(top: 14),
-                    child: Text(_error!, style: const TextStyle(color: Colors.redAccent)),
-                  ),
-                  if (game != null) Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: Container(
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
-                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        const Text('Oyun odası hazır', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-                        const SizedBox(height: 8),
-                        Text('Oda kodu: ${game.id.substring(0, 8).toUpperCase()}'),
-                        const SizedBox(height: 6),
-                        Text(game.isWaiting ? 'Partnerinin bağlanmasını bekliyor.' : game.isPlaying ? 'Oyun başladı.' : game.isFinished ? 'Oyun tamamlandı.' : 'Oda durumu: ${game.status}'),
-                        const SizedBox(height: 8),
-                        const Text('Kartlarını oyna, sıranı bekle ve maçı tamamla.', style: TextStyle(color: Colors.black54)),
-                        const SizedBox(height: 14),
-                        SizedBox(width: double.infinity, child: FilledButton.icon(
-                          onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => DoveDeckGameScreen(gameId: game.id))),
-                          icon: const Icon(Icons.style),
-                          label: Text(game.isPlaying ? 'Oyuna devam et' : 'Oyun masasına geç'),
-                        )),
-                      ]),
-                    ),
-                  ),
+      appBar: AppBar(title: const Text('Dove Deck'), backgroundColor: const Color(0xFFF6F2EC),
+        actions: [IconButton(tooltip: 'Devam eden oyunu yenile', onPressed: _loading ? null : _restoreActiveGame, icon: const Icon(Icons.refresh))]),
+      body: SafeArea(child: Center(child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 480), child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(
+              gradient: const LinearGradient(colors: [Color(0xFF55466E), Color(0xFF8274A0)]),
+              borderRadius: BorderRadius.circular(28)),
+              child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Icon(Icons.style_rounded, color: Colors.white, size: 42), SizedBox(height: 14),
+                Text('Dove Deck', style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w800)),
+                SizedBox(height: 8),
+                Text('Aynı maçta kalın. Hazır olduğunuzda birlikte başlayın.', style: TextStyle(color: Colors.white70)),
+              ])),
+            const SizedBox(height: 20),
+            if (_loading) const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator())),
+            if (!paired && !_loading) const Card(child: Padding(padding: EdgeInsets.all(18), child: Text('Dove Deck oynamak için önce partnerinle eşleşmelisin.'))),
+            if (paired && !_loading && game == null) FilledButton.icon(
+              onPressed: _actionBusy ? null : _createGame,
+              icon: const Icon(Icons.add_circle_outline), label: const Text('Yeni oyun oluştur / partneri davet et')),
+            if (game != null) Card(child: Padding(padding: const EdgeInsets.all(18), child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                Text(game.isPlaying ? 'Devam eden maç' : 'Bekleyen maç', style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800)),
+                const SizedBox(height: 8),
+                Text('Oda: ${game.id.substring(0, 8).toUpperCase()}'),
+                Text(game.isPlaying ? 'Oyun sürüyor. Bu oturuma devam et.' : 'İkiniz de hazır olmadan maç başlamaz.'),
+                const SizedBox(height: 12),
+                if (game.isWaiting) ...[
+                  Text('Senin durumun: ${iAmReady ? "Hazırsın" : "Henüz hazır değilsin"}'),
+                  Text('Partnerin: ${game.isReady(userId == game.playerOne ? game.playerTwo : game.playerOne) ? "Hazır" : "Bekleniyor"}'),
+                  const SizedBox(height: 8),
+                  OutlinedButton(onPressed: _actionBusy ? null : () => _setReady(!iAmReady),
+                    child: Text(iAmReady ? 'Hazır değilim' : 'Hazırım')),
+                  if (isCreator) FilledButton(onPressed: _actionBusy || !game.bothReady ? null : _startGame,
+                    child: Text(_actionBusy ? 'Başlatılıyor…' : 'İkiniz de hazırsınız — oyunu başlat')),
+                  if (!isCreator && game.bothReady) const Text('İkiniz de hazırsınız. Oyunu başlatması için partnerini bekle.'),
                 ],
-              ),
-            ),
-          ),
-        ),
-      ),
+                if (game.isPlaying) FilledButton.icon(
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => DoveDeckGameScreen(gameId: game.id))),
+                  icon: const Icon(Icons.play_arrow_rounded), label: const Text('Oyuna devam et')),
+              ]))),
+            if (_error != null) Padding(padding: const EdgeInsets.only(top: 12), child: Text(_error!, style: const TextStyle(color: Colors.redAccent))),
+          ],
+        )),
+      ))),
     );
   }
 }
