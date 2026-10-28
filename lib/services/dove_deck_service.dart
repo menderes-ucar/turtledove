@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/dove_deck_session.dart';
+import 'notification_service.dart';
 
 class DoveDeckService {
   DoveDeckService(this.client);
@@ -15,7 +16,21 @@ class DoveDeckService {
   Future<DoveDeckSession> createOrGetPartnerGame(String partnerId) async {
     _userId;
     final row = await client.rpc('dove_deck_create_game', params: {'p_partner_id': partnerId});
-    return DoveDeckSession.fromMap(_one(row));
+    final game = DoveDeckSession.fromMap(_one(row));
+    // Use the same persisted notification + push path as the other partner games.
+    // Notification failure must not prevent joining the shared room.
+    try {
+      await NotificationService(client).create(
+        userId: partnerId,
+        title: 'Yeni Dove Deck daveti 🃏',
+        body: 'Partnerin Dove Deck oynamaya davet ediyor.',
+        type: 'game',
+        data: {'game_type': 'dove_deck', 'game_id': game.id, 'action': 'dove_deck_invite'},
+      );
+    } catch (_) {
+      // The game room is created independently from push delivery.
+    }
+    return game;
   }
 
   Future<DoveDeckSession> start(String gameId, Map<String, dynamic> initialState) async {
