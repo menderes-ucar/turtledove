@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -19,12 +20,28 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
   DoveDeckRules? _rules;
   bool _busy = false;
   String? _error;
+  StreamSubscription<DoveDeckSession>? _subscription;
 
   @override
   void initState() {
     super.initState();
     _service = DoveDeckService(Supabase.instance.client);
     _load();
+    _subscription = _service.watch(widget.gameId).listen((next) {
+      if (!mounted || _busy) return;
+      setState(() {
+        _session = next;
+        _rules = next.isPlaying && next.state.isNotEmpty ? _decode(next.state) : null;
+      });
+    }, onError: (Object error) {
+      if (mounted && !_busy) setState(() => _error = 'Canlı bağlantı hatası. Yenile düğmesini kullan.');
+    });
+  }
+
+  @override
+  void dispose() {
+    unawaited(_subscription?.cancel());
+    super.dispose();
   }
 
   Future<void> _load() async {
