@@ -21,6 +21,7 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
   bool _loading = true;
   bool _actionBusy = false;
   bool _startingAutomatically = false;
+  String? _openedGameId;
   String? _error;
 
   @override
@@ -73,9 +74,11 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
       _subscription = _service.watch(game.id).listen((next) {
         if (!mounted) return;
         setState(() => _game = next);
+        if (next.isPlaying) _openGame(next);
         _maybeAutoStart(next);
       }, onError: (Object e) {
-        if (mounted) setState(() => _error = 'Canlı bağlantı kesildi. Yeniden dene.');
+        // Realtime can briefly disconnect on mobile networks. Keep the room visible;
+        // the manual refresh action can recover the latest server state.
       });
     }
     if (mounted) setState(() => _game = game);
@@ -97,6 +100,15 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
         if (latest != null) _maybeAutoStart(latest);
       }
     }
+  }
+
+  void _openGame(DoveDeckSession game) {
+    if (!mounted || _openedGameId == game.id) return;
+    _openedGameId = game.id;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => DoveDeckGameScreen(gameId: game.id)));
+    });
   }
 
   void _maybeAutoStart(DoveDeckSession game) {
@@ -128,7 +140,7 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
       });
       if (mounted) {
         setState(() => _game = started);
-        Navigator.of(context).push(MaterialPageRoute(builder: (_) => DoveDeckGameScreen(gameId: started.id)));
+        _openGame(started);
       }
     } catch (e) {
       if (mounted) setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
@@ -175,7 +187,7 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
             if (!paired && !_loading) const Card(child: Padding(padding: EdgeInsets.all(18), child: Text('Dove Deck oynamak için önce partnerinle eşleşmelisin.'))),
             if (paired && !_loading && game == null) FilledButton.icon(
               onPressed: _actionBusy ? null : _createGame,
-              icon: const Icon(Icons.add_circle_outline), label: const Text('Yeni oyun oluştur / partneri davet et')),
+              icon: const Icon(Icons.add_circle_outline), label: const Text('Yeni oyun başlat')),
             if (game != null) Card(child: Padding(padding: const EdgeInsets.all(18), child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 Text(game.isPlaying ? 'Devam eden maç' : 'Bekleyen maç', style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800)),
