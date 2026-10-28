@@ -87,6 +87,7 @@ class DoveDeckService {
   Stream<DoveDeckSession> watch(String gameId) {
     late final StreamController<DoveDeckSession> controller;
     RealtimeChannel? channel;
+    Timer? fallbackPoll;
     var active = true;
     Future<void> refresh() async {
       if (!active || controller.isClosed) return;
@@ -100,6 +101,10 @@ class DoveDeckService {
     controller = StreamController<DoveDeckSession>(
       onListen: () {
         _userId;
+        // Realtime is an optimization, not the source of truth. Poll as a fallback so
+        // a dropped mobile channel cannot leave either player's board stale.
+        fallbackPoll = Timer.periodic(const Duration(seconds: 3), (_) => unawaited(refresh()));
+        unawaited(refresh());
         final c = client.channel('dove-deck-$gameId');
         channel = c;
         c.onPostgresChanges(
@@ -113,12 +118,15 @@ class DoveDeckService {
           if (status == RealtimeSubscribeStatus.subscribed) {
             unawaited(refresh());
           } else if (status == RealtimeSubscribeStatus.channelError || status == RealtimeSubscribeStatus.timedOut) {
-            controller.addError(RealtimeSubscribeException(status, error));
+            // Keep polling the database while Supabase Realtime reconnects.
+            unawaited(refresh());
           }
         });
       },
       onCancel: () async {
         active = false;
+        fallbackPoll?.cancel();
+        fallbackPoll = null;
         final c = channel;
         channel = null;
         if (c != null) await client.removeChannel(c);
