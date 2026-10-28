@@ -180,7 +180,14 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
             const SizedBox(height: 12),
             Text(session.isWaiting ? 'Partnerin odaya davet edildi.' : 'Oyun durumu: ${session.status}', textAlign: TextAlign.center),
             const SizedBox(height: 16),
-            if (session.isWaiting) FilledButton(onPressed: _busy ? null : _start, child: Text(_busy ? 'Hazırlanıyor…' : 'Oyunu başlat')),
+            if (session.isWaiting) const Text(
+              'Maç lobisinde iki oyuncunun da Hazırım demesi gerekiyor. Lobiye dönüp hazır durumunu bildir.',
+              textAlign: TextAlign.center,
+            ),
+            if (session.isWaiting) FilledButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Lobiye dön'),
+            ),
             if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
           ])))
         : Column(children: [
