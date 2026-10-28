@@ -13,24 +13,48 @@ class DoveDeckService {
     return id;
   }
 
+  /// Returns the existing active room, or creates one if none exists.
+  /// Notification is sent only when this call appears to have created a new room.
   Future<DoveDeckSession> createOrGetPartnerGame(String partnerId) async {
-    _userId;
+    final userId = _userId;
+    final existing = await findActiveGame(partnerId);
     final row = await client.rpc('dove_deck_create_game', params: {'p_partner_id': partnerId});
     final game = DoveDeckSession.fromMap(_one(row));
-    // Use the same persisted notification + push path as the other partner games.
-    // Notification failure must not prevent joining the shared room.
-    try {
-      await NotificationService(client).create(
-        userId: partnerId,
-        title: 'Yeni Dove Deck daveti 🃏',
-        body: 'Partnerin Dove Deck oynamaya davet ediyor.',
-        type: 'game',
-        data: {'game_type': 'dove_deck', 'game_id': game.id, 'action': 'dove_deck_invite'},
-      );
-    } catch (_) {
-      // The game room is created independently from push delivery.
+    if (existing == null) {
+      try {
+        await NotificationService(client).create(
+          userId: partnerId,
+          title: 'Yeni Dove Deck daveti 🃏',
+          body: 'Partnerin Dove Deck oynamaya davet ediyor.',
+          type: 'game',
+          data: {'game_type': 'dove_deck', 'game_id': game.id, 'action': 'dove_deck_invite'},
+        );
+      } catch (_) {}
     }
     return game;
+  }
+
+  /// The lobby calls this on every entry. It never creates a game.
+  Future<DoveDeckSession?> findActiveGame(String partnerId) async {
+    final userId = _userId;
+    final rows = await client.from('dove_deck_games').select()
+      .inFilter('status', ['waiting', 'playing'])
+      .or('and(player_one.eq.$userId,player_two.eq.$partnerId),and(player_one.eq.$partnerId,player_two.eq.$userId)')
+      .order('updated_at', ascending: false)
+      .limit(1);
+    if (rows is List && rows.isNotEmpty) {
+      return DoveDeckSession.fromMap(Map<String, dynamic>.from(rows.first as Map));
+    }
+    return null;
+  }
+
+  Future<DoveDeckSession> setReady(String gameId, bool ready) async {
+    _userId;
+    final row = await client.rpc('dove_deck_set_ready', params: {
+      'p_game_id': gameId,
+      'p_ready': ready,
+    });
+    return DoveDeckSession.fromMap(_one(row));
   }
 
   Future<DoveDeckSession> start(String gameId, Map<String, dynamic> initialState) async {
@@ -73,7 +97,6 @@ class DoveDeckService {
         if (active && !controller.isClosed) controller.addError(error, stack);
       }
     }
-
     controller = StreamController<DoveDeckSession>(
       onListen: () {
         _userId;
