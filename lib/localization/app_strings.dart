@@ -15,6 +15,119 @@ class AppStrings {
 
   String t(String key) {
     const values = <String, Map<String, String>>{
+      // Profile and account actions
+      'edit_profile': {
+        'tr': 'Profili düzenle',
+        'en': 'Edit profile',
+        'de': 'Profil bearbeiten',
+        'es': 'Editar perfil',
+        'fr': 'Modifier le profil',
+      },
+      'delete_account': {
+        'tr': 'Hesabı sil',
+        'en': 'Delete account',
+        'de': 'Konto löschen',
+        'es': 'Eliminar cuenta',
+        'fr': 'Supprimer le compte',
+      },
+      'delete_account_title': {
+        'tr': 'Hesabını silmek istiyor musun?',
+        'en': 'Do you want to delete your account?',
+        'de': 'Möchtest du dein Konto löschen?',
+        'es': '¿Quieres eliminar tu cuenta?',
+        'fr': 'Voulez-vous supprimer votre compte ?',
+      },
+      'delete_account_confirm': {
+        'tr': 'Bu işlem hesabını ve ilişkili verilerini kalıcı olarak silebilir. Bu işlem geri alınamaz.',
+        'en': 'This may permanently delete your account and associated data. This action cannot be undone.',
+        'de': 'Dadurch können dein Konto und zugehörige Daten dauerhaft gelöscht werden. Dieser Vorgang kann nicht rückgängig gemacht werden.',
+        'es': 'Esto puede eliminar permanentemente tu cuenta y los datos asociados. Esta acción no se puede deshacer.',
+        'fr': 'Cette action peut supprimer définitivement votre compte et les données associées. Elle est irréversible.',
+      },
+      'confirm_delete_account': {
+        'tr': 'Evet, hesabı sil',
+        'en': 'Yes, delete account',
+        'de': 'Ja, Konto löschen',
+        'es': 'Sí, eliminar cuenta',
+        'fr': 'Oui, supprimer le compte',
+      },
+      'logout_title': {
+        'tr': 'Çıkış yapmak istiyor musun?',
+        'en': 'Do you want to log out?',
+        'de': 'Möchtest du dich abmelden?',
+        'es': '¿Quieres cerrar sesión?',
+        'fr': 'Voulez-vous vous déconnecter ?',
+      },
+      'logout_confirm': {
+        'tr': 'Hesabından çıkış yapılacak.',
+        'en': 'You will be signed out of your account.',
+        'de': 'Du wirst von deinem Konto abgemeldet.',
+        'es': 'Se cerrará la sesión de tu cuenta.',
+        'fr': 'Vous serez déconnecté de votre compte.',
+      },
+      'account_deleted': {
+        'tr': 'Hesabın silindi.',
+        'en': 'Your account has been deleted.',
+        'de': 'Dein Konto wurde gelöscht.',
+        'es': 'Tu cuenta ha sido eliminada.',
+        'fr': 'Votre compte a été supprimé.',
+      },
+      'account_delete_failed': {
+        'tr': 'Hesap silinemedi.',
+        'en': 'Could not delete account.',
+        'de': 'Das Konto konnte nicht gelöscht werden.',
+        'es': 'No se pudo eliminar la cuenta.',
+        'fr': 'Impossible de supprimer le compte.',
+      },
+      'logout_failed': {
+        'tr': 'Çıkış yapılamadı.',
+        'en': 'Could not log out.',
+        'de': 'Abmeldung fehlgeschlagen.',
+        'es': 'No se pudo cerrar la sesión.',
+        'fr': 'Impossible de se déconnecter.',
+      },
+      'account_action_cancelled': {
+        'tr': 'İşlem iptal edildi.',
+        'en': 'Action cancelled.',
+        'de': 'Vorgang abgebrochen.',
+        'es': 'Acción cancelada.',
+        'fr': 'Action annulée.',
+      },
+      'deleting_account': {
+        'tr': 'Hesap siliniyor…',
+        'en': 'Deleting account…',
+        'de': 'Konto wird gelöscht…',
+        'es': 'Eliminando cuenta…',
+        'fr': 'Suppression du compte…',
+      },
+      'logging_out': {
+        'tr': 'Çıkış yapılıyor…',
+        'en': 'Logging out…',
+        'de': 'Abmeldung läuft…',
+        'es': 'Cerrando sesión…',
+        'fr': 'Déconnexion…',
+      },
+      'profile_load_failed': {
+        'tr': 'Profil bilgileri yüklenemedi.',
+        'en': 'Could not load profile information.',
+        'de': 'Profilinformationen konnten nicht geladen werden.',
+        'es': 'No se pudo cargar la información del perfil.',
+        'fr': 'Impossible de charger les informations du profil.',
+      },
+      'account_email': {
+        'tr': 'E-posta adresi',
+        'en': 'Email address',
+        'de': 'E-Mail-Adresse',
+        'es': 'Dirección de correo electrónico',
+        'fr': 'Adresse e-mail',
+      },
+      'account_username': {
+        'tr': 'Kullanıcı adı',
+        'en': 'Username',
+        'de': 'Benutzername',
+        'es': 'Nombre de usuario',
+        'fr': 'Nom d’utilisateur',
+      },
       'retry': {'tr':'Tekrar dene','en':'Try again','de':'Erneut versuchen','es':'Intentar de nuevo','fr':'Réessayer'},
       'voice_archive_title': {'tr':'Sesli Mesaj Geçmişi','en':'Voice Message History','de':'Sprachnachrichtenverlauf','es':'Historial de mensajes de voz','fr':'Historique des messages vocaux'},
       'voice_archive_open': {'tr':'Sesli mesaj geçmişi','en':'Voice message history','de':'Sprachnachrichtenverlauf','es':'Historial de mensajes de voz','fr':'Historique des messages vocaux'},
@@ -157,7 +270,111 @@ class AppStrings {
       'game_started': {'tr':'Oyun başlatıldı.','en':'Game started.','de':'Spiel gestartet.','es':'Partida iniciada.','fr':'Partie démarrée.'},
       'both_ready_starting': {'tr':'İkiniz de hazırsınız. Oyun başlatılıyor.','en':'You are both ready. Starting the game.','de':'Ihr seid beide bereit. Das Spiel startet.','es':'Ambos están listos. La partida comienza.','fr':'Vous êtes tous les deux prêts. La partie commence.'},
       'seen_check': {'tr':'Daha önce görülmemiş sorular kontrol ediliyor…','en':'Checking for unseen questions…','de':'Ungesehene Fragen werden geprüft…','es':'Comprobando preguntas no vistas…','fr':'Vérification des questions inédites…'},
-
+      'delete_account_subtitle': {
+        'tr': 'Hesabını ve ilişkili verilerini kalıcı olarak sil.',
+        'en': 'Permanently delete your account and associated data.',
+        'de': 'Lösche dein Konto und die zugehörigen Daten dauerhaft.',
+        'es': 'Elimina permanentemente tu cuenta y los datos asociados.',
+        'fr': 'Supprime définitivement ton compte et les données associées.',
+      },
+      'delete_account_in_progress': {
+        'tr': 'Hesap siliniyor...',
+        'en': 'Deleting account...',
+        'de': 'Konto wird gelöscht...',
+        'es': 'Eliminando cuenta...',
+        'fr': 'Suppression du compte...',
+      },
+      'sign_out': {
+        'tr': 'Çıkış yap',
+        'en': 'Sign out',
+        'de': 'Abmelden',
+        'es': 'Cerrar sesión',
+        'fr': 'Se déconnecter',
+      },
+      'sign_out_subtitle': {
+        'tr': 'Hesabından güvenli şekilde çıkış yap.',
+        'en': 'Securely sign out of your account.',
+        'de': 'Melde dich sicher von deinem Konto ab.',
+        'es': 'Cierra sesión de forma segura.',
+        'fr': 'Déconnecte-toi de ton compte en toute sécurité.',
+      },
+      'account_actions': {
+        'tr': 'Hesap işlemleri',
+        'en': 'Account actions',
+        'de': 'Kontoaktionen',
+        'es': 'Acciones de la cuenta',
+        'fr': 'Actions du compte',
+      },
+      'delete_account_failed': {
+        'tr': 'Hesap silinemedi. Lütfen tekrar dene.',
+        'en': 'Failed to delete account. Please try again.',
+        'de': 'Konto konnte nicht gelöscht werden. Bitte versuche es erneut.',
+        'es': 'No se pudo eliminar la cuenta. Inténtalo de nuevo.',
+        'fr': 'Échec de la suppression du compte. Réessaie.',
+      },
+      'delete_account_success': {
+        'tr': 'Hesabın başarıyla silindi.',
+        'en': 'Your account was successfully deleted.',
+        'de': 'Dein Konto wurde erfolgreich gelöscht.',
+        'es': 'Tu cuenta se eliminó correctamente.',
+        'fr': 'Ton compte a été supprimé avec succès.',
+      },
+      'delete_account_permanently': {
+        'tr': 'Hesabı kalıcı olarak sil',
+        'en': 'Delete account permanently',
+        'de': 'Konto dauerhaft löschen',
+        'es': 'Eliminar cuenta permanentemente',
+        'fr': 'Supprimer définitivement le compte',
+      },
+      'delete_account_acknowledgement': {
+        'tr': 'Hesabını silmek istediğine emin misin?',
+        'en': 'Are you sure you want to delete your account?',
+        'de': 'Möchtest du dein Konto wirklich löschen?',
+        'es': '¿Seguro que quieres eliminar tu cuenta?',
+        'fr': 'Es-tu sûr de vouloir supprimer ton compte ?',
+      },
+      'delete_account_final_description': {
+        'tr': 'Bu işlem geri alınamaz. Hesabına erişimini ve ilişkili verilerini kaybedebilirsin.',
+        'en': 'This action cannot be undone. You may lose access to your account and associated data.',
+        'de': 'Diese Aktion kann nicht rückgängig gemacht werden. Du kannst den Zugriff auf dein Konto und deine Daten verlieren.',
+        'es': 'Esta acción no se puede deshacer. Puedes perder el acceso a tu cuenta y a los datos asociados.',
+        'fr': 'Cette action est irréversible. Tu risques de perdre l’accès à ton compte et aux données associées.',
+      },
+      'delete_account_final_confirmation': {
+        'tr': 'Son onay',
+        'en': 'Final confirmation',
+        'de': 'Endgültige Bestätigung',
+        'es': 'Confirmación final',
+        'fr': 'Confirmation finale',
+      },
+      'delete_account_confirmation': {
+        'tr': 'Hesabımı ve ilişkili verilerimi kalıcı olarak silmeyi onaylıyorum.',
+        'en': 'I confirm that I want to permanently delete my account and associated data.',
+        'de': 'Ich bestätige, dass ich mein Konto und die zugehörigen Daten dauerhaft löschen möchte.',
+        'es': 'Confirmo que quiero eliminar permanentemente mi cuenta y los datos asociados.',
+        'fr': 'Je confirme vouloir supprimer définitivement mon compte et les données associées.',
+      },
+      'sign_out_failed': {
+        'tr': 'Çıkış yapılamadı. Lütfen tekrar dene.',
+        'en': 'Failed to sign out. Please try again.',
+        'de': 'Abmelden fehlgeschlagen. Bitte versuche es erneut.',
+        'es': 'No se pudo cerrar sesión. Inténtalo de nuevo.',
+        'fr': 'Échec de la déconnexion. Réessaie.',
+      },
+      'sign_out_success': {
+        'tr': 'Başarıyla çıkış yapıldı.',
+        'en': 'Successfully signed out.',
+        'de': 'Erfolgreich abgemeldet.',
+        'es': 'Sesión cerrada correctamente.',
+        'fr': 'Déconnexion réussie.',
+      },
+      'sign_out_confirmation': {
+        'tr': 'Hesabından çıkış yapmak istediğine emin misin?',
+        'en': 'Are you sure you want to sign out?',
+        'de': 'Möchtest du dich wirklich abmelden?',
+        'es': '¿Seguro que quieres cerrar sesión?',
+        'fr': 'Es-tu sûr de vouloir te déconnecter ?',
+      },
       'finish_game': {'tr':'Oyunu bitir','en':'Finish game','de':'Spiel beenden','es':'Terminer la partie','fr':'Terminer la partie'},
 
     };
@@ -205,7 +422,21 @@ class AppStrings {
   String get topicSaveFailed => t('topic_save_failed');
   String get topicsLoadFailed => t('topics_load_failed');
   String get noTopics => t('no_topics');
-
+  String get deleteAccountSubtitle => t('delete_account_subtitle');
+  String get deleteAccountInProgress => t('delete_account_in_progress');
+  String get signOut => t('sign_out');
+  String get signOutSubtitle => t('sign_out_subtitle');
+  String get accountActions => t('account_actions');
+  String get deleteAccountFailed => t('delete_account_failed');
+  String get deleteAccountSuccess => t('delete_account_success');
+  String get deleteAccountPermanently => t('delete_account_permanently');
+  String get deleteAccountAcknowledgement => t('delete_account_acknowledgement');
+  String get deleteAccountFinalDescription => t('delete_account_final_description');
+  String get deleteAccountFinalConfirmation => t('delete_account_final_confirmation');
+  String get deleteAccountConfirmation => t('delete_account_confirmation');
+  String get signOutFailed => t('sign_out_failed');
+  String get signOutSuccess => t('sign_out_success');
+  String get signOutConfirmation => t('sign_out_confirmation');
   String get relationshipHub => _t({'tr':'Birlikte','en':'Together','de':'Gemeinsam','es':'Juntos','fr':'Ensemble'});
   String get relationshipHubSubtitle => _t({
     'tr':'İkiniz için önemli anları ve küçük ritüelleri tek yerde tutun.',
@@ -222,7 +453,26 @@ class AppStrings {
   String get loveLettersSubtitle => _t({'tr':'Partnerine gönderdiğin ve ondan aldığın mektuplar','en':'Letters you send and receive from your partner','de':'Briefe, die ihr euch schickt','es':'Cartas que se envían entre ustedes','fr':'Les lettres que vous vous envoyez'});
   String get open => _t({'tr':'Aç','en':'Open','de':'Öffnen','es':'Abrir','fr':'Ouvrir'});
   String get togetherTag => _t({'tr':'Sadece ikiniz','en':'Just the two of you','de':'Nur ihr zwei','es':'Solo ustedes dos','fr':'Juste vous deux'});
+  String get editProfile => t('edit_profile');
+  String get deleteAccount => t('delete_account');
+  String get deleteAccountTitle => t('delete_account_title');
+  String get deleteAccountConfirm => t('delete_account_confirm');
+  String get confirmDeleteAccount => t('confirm_delete_account');
 
+  String get logoutTitle => t('logout_title');
+  String get logoutConfirm => t('logout_confirm');
+
+  String get accountDeleted => t('account_deleted');
+  String get accountDeleteFailed => t('account_delete_failed');
+  String get logoutFailed => t('logout_failed');
+  String get accountActionCancelled => t('account_action_cancelled');
+
+  String get deletingAccount => t('deleting_account');
+  String get loggingOut => t('logging_out');
+  String get profileLoadFailed => t('profile_load_failed');
+
+  String get accountEmail => t('account_email');
+  String get accountUsername => t('account_username');
   String get showPassword => _t({
     'tr': 'Şifreyi göster',
     'en': 'Show password',
