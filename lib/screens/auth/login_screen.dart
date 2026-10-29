@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../localization/app_strings.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
+import '../../localization/app_strings.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/pre_auth_preferences.dart';
-import '../../widgets/neon_infinity_overlay.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -19,11 +19,33 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscure = true;
   String? _error;
 
+  static const _dovePhotoUrl =
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Oriental_turtle_dove_pair.jpg?width=1200';
+
   @override
   void dispose() {
     emailCtrl.dispose();
     passwordCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _openPreferences() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+          ),
+          child: const Padding(
+            padding: EdgeInsets.fromLTRB(20, 4, 20, 24),
+            child: PreAuthPreferences(),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -33,55 +55,80 @@ class _LoginScreenState extends State<LoginScreen> {
     final scheme = theme.colorScheme;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          const Positioned.fill(child: NeonInfinityOverlay()),
-          SafeArea(
+      body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+            padding: const EdgeInsets.fromLTRB(22, 12, 22, 28),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 440),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 12),
-                  const PreAuthPreferences(),
-                  Center(
-                    child: Container(
-                      width: 104,
-                      height: 104,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: scheme.primaryContainer,
-                        boxShadow: [
-                          BoxShadow(
-                            color: scheme.primary.withValues(alpha: 0.13),
-                            blurRadius: 28,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: OutlinedButton.icon(
+                      onPressed: _openPreferences,
+                      icon: const Icon(Icons.tune_rounded, size: 18),
+                      label: Text(strings.settings),
+                      style: OutlinedButton.styleFrom(
+                        shape: const StadiumBorder(),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
                       ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: AspectRatio(
+                      aspectRatio: 1.42,
                       child: Stack(
-                        alignment: Alignment.center,
+                        fit: StackFit.expand,
                         children: [
-                          Icon(Icons.flutter_dash,
-                              size: 58, color: scheme.onPrimaryContainer),
-                          Positioned(
-                            right: 17,
-                            bottom: 19,
-                            child: Container(
-                              padding: const EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                color: scheme.secondary,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: scheme.primaryContainer,
-                                  width: 2,
-                                ),
+                          Image.network(
+                            _dovePhotoUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              color: scheme.primaryContainer,
+                              child: Icon(
+                                Icons.flutter_dash_rounded,
+                                size: 92,
+                                color: scheme.onPrimaryContainer,
                               ),
-                              child: Icon(Icons.favorite_rounded,
-                                  size: 15, color: scheme.onSecondary),
+                            ),
+                          ),
+                          DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withValues(alpha: 0.55),
+                                ],
+                                stops: const [0.42, 1],
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left: 18,
+                            right: 18,
+                            bottom: 16,
+                            child: Text(
+                              'Together feels like home.',
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                shadows: const [
+                                  Shadow(
+                                    color: Colors.black38,
+                                    blurRadius: 8,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
@@ -97,7 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       letterSpacing: -0.6,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 7),
                   Text(
                     strings.appTagline,
                     textAlign: TextAlign.center,
@@ -105,14 +152,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: scheme.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(height: 34),
+                  const SizedBox(height: 28),
                   Text(
                     strings.signIn,
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 16),
                   if (_error != null) ...[
                     Container(
                       padding: const EdgeInsets.all(14),
@@ -126,8 +173,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.error_outline_rounded,
-                              color: scheme.onErrorContainer),
+                          Icon(
+                            Icons.error_outline_rounded,
+                            color: scheme.onErrorContainer,
+                          ),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Column(
@@ -160,7 +209,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
                     autocorrect: false,
-                    autofillHints: const [AutofillHints.username, AutofillHints.email],
+                    autofillHints: const [
+                      AutofillHints.username,
+                      AutofillHints.email,
+                    ],
                     decoration: InputDecoration(
                       labelText: strings.email,
                       prefixIcon: const Icon(Icons.alternate_email_rounded),
@@ -184,11 +236,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       labelText: strings.password,
                       prefixIcon: const Icon(Icons.lock_outline_rounded),
                       suffixIcon: IconButton(
-                        tooltip: _obscure ? strings.showPassword : strings.hidePassword,
-                        icon: Icon(_obscure
-                            ? Icons.visibility_off_rounded
-                            : Icons.visibility_rounded),
-                        onPressed: () => setState(() => _obscure = !_obscure),
+                        tooltip: _obscure
+                            ? strings.showPassword
+                            : strings.hidePassword,
+                        icon: Icon(
+                          _obscure
+                              ? Icons.visibility_off_rounded
+                              : Icons.visibility_rounded,
+                        ),
+                        onPressed: () =>
+                            setState(() => _obscure = !_obscure),
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -199,12 +256,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 22),
+                  const SizedBox(height: 20),
                   Consumer<AuthProvider>(
                     builder: (ctx, auth, _) => SizedBox(
                       height: 54,
                       child: FilledButton(
-                        onPressed: auth.isLoading ? null : () => _signIn(context),
+                        onPressed:
+                            auth.isLoading ? null : () => _signIn(context),
                         style: FilledButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
@@ -214,20 +272,25 @@ class _LoginScreenState extends State<LoginScreen> {
                             ? const SizedBox(
                                 width: 22,
                                 height: 22,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               )
                             : Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(strings.signIn),
                                   const SizedBox(width: 8),
-                                  const Icon(Icons.arrow_forward_rounded, size: 19),
+                                  const Icon(
+                                    Icons.arrow_forward_rounded,
+                                    size: 19,
+                                  ),
                                 ],
                               ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 22),
+                  const SizedBox(height: 18),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -243,15 +306,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Icon(Icons.favorite_rounded,
-                      size: 16, color: scheme.primary.withValues(alpha: 0.7)),
+                  Text(
+                    'Photo: Lip Kee Yap · CC BY-SA 2.0',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
-          ),
-          ),
-        ],
+        ),
       ),
     );
   }
