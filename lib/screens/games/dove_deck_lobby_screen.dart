@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -38,7 +39,7 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
     const tr = <String, String>{
       'refresh': 'Devam eden oyunu yenile',
       'headline': 'Aynı maçta kalın. Hazır olduğunuzda birlikte başlayın.',
-      'pair': 'Dove Deck oynamak için önce partnerinle eşleşmelisin.',
+      'pair': 'Turtle Deck oynamak için önce partnerinle eşleşmelisin.',
       'new': 'Yeni oyun başlat',
       'playing': 'Devam eden maç',
       'waiting': 'Bekleyen maç',
@@ -64,7 +65,7 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
     const en = <String, String>{
       'refresh': 'Refresh active game',
       'headline': 'Stay in the same match. Start together when you are ready.',
-      'pair': 'Pair with your partner before playing Dove Deck.',
+      'pair': 'Pair with your partner before playing Turtle Deck.',
       'new': 'Start a new game',
       'playing': 'Match in progress',
       'waiting': 'Waiting match',
@@ -362,7 +363,9 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
           _openedGameId = null;
         }
 
-        _restoreActiveGame();
+        // Leaving the match should return to the games list, not re-attach
+        // the still-active multiplayer session and immediately reopen it.
+        context.go('/home');
       });
     });
   }
@@ -457,7 +460,7 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F2EC),
       appBar: AppBar(
-        title: const Text('Dove Deck'),
+        title: const Text('Turtle Deck'),
         backgroundColor: const Color(0xFFF6F2EC),
         actions: [
           IconButton(
@@ -497,7 +500,7 @@ class _DoveDeckLobbyScreenState extends State<DoveDeckLobbyScreen> {
                         ),
                         const SizedBox(height: 14),
                         const Text(
-                          'Dove Deck',
+                          'Turtle Deck',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 26,

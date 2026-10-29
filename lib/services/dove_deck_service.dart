@@ -24,8 +24,8 @@ class DoveDeckService {
       try {
         await NotificationService(client).create(
           userId: partnerId,
-          title: 'Yeni Dove Deck daveti 🃏',
-          body: 'Partnerin Dove Deck oynamaya davet ediyor.',
+          title: 'Yeni Turtle Deck daveti 🃏',
+          body: 'Partnerin Turtle Deck oynamaya davet ediyor.',
           type: 'game',
           data: {'game_type': 'dove_deck', 'game_id': game.id, 'action': 'dove_deck_invite'},
         );
@@ -138,6 +138,6 @@ class DoveDeckService {
   Map<String, dynamic> _one(dynamic row) {
     if (row is Map) return Map<String, dynamic>.from(row);
     if (row is List && row.isNotEmpty && row.first is Map) return Map<String, dynamic>.from(row.first as Map);
-    throw const PostgrestException(message: 'Dove Deck RPC returned no game');
+    throw const PostgrestException(message: 'Turtle Deck RPC returned no game');
   }
 }

@@ -586,7 +586,9 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
     if (session == null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('DOVE DECK'),
+          title: const Text('Turtle Deck'),
+          backgroundColor: const Color(0xFFF6F2EC),
+          foregroundColor: Colors.black,
           actions: [
             IconButton(
               tooltip: _t('refresh'),
@@ -614,9 +616,9 @@ class _DoveDeckGameScreenState extends State<DoveDeckGameScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF102B28),
       appBar: AppBar(
-        title: const Text('DOVE DECK'),
-        backgroundColor: const Color(0xFF102B28),
-        foregroundColor: const Color(0xFFF7F1E4),
+        title: const Text('Turtle Deck'),
+        backgroundColor: const Color(0xFFF6F2EC),
+        foregroundColor: Colors.black,
         actions: [
           IconButton(
             tooltip: _t('rules'),

@@ -1,4 +1,3 @@
-
 import 'dart:math';
 
 enum DoveSuit { coral, ocean, leaf, sun }
@@ -46,10 +45,10 @@ class DoveCard {
   );
 }
 
-/// Two-player Dove Deck rules engine.
+/// Two-player Turtle Deck rules engine.
 ///
-/// pendingDraw must be included in the persisted game state so both devices
-/// can reconstruct the same penalty-stack state.
+/// pendingDraw, pendingDrawKind, mustPassAfterDraw and drawnCardId
+/// are persisted so both devices can reconstruct the same game state.
 class DoveDeckRules {
   DoveDeckRules({Random? random}) : _random = random ?? Random();
 
@@ -63,7 +62,9 @@ class DoveDeckRules {
   DoveSuit? chosenSuit;
   bool finished = false;
   int? winner;
+
   bool mustPassAfterDraw = false;
+  String? drawnCardId;
 
   /// Number of penalty cards accumulated by +2 / +4 stacking.
   int pendingDraw = 0;
@@ -79,11 +80,13 @@ class DoveDeckRules {
     hands = [<DoveCard>[], <DoveCard>[]];
     drawPile = _makeDeck()..shuffle(_random);
     discardPile = <DoveCard>[];
+
     currentPlayer = 0;
     chosenSuit = null;
     finished = false;
     winner = null;
     mustPassAfterDraw = false;
+    drawnCardId = null;
     pendingDraw = 0;
     pendingDrawKind = null;
 
@@ -92,12 +95,15 @@ class DoveDeckRules {
       hands[1].add(drawPile.removeLast());
     }
 
+    // Start with a number card.
     while (drawPile.isNotEmpty) {
       final first = drawPile.removeLast();
+
       if (first.kind == DoveCardKind.number) {
         discardPile.add(first);
         break;
       }
+
       drawPile.insert(0, first);
     }
   }
@@ -108,20 +114,24 @@ class DoveDeckRules {
 
     for (final suit in DoveSuit.values) {
       for (var number = 0; number <= 9; number++) {
-        cards.add(DoveCard(
-          id: 'c${id++}',
-          suit: suit,
-          kind: DoveCardKind.number,
-          number: number,
-        ));
-
-        if (number != 0) {
-          cards.add(DoveCard(
+        cards.add(
+          DoveCard(
             id: 'c${id++}',
             suit: suit,
             kind: DoveCardKind.number,
             number: number,
-          ));
+          ),
+        );
+
+        if (number != 0) {
+          cards.add(
+            DoveCard(
+              id: 'c${id++}',
+              suit: suit,
+              kind: DoveCardKind.number,
+              number: number,
+            ),
+          );
         }
       }
 
@@ -131,21 +141,31 @@ class DoveDeckRules {
         DoveCardKind.drawTwo,
       ]) {
         for (var copy = 0; copy < 2; copy++) {
-          cards.add(DoveCard(
-            id: 'c${id++}',
-            suit: suit,
-            kind: kind,
-          ));
+          cards.add(
+            DoveCard(
+              id: 'c${id++}',
+              suit: suit,
+              kind: kind,
+            ),
+          );
         }
       }
     }
 
     for (var i = 0; i < 4; i++) {
-      cards.add(DoveCard(id: 'c${id++}', kind: DoveCardKind.wild));
-      cards.add(DoveCard(
-        id: 'c${id++}',
-        kind: DoveCardKind.wildDrawFour,
-      ));
+      cards.add(
+        DoveCard(
+          id: 'c${id++}',
+          kind: DoveCardKind.wild,
+        ),
+      );
+
+      cards.add(
+        DoveCard(
+          id: 'c${id++}',
+          kind: DoveCardKind.wildDrawFour,
+        ),
+      );
     }
 
     return cards;
@@ -153,14 +173,17 @@ class DoveDeckRules {
 
   bool canPlay(DoveCard card) {
     if (finished ||
-        mustPassAfterDraw ||
         !currentHand.any((c) => c.id == card.id)) {
       return false;
     }
 
+    // After a normal draw, only the newly drawn card may be played.
+    if (mustPassAfterDraw && card.id != drawnCardId) {
+      return false;
+    }
+
+    // A pending penalty can only be stacked with the same penalty kind.
     if (pendingDraw > 0) {
-      // A penalty can only be stacked with another penalty card of the
-      // same kind. +2 stacks on +2; +4 stacks on +4.
       if (pendingDrawKind == DoveCardKind.drawTwo) {
         return card.kind == DoveCardKind.drawTwo;
       }
@@ -198,6 +221,13 @@ class DoveDeckRules {
     }
 
     currentHand.removeWhere((c) => c.id == cardId);
+
+    // Clear the draw restriction once the drawn card is played.
+    if (card.id == drawnCardId) {
+      drawnCardId = null;
+      mustPassAfterDraw = false;
+    }
+
     discardPile.add(card);
     chosenSuit = card.isWild ? wildSuit : null;
 
@@ -207,6 +237,7 @@ class DoveDeckRules {
       pendingDraw = 0;
       pendingDrawKind = null;
       mustPassAfterDraw = false;
+      drawnCardId = null;
       return;
     }
 
@@ -234,8 +265,8 @@ class DoveDeckRules {
 
   /// Draws the accumulated penalty, or one normal card.
   ///
-  /// When a penalty is pending, the player cannot draw only one card:
-  /// they must take the entire accumulated penalty and lose their turn.
+  /// A penalty draw takes all accumulated cards and ends the player's turn.
+  /// A normal draw lets the player play the newly drawn card if it is legal.
   void draw() {
     if (finished || mustPassAfterDraw) {
       throw StateError('Şu anda kart çekemezsin.');
@@ -243,26 +274,44 @@ class DoveDeckRules {
 
     if (pendingDraw > 0) {
       final count = pendingDraw;
+
       _drawTo(currentPlayer, count);
+
       pendingDraw = 0;
       pendingDrawKind = null;
       mustPassAfterDraw = false;
+      drawnCardId = null;
+
       currentPlayer = 1 - currentPlayer;
       return;
     }
 
+    final handSizeBeforeDraw = currentHand.length;
+
     _drawTo(currentPlayer, 1);
-    mustPassAfterDraw = true;
+
+    drawnCardId = currentHand.length > handSizeBeforeDraw
+        ? currentHand.last.id
+        : null;
+
+    mustPassAfterDraw = drawnCardId != null;
+
+    // If the deck is exhausted and no card could be drawn, end the turn.
+    if (drawnCardId == null) {
+      currentPlayer = 1 - currentPlayer;
+    }
   }
 
-  /// Ends a normal draw turn. Penalty draws automatically advance the turn
-  /// inside draw(), so they do not need a separate pass action.
+  /// Ends a normal draw turn when the player chooses not to play the drawn card.
+  ///
+  /// Penalty draws automatically advance the turn inside draw().
   void pass() {
     if (!mustPassAfterDraw || finished) {
       throw StateError('Önce normal bir kart çekmelisin.');
     }
 
     mustPassAfterDraw = false;
+    drawnCardId = null;
     currentPlayer = 1 - currentPlayer;
   }
 
@@ -272,6 +321,7 @@ class DoveDeckRules {
         if (discardPile.length <= 1) return;
 
         final top = discardPile.removeLast();
+
         drawPile = discardPile..shuffle(_random);
         discardPile = [top];
       }
@@ -293,6 +343,7 @@ class DoveDeckRules {
     'finished': finished,
     'winner': winner,
     'mustPassAfterDraw': mustPassAfterDraw,
+    'drawnCardId': drawnCardId,
     'pendingDraw': pendingDraw,
     'pendingDrawKind': pendingDrawKind?.name,
   };
@@ -305,9 +356,11 @@ class DoveDeckRules {
 
     List<DoveCard> decodeCards(dynamic value) =>
         (value as List? ?? const [])
-            .map((item) => DoveCard.fromJson(
-          Map<String, dynamic>.from(item as Map),
-        ))
+            .map(
+              (item) => DoveCard.fromJson(
+            Map<String, dynamic>.from(item as Map),
+          ),
+        )
             .toList();
 
     final handsJson = json['hands'] as List? ?? const [];
@@ -319,6 +372,7 @@ class DoveDeckRules {
 
     rules.drawPile = decodeCards(json['drawPile']);
     rules.discardPile = decodeCards(json['discardPile']);
+
     rules.currentPlayer =
         (json['currentPlayer'] as num?)?.toInt() ?? 0;
 
@@ -328,14 +382,24 @@ class DoveDeckRules {
 
     rules.finished = json['finished'] == true;
     rules.winner = (json['winner'] as num?)?.toInt();
+
     rules.mustPassAfterDraw = json['mustPassAfterDraw'] == true;
+    rules.drawnCardId = json['drawnCardId'] as String?;
+
     rules.pendingDraw = (json['pendingDraw'] as num?)?.toInt() ?? 0;
 
     rules.pendingDrawKind = json['pendingDrawKind'] == null
-        ? (rules.pendingDraw > 0
-        ? DoveCardKind.drawTwo
-        : null)
-        : DoveCardKind.values.byName(json['pendingDrawKind'] as String);
+        ? (rules.pendingDraw > 0 ? DoveCardKind.drawTwo : null)
+        : DoveCardKind.values.byName(
+      json['pendingDrawKind'] as String,
+    );
+
+    // Backward compatibility with older saved game states.
+    // If an old state requires a pass but has no drawnCardId,
+    // allow pass() to finish the turn instead of locking the game.
+    if (rules.mustPassAfterDraw && rules.drawnCardId == null) {
+      rules.mustPassAfterDraw = false;
+    }
 
     return rules;
   }

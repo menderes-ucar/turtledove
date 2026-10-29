@@ -284,7 +284,6 @@ class _HomeScreenState extends State<HomeScreen> {
             onSelected: (value) async {
               if (value == 'theme') _showThemeDialog(context);
               if (value == 'profile') context.push('/profile');
-              if (value == 'calls') context.push('/home/call-history');
               if (value == 'notifications') context.push('/home/notifications');
               if (value == 'logout') {
                 await context.read<AuthProvider>().signOut();
@@ -294,7 +293,6 @@ class _HomeScreenState extends State<HomeScreen> {
             itemBuilder: (_) => [
               PopupMenuItem(value: 'theme', child: Text(strings.theme)),
               PopupMenuItem(value: 'profile', child: Text(strings.profile)),
-              PopupMenuItem(value: 'calls', child: Text(strings.callHistory)),
               PopupMenuItem(value: 'notifications', child: Text(strings.notifications)),
               const PopupMenuDivider(),
               PopupMenuItem(value: 'logout', child: Text(strings.logout)),
@@ -1448,9 +1446,6 @@ class _ChatQuickActions extends StatelessWidget {
           children: [
             _ActionButton(icon: Icons.check_circle_outline, label: AppStrings.of(context).todo, onTap: onTodo),
             SizedBox(width: 8),
-
-            _ActionButton(icon: Icons.video_call_rounded, label: AppStrings.of(context).call, onTap: onCall),
-            SizedBox(width: 8),
             _ActionButton(icon: Icons.favorite_border, label: AppStrings.of(context).send, onTap: onInteraction),
           ],
         ),
@@ -1678,7 +1673,7 @@ class GamesTabScreen extends StatelessWidget {
       children: [
         GameCard(title: AppStrings.of(context).gameMostLikely, emoji: '🎯', onTap: () => context.go('/home/game-lobby/most_likely_to')),
         GameCard(title: AppStrings.of(context).gameTrivia, emoji: '🧠', onTap: () => context.go('/home/game-lobby/trivia')),
-        GameCard(title: 'Dove Deck', emoji: '🃏', onTap: () => context.go('/home/dove-deck')),
+        GameCard(title: 'Turtle Deck', emoji: '🃏', onTap: () => context.go('/home/dove-deck')),
         GameCard(title: AppStrings.of(context).gameWord, emoji: '🔤', onTap: () => context.go('/home/game-lobby/word_game')),
         GameCard(title: AppStrings.of(context).gameNameCityAnimal, emoji: '🎯', onTap: () => context.go('/home/game-lobby/name_city_animal')),
       ],

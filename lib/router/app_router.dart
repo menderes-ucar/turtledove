@@ -22,7 +22,6 @@ import '../screens/premium/mood_screen.dart';
 import '../screens/premium/love_letter_screen.dart';
 import '../providers/auth_provider.dart';
 import '../screens/call/call_screen.dart';
-import '../screens/call/call_history_screen.dart';
 import '../screens/home/notifications_screen.dart';
 import '../screens/home/conversation_topics_screen.dart';
 import '../screens/home/partner_hall_of_fame_screen.dart';
@@ -140,7 +139,6 @@ GoRouter buildRouter(AuthProvider auth) {
           GoRoute(path: 'map', builder: (_, __) => const SharedMapScreen()),
           GoRoute(path: 'conversation-topics', builder: (_, __) => const ConversationTopicsScreen()),
           GoRoute(path: 'hall-of-fame', builder: (_, __) => const PartnerHallOfFameScreen()),
-          GoRoute(path: 'call-history', builder: (_, __) => const CallHistoryScreen()),
           GoRoute(path: 'notifications', builder: (_, __) => const NotificationsScreen()),
           GoRoute(
             path: 'call/:callId/:mode',
