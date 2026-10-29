@@ -69,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: OutlinedButton.icon(
                       onPressed: _openPreferences,
                       icon: const Icon(Icons.tune_rounded, size: 18),
-                      label: Text(strings.settings),
+                      label: Text(strings.themeSettings),
                       style: OutlinedButton.styleFrom(
                         shape: const StadiumBorder(),
                         padding: const EdgeInsets.symmetric(
