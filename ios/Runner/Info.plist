@@ -25,11 +25,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Turtle Dove görüntülü görüşmelerde kameranızı kullanmak için kamera erişimine ihtiyaç duyar.</string>
+	<string>Turtle Dove, uygulama içinden fotoğraf çekip göndermek istediğinizde kameranızı kullanır. Kamera erişimi yalnızca bu işlemi başlattığınızda istenir.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Turtle Dove sesli ve görüntülü görüşmelerde mikrofonunuzu kullanmak için mikrofon erişimine ihtiyaç duyar.</string>
+	<string>Turtle Dove, sohbetlerde sesli mesaj kaydetmek için mikrofonunuzu kullanır. Mikrofon erişimi yalnızca sesli mesaj kaydını başlattığınızda istenir.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Profil fotoğrafınızı seçebilmeniz için fotoğraf kitaplığınıza erişim gerekiyor.</string>
+	<string>Turtle Dove, profilinize veya sohbetinize eklemek üzere seçtiğiniz fotoğrafları gönderebilmek için fotoğraf kitaplığınıza erişir.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
