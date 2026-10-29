@@ -4,8 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/theme_provider.dart';
 
-/// Compact language and appearance controls shown before authentication.
-/// Language is saved locally immediately and synced to the profile after login.
+/// Language and appearance controls displayed from the login settings sheet.
 class PreAuthPreferences extends StatelessWidget {
   const PreAuthPreferences({super.key});
 
@@ -19,12 +18,15 @@ class PreAuthPreferences extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Card(
-      margin: const EdgeInsets.only(bottom: 20),
+      margin: EdgeInsets.zero,
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
@@ -36,7 +38,7 @@ class PreAuthPreferences extends StatelessWidget {
                         DropdownButtonFormField<String>(
                       value: _languages.containsKey(locale.locale.languageCode)
                           ? locale.locale.languageCode
-                          : 'tr',
+                          : 'en',
                       isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: 'Language / Dil',
@@ -94,7 +96,7 @@ class PreAuthPreferences extends StatelessWidget {
                               shape: BoxShape.circle,
                               border: Border.all(
                                 color: selected
-                                    ? Theme.of(context).colorScheme.onSurface
+                                    ? scheme.onSurface
                                     : Colors.transparent,
                                 width: 3,
                               ),
