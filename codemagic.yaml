@@ -136,7 +136,7 @@ workflows:
         script: |
           set -euo pipefail
 
-          BUILD_NUMBER="${CM_BUILD_NUMBER:-9}"
+          BUILD_NUMBER="${CM_BUILD_NUMBER:-10}"
 
           echo "Bundle ID: $BUNDLE_ID"
           echo "Build number: $BUILD_NUMBER"
