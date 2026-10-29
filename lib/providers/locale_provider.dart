@@ -8,7 +8,7 @@ class LocaleProvider extends ChangeNotifier {
   static const supportedCodes = ['tr', 'en', 'de', 'es', 'fr'];
 
   final SupabaseClient client;
-  Locale _locale = const Locale('tr');
+  Locale _locale = const Locale('en');
   bool _loaded = false;
   StreamSubscription<AuthState>? _authSubscription;
 
@@ -28,9 +28,12 @@ class LocaleProvider extends ChangeNotifier {
       final savedCode = prefs.getString('app_locale')?.toLowerCase();
       final user = client.auth.currentUser;
 
-      // Load the device-local choice first. It must work before sign-in too.
+      // Keep an existing device preference; use English for a fresh install.
       if (savedCode != null && supportedCodes.contains(savedCode)) {
         _locale = Locale(savedCode);
+      } else {
+        _locale = const Locale('en');
+        await prefs.setString('app_locale', 'en');
       }
 
       // A signed-in user's profile is authoritative, and refreshes the local
@@ -48,9 +51,6 @@ class LocaleProvider extends ChangeNotifier {
         } else {
           await prefs.setString('app_locale', _locale.languageCode);
         }
-      } else if (savedCode == null || !supportedCodes.contains(savedCode)) {
-        _locale = const Locale('tr');
-        await prefs.setString('app_locale', 'tr');
       }
     } catch (e) {
       debugPrint('[Locale] language load failed: $e');
