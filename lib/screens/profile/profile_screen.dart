@@ -83,6 +83,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (!ok) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppStrings.of(context).profileUpdateFailed)));
   }
 
+
+  Future<void> _deleteAccount() async {
+    final strings = AppStrings.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(strings.t('delete_account_title')),
+        content: Text(strings.t('delete_account_confirm')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(strings.cancel),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(strings.t('delete_account_button')),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    try {
+      await Supabase.instance.client.functions.invoke('delete-account');
+      if (!mounted) return;
+      await context.read<AuthProvider>().signOut();
+      if (!mounted) return;
+      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+    } on FunctionException catch (e) {
+      if (!mounted) return;
+      final message = e.details is Map && e.details['error'] is String
+          ? e.details['error'] as String
+          : strings.t('delete_account_failed');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(strings.t('delete_account_failed'))),
+      );
+    }
+  }
+
   Future<void> _endPairing(Profile profile) async {
     final strings = AppStrings.of(context);
     final confirmed = await showDialog<bool>(
@@ -229,6 +275,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildThemeCard(context),
               const SizedBox(height: 12),
               _buildLanguageCard(context),
+              const SizedBox(height: 24),
+              Card(
+                child: ListTile(
+                  leading: Icon(Icons.delete_forever_outlined, color: Theme.of(context).colorScheme.error),
+                  title: Text(
+                    strings.t('delete_account_button'),
+                    style: TextStyle(color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.w600),
+                  ),
+                  subtitle: Text(strings.t('delete_account_subtitle')),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: _deleteAccount,
+                ),
+              ),
               if (auth.lastError != null) ...[
                 const SizedBox(height: 16),
                 Text(auth.lastError!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
