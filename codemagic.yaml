@@ -136,7 +136,7 @@ workflows:
         script: |
           set -euo pipefail
 
-          BUILD_NUMBER="${CM_BUILD_NUMBER:-12}"
+          BUILD_NUMBER="${CM_BUILD_NUMBER:-13}"
 
           echo "Bundle ID: $BUNDLE_ID"
           echo "Build number: $BUILD_NUMBER"
@@ -231,5 +231,3 @@ workflows:
     publishing:
       app_store_connect:
         auth: integration
-        submit_to_testflight: true
-        submit_to_app_store: false
