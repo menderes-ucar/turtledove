@@ -136,7 +136,7 @@ workflows:
         script: |
           set -euo pipefail
 
-          BUILD_NUMBER="${CM_BUILD_NUMBER:-15}"
+          BUILD_NUMBER="${CM_BUILD_NUMBER:-16}"
 
           echo "Bundle ID: $BUNDLE_ID"
           echo "Build number: $BUILD_NUMBER"
@@ -233,6 +233,6 @@ workflows:
         api_key: $APP_STORE_CONNECT_PRIVATE_KEY
         key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
         issuer_id: $APP_STORE_CONNECT_ISSUER_ID
-        submit_to_testflight: true
+        submit_to_testflight: false
         # beta_groups:
         #   - group_name_here
