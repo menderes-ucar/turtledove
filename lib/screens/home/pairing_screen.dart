@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../models/profile_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/pairing_service.dart';
+import '../../preview/preview_strings.dart';
 
 class PairingScreen extends StatefulWidget {
   const PairingScreen({Key? key}) : super(key: key);
@@ -195,6 +196,16 @@ class _PairingScreenState extends State<PairingScreen> {
                 child: _isLoading
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                     : Text(AppStrings.of(context).pair),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: OutlinedButton.icon(
+                onPressed: () => context.go('/preview'),
+                icon: const Icon(Icons.explore_rounded),
+                label: Text(PreviewStrings.of(context).t('entry_button')),
               ),
             ),
             ],

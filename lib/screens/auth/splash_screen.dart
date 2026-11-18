@@ -13,7 +13,7 @@ class SplashScreen extends StatelessWidget {
           children: [
             Icon(Icons.favorite_rounded, size: 72, color: theme.colorScheme.primary),
             const SizedBox(height: 18),
-            Text('BESTIE', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900, letterSpacing: 2)),
+            Text('Turtle Dove', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900, letterSpacing: 2)),
             const SizedBox(height: 20),
             const SizedBox(width: 28, height: 28, child: CircularProgressIndicator(strokeWidth: 2.5)),
           ],

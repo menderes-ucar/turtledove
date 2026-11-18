@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../localization/app_strings.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/pre_auth_preferences.dart';
+import '../../preview/preview_strings.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -270,6 +271,26 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 10),
+                      OutlinedButton.icon(
+                        onPressed: () => context.go('/preview'),
+                        icon: const Icon(Icons.explore_rounded, size: 20),
+                        label: Text(PreviewStrings.of(context).t('entry_button')),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        PreviewStrings.of(context).t('entry_hint'),
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),

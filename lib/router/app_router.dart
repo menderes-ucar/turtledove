@@ -25,6 +25,7 @@ import '../screens/call/call_screen.dart';
 import '../screens/home/notifications_screen.dart';
 import '../screens/home/conversation_topics_screen.dart';
 import '../screens/home/partner_hall_of_fame_screen.dart';
+import '../preview/preview_screen.dart';
 
 GoRouter buildRouter(AuthProvider auth) {
   return GoRouter(
@@ -32,6 +33,9 @@ GoRouter buildRouter(AuthProvider auth) {
     refreshListenable: auth,
     redirect: (context, state) {
       final location = state.matchedLocation;
+
+      // The feature tour is public: no account, session or pairing required.
+      if (location == PreviewScreen.routePath) return null;
       final isAuthRoute = location == '/login' || location == '/signup';
       final isSplashRoute = location == '/splash';
 
@@ -65,6 +69,7 @@ GoRouter buildRouter(AuthProvider auth) {
       return null;
     },
     routes: [
+      GoRoute(path: PreviewScreen.routePath, builder: (_, __) => const PreviewScreen()),
       GoRoute(path: '/splash', builder: (_, __) => const SplashScreen()),
       GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
       GoRoute(path: '/signup', builder: (_, __) => const SignupScreen()),
