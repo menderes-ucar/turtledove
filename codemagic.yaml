@@ -136,10 +136,20 @@ workflows:
         script: |
           set -euo pipefail
 
-          BUILD_NUMBER="${CM_BUILD_NUMBER:-18}"
+          APPLE_PREVIOUS_BUILD=1791911619
+          CM_NUMBER="${CM_BUILD_NUMBER:-1}"
+
+          if ! [[ "$CM_NUMBER" =~ ^[0-9]+$ ]] || [ "$CM_NUMBER" -lt 1 ]; then
+            echo "ERROR: Invalid Codemagic build number: $CM_NUMBER"
+            exit 1
+          fi
+
+          BUILD_NUMBER=$((APPLE_PREVIOUS_BUILD + CM_NUMBER))
 
           echo "Bundle ID: $BUNDLE_ID"
-          echo "Build number: $BUILD_NUMBER"
+          echo "Previous Apple build: $APPLE_PREVIOUS_BUILD"
+          echo "Codemagic build number: $CM_NUMBER"
+          echo "New iOS build number: $BUILD_NUMBER"
 
           echo "BUILD_NUMBER=$BUILD_NUMBER" >> "$CM_ENV"
 
