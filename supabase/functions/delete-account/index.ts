@@ -64,37 +64,41 @@ Deno.serve(async (req: Request) => {
 
     // Remove user-owned storage objects. Supabase Storage folders are virtual,
     // so walk nested folders and paginate instead of assuming one flat page.
-    async function removeUserFolder(bucketName: string, folder: string) {
+    async function removeUserFolder(bucketName: string, folder: string): Promise<void> {
       const storage = admin.storage.from(bucketName);
-      const pending = [folder];
-      while (pending.length > 0) {
-        const current = pending.pop()!;
-        let offset = 0;
-        while (true) {
-          const { data, error } = await storage.list(current, {
-            limit: 100,
-            offset,
-            sortBy: { column: "name", order: "asc" },
-          });
-          if (error) throw new Error(`Storage listing failed for ${bucketName}: ${error.message}`);
-          if (!data || data.length === 0) break;
+      const entries: Array<{ name: string; id: string | null }> = [];
+      let offset = 0;
 
-          const files = data.filter((item) => item.id !== null);
-          const folders = data.filter((item) => item.id === null);
-          for (const item of folders) {
-            pending.push(`${current}/${item.name}`);
-          }
+      // Collect all pages before deleting anything, so offset pagination
+      // cannot skip objects when earlier pages are removed.
+      while (true) {
+        const { data, error } = await storage.list(folder, {
+          limit: 100,
+          offset,
+          sortBy: { column: "name", order: "asc" },
+        });
+        if (error) {
+          throw new Error(`Storage listing failed for ${bucketName}: ${error.message}`);
+        }
+        if (!data || data.length === 0) break;
+        entries.push(...data);
+        if (data.length < 100) break;
+        offset += data.length;
+      }
 
-          if (files.length > 0) {
-            const paths = files.map((item) => `${current}/${item.name}`);
-            const { error: removeError } = await storage.remove(paths);
-            if (removeError) {
-              throw new Error(`Storage removal failed for ${bucketName}: ${removeError.message}`);
-            }
-          }
+      const folders = entries.filter((item) => item.id === null);
+      for (const item of folders) {
+        await removeUserFolder(bucketName, `${folder}/${item.name}`);
+      }
 
-          if (data.length < 100) break;
-          offset += data.length;
+      const files = entries.filter((item) => item.id !== null);
+      for (let index = 0; index < files.length; index += 100) {
+        const paths = files
+          .slice(index, index + 100)
+          .map((item) => `${folder}/${item.name}`);
+        const { error } = await storage.remove(paths);
+        if (error) {
+          throw new Error(`Storage removal failed for ${bucketName}: ${error.message}`);
         }
       }
     }
