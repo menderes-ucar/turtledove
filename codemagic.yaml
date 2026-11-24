@@ -137,70 +137,94 @@ workflows:
           set -euo pipefail
 
           APPLE_PREVIOUS_BUILD=1791911619
-          CM_NUMBER="${CM_BUILD_NUMBER:-1}"
+          CM_NUMBER=18
 
           if ! [[ "$CM_NUMBER" =~ ^[0-9]+$ ]] || [ "$CM_NUMBER" -lt 1 ]; then
-            echo "ERROR: Invalid Codemagic build number: $CM_NUMBER"
+            echo "ERROR: Invalid build sequence: $CM_NUMBER"
             exit 1
           fi
 
           IOS_CF_BUNDLE_VERSION=$((APPLE_PREVIOUS_BUILD + CM_NUMBER))
 
           echo "Bundle ID: $BUNDLE_ID"
+          echo "Requested build sequence: $CM_NUMBER"
           echo "Previous Apple build: $APPLE_PREVIOUS_BUILD"
-          echo "Codemagic build number: $CM_NUMBER"
-          echo "FINAL iOS CFBundleVersion: $IOS_CF_BUNDLE_VERSION"
+          echo "Final iOS CFBundleVersion: $IOS_CF_BUNDLE_VERSION"
+
+          if [ "$IOS_CF_BUNDLE_VERSION" -le "$APPLE_PREVIOUS_BUILD" ]; then
+            echo "ERROR: New build number is not higher than Apple's previous build."
+            exit 1
+          fi
 
           echo "IOS_CF_BUNDLE_VERSION=$IOS_CF_BUNDLE_VERSION" >> "$CM_ENV"
 
       - name: Build signed IPA for TestFlight
         script: |
           set -euo pipefail
-          
+
+          APPLE_PREVIOUS_BUILD=1791911619
+
           : "${IOS_CF_BUNDLE_VERSION:?IOS_CF_BUNDLE_VERSION is missing}"
-          
+
           echo "Building with CFBundleVersion=$IOS_CF_BUNDLE_VERSION"
-          
+
           flutter build ipa \
             --release \
             --build-number="$IOS_CF_BUNDLE_VERSION" \
             --export-options-plist="$EXPORT_OPTIONS"
-          
+
           IPA_PATH="$(find build/ios/ipa -maxdepth 1 -name '*.ipa' -print -quit)"
-          
+
           if [ -z "$IPA_PATH" ]; then
             echo "ERROR: IPA file not found"
             exit 1
           fi
-          
-          INFO_PLIST_ENTRY="$(unzip -Z1 "$IPA_PATH" | grep -E '^Payload/[^/]+\.app/Info\.plist$' | head -n 1)"
-          
+
+          INFO_PLIST_ENTRY="$(unzip -Z1 "$IPA_PATH" | grep -E '^Payload/[^/]+\.app/Info\.plist$' | sed -n '1p')"
+
           if [ -z "$INFO_PLIST_ENTRY" ]; then
             echo "ERROR: Info.plist not found inside IPA"
             exit 1
           fi
-          
+
           TEMP_INFO_PLIST="$(mktemp)"
           trap 'rm -f "$TEMP_INFO_PLIST"' EXIT
-          
+
           unzip -p "$IPA_PATH" "$INFO_PLIST_ENTRY" > "$TEMP_INFO_PLIST"
-          
-          ACTUAL_BUNDLE_VERSION=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$TEMP_INFO_PLIST")
-          
+
+          ACTUAL_BUNDLE_VERSION=$(
+            /usr/libexec/PlistBuddy \
+              -c 'Print :CFBundleVersion' \
+              "$TEMP_INFO_PLIST"
+          )
+
+          ACTUAL_BUNDLE_ID=$(
+            /usr/libexec/PlistBuddy \
+              -c 'Print :CFBundleIdentifier' \
+              "$TEMP_INFO_PLIST"
+          )
+
+          echo "Expected bundle ID: $BUNDLE_ID"
+          echo "Actual IPA bundle ID: $ACTUAL_BUNDLE_ID"
           echo "Expected CFBundleVersion: $IOS_CF_BUNDLE_VERSION"
           echo "Actual IPA CFBundleVersion: $ACTUAL_BUNDLE_VERSION"
-          
+
+          if [ "$ACTUAL_BUNDLE_ID" != "$BUNDLE_ID" ]; then
+            echo "ERROR: IPA bundle identifier mismatch!"
+            exit 1
+          fi
+
           if [ "$ACTUAL_BUNDLE_VERSION" != "$IOS_CF_BUNDLE_VERSION" ]; then
             echo "ERROR: IPA build number mismatch!"
             exit 1
           fi
-          
+
           if [ "$ACTUAL_BUNDLE_VERSION" -le "$APPLE_PREVIOUS_BUILD" ]; then
             echo "ERROR: IPA build number is not higher than Apple's previous build!"
             exit 1
           fi
-          
-          echo "SUCCESS: IPA contains the correct CFBundleVersion."
+
+          echo "SUCCESS: IPA bundle ID and CFBundleVersion validated."
 
     artifacts:
       - build/ios/ipa/*.ipa
