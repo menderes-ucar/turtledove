@@ -51,59 +51,72 @@ Deno.serve(async (req: Request) => {
       return response({ error: "Invalid or expired session" }, 401);
     }
 
-    // Read the profile only to detach the other participant and clean this
-    // user's avatar objects. The Auth user ID remains the source of identity.
-    const { data: profile, error: profileError } = await admin
-      .from("profiles")
-      .select("paired_with")
-      .eq("id", user.id)
-      .maybeSingle();
+    // Remove user-owned storage objects. Supabase Storage folders are virtual,
+    // so walk nested folders and paginate instead of assuming one flat page.
+    async function removeUserFolder(bucketName: string, folder: string) {
+      const storage = admin.storage.from(bucketName);
+      const pending = [folder];
+      while (pending.length > 0) {
+        const current = pending.pop()!;
+        let offset = 0;
+        while (true) {
+          const { data, error } = await storage.list(current, {
+            limit: 100,
+            offset,
+            sortBy: { column: "name", order: "asc" },
+          });
+          if (error) throw new Error(`Storage listing failed for ${bucketName}: ${error.message}`);
+          if (!data || data.length === 0) break;
 
-    if (profileError) {
-      console.error("Could not load account profile", profileError);
-      return response({ error: "Could not prepare account deletion" }, 500);
-    }
+          const files = data.filter((item) => item.id !== null);
+          const folders = data.filter((item) => item.id === null);
+          for (const item of folders) {
+            pending.push(`${current}/${item.name}`);
+          }
 
-    // Do not leave the partner profile pointing at a deleted account.
-    if (profile?.paired_with) {
-      const { error: detachError } = await admin
-        .from("profiles")
-        .update({ paired_with: null })
-        .eq("id", profile.paired_with)
-        .eq("paired_with", user.id);
-      if (detachError) {
-        console.error("Could not detach partner profile", detachError);
-        return response({ error: "Could not detach the paired account" }, 500);
+          if (files.length > 0) {
+            const paths = files.map((item) => `${current}/${item.name}`);
+            const { error: removeError } = await storage.remove(paths);
+            if (removeError) {
+              throw new Error(`Storage removal failed for ${bucketName}: ${removeError.message}`);
+            }
+          }
+
+          if (data.length < 100) break;
+          offset += data.length;
+        }
       }
     }
 
-    // Avatar uploads use avatars/<auth-user-id>/<filename>.
-    // Remove every object in that user's avatar folder before deleting Auth.
-    const bucket = admin.storage.from("avatars");
-    const { data: avatarObjects, error: listError } = await bucket.list(user.id, {
-      limit: 1000,
-      offset: 0,
-    });
-    if (listError) {
-      console.error("Could not list account avatar objects", listError);
-      return response({ error: "Could not remove account files" }, 500);
+    // These are the user-scoped buckets present in this repository's schema:
+    // avatars, chat media (messages), and the private hall-of-fame gallery.
+    for (const bucket of ["avatars", "messages", "hall-of-fame"]) {
+      await removeUserFolder(bucket, user.id);
     }
 
-    const objectNames = (avatarObjects ?? [])
-      .filter((item) => item.id !== null)
-      .map((item) => `${user.id}/${item.name}`);
+    // Several legacy quiz tables intentionally have user_id columns without
+    // an auth.users FK. Delete their rows explicitly; otherwise deleting the
+    // Auth user would leave identifiable quiz history behind.
+    const userOwnedTables = [
+      "quiz_answers",
+      "quiz_sessions",
+      "user_answers",
+      "user_quiz_attempts",
+      "error_notebook",
+    ] as const;
 
-    if (objectNames.length > 0) {
-      const { error: removeError } = await bucket.remove(objectNames);
-      if (removeError) {
-        console.error("Could not remove account avatar objects", removeError);
-        return response({ error: "Could not remove account files" }, 500);
+    for (const table of userOwnedTables) {
+      const { error } = await admin.from(table).delete().eq("user_id", user.id);
+      if (error) {
+        console.error(`Could not delete account rows from ${table}`, error);
+        return response({ error: "Could not delete all account data" }, 500);
       }
     }
 
-    // The database must define ON DELETE CASCADE foreign keys for all
-    // user-owned rows. If a restrictive FK exists, this fails closed instead
-    // of reporting success while leaving a partially deleted account.
+    // Rows linked by ON DELETE CASCADE (profiles, notifications, device_tokens,
+    // hall_of_fame_photos, notes, plans, devices, and relationship_pairs) are
+    // removed by the Auth deletion. The profile relationship FK is expected to
+    // clear the other participant's paired_with reference via ON DELETE SET NULL.
     const { error: deleteError } = await admin.auth.admin.deleteUser(user.id);
     if (deleteError) {
       console.error("Auth user deletion failed", deleteError);
