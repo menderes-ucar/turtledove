@@ -3,6 +3,7 @@ import '../../localization/app_strings.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../models/profile_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/pairing_service.dart';
@@ -24,6 +25,163 @@ class _PairingScreenState extends State<PairingScreen> {
   void dispose() {
     partnerCodeCtrl.dispose();
     super.dispose();
+  }
+
+  bool _signingOut = false;
+  bool _deletingAccount = false;
+
+  Future<bool> _confirmAction({
+    required String title,
+    required String message,
+    required String confirmLabel,
+    bool destructive = false,
+  }) async {
+    final strings = AppStrings.of(context);
+    return await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (dialogContext) => AlertDialog(
+            title: Text(title),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: Text(strings.cancel),
+              ),
+              FilledButton(
+                style: destructive
+                    ? FilledButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.error,
+                        foregroundColor: Theme.of(context).colorScheme.onError,
+                      )
+                    : null,
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: Text(confirmLabel),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
+  Future<void> _signOut() async {
+    if (_signingOut || _deletingAccount) return;
+    final strings = AppStrings.of(context);
+    final confirmed = await _confirmAction(
+      title: strings.signOut,
+      message: strings.signOutConfirmation,
+      confirmLabel: strings.signOut,
+    );
+    if (!confirmed || !mounted) return;
+
+    setState(() => _signingOut = true);
+    try {
+      await context.read<AuthProvider>().signOut();
+      if (!mounted) return;
+      if (context.read<AuthProvider>().hasSession) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(strings.signOutFailed)),
+        );
+      } else {
+        context.go('/login');
+      }
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(strings.signOutFailed)),
+      );
+    } finally {
+      if (mounted) setState(() => _signingOut = false);
+    }
+  }
+
+  Future<void> _deleteAccount() async {
+    if (_deletingAccount || _signingOut) return;
+    final strings = AppStrings.of(context);
+    final confirmed = await _confirmAction(
+      title: strings.deleteAccount,
+      message: strings.deleteAccountConfirmation,
+      confirmLabel: strings.deleteAccount,
+      destructive: true,
+    );
+    if (!confirmed || !mounted) return;
+
+    final acknowledged = await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (dialogContext) {
+            bool checked = false;
+            return StatefulBuilder(
+              builder: (context, setDialogState) => AlertDialog(
+                title: Text(strings.deleteAccountFinalConfirmation),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(strings.deleteAccountFinalDescription),
+                    const SizedBox(height: 12),
+                    CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      value: checked,
+                      title: Text(strings.deleteAccountAcknowledgement),
+                      onChanged: (value) =>
+                          setDialogState(() => checked = value ?? false),
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(false),
+                    child: Text(strings.cancel),
+                  ),
+                  FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                      foregroundColor: Theme.of(context).colorScheme.onError,
+                    ),
+                    onPressed: checked
+                        ? () => Navigator.of(dialogContext).pop(true)
+                        : null,
+                    child: Text(strings.deleteAccountPermanently),
+                  ),
+                ],
+              ),
+            );
+          },
+        ) ??
+        false;
+    if (!acknowledged || !mounted) return;
+
+    setState(() => _deletingAccount = true);
+    try {
+      final auth = context.read<AuthProvider>();
+      await auth.authService.client.functions.invoke('delete-account');
+      await auth.completeAccountDeletion();
+      if (!mounted) return;
+      context.go('/login');
+    } on FunctionException catch (e) {
+      if (!mounted) return;
+      final details = e.details?.toString();
+      final reason = details != null && details.isNotEmpty
+          ? details
+          : e.reasonPhrase;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${strings.deleteAccountFailed}${reason != null && reason.isNotEmpty ? ': $reason' : ''}',
+          ),
+          duration: const Duration(seconds: 6),
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(strings.deleteAccountFailed)),
+      );
+    } finally {
+      if (mounted) setState(() => _deletingAccount = false);
+    }
   }
 
   @override
@@ -209,6 +367,54 @@ class _PairingScreenState extends State<PairingScreen> {
               ),
             ),
             ],
+            const SizedBox(height: 32),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                AppStrings.of(context).accountActions,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Card(
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.logout_rounded),
+                    title: Text(AppStrings.of(context).signOut),
+                    subtitle: Text(AppStrings.of(context).signOutSubtitle),
+                    trailing: _signingOut
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.chevron_right),
+                    onTap: (_signingOut || _deletingAccount) ? null : _signOut,
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: Icon(
+                      Icons.delete_forever_rounded,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    title: Text(
+                      AppStrings.of(context).deleteAccount,
+                      style: TextStyle(color: Theme.of(context).colorScheme.error),
+                    ),
+                    subtitle: Text(AppStrings.of(context).deleteAccountSubtitle),
+                    trailing: _deletingAccount
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.chevron_right),
+                    onTap: (_signingOut || _deletingAccount) ? null : _deleteAccount,
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

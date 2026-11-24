@@ -230,6 +230,26 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Clears the local authenticated state after the server has deleted the
+  /// current Auth user. Do not call [AuthService.signOut] here: it first
+  /// attempts a profile presence update, but the profile is already deleted.
+  Future<void> completeAccountDeletion() async {
+    ++_authGeneration;
+    _authActionInProgress = true;
+    _isLoading = true;
+    _lastError = null;
+    notifyListeners();
+    try {
+      await _removeProfileChannel();
+      await authService.client.auth.signOut();
+      _profile = null;
+    } finally {
+      _authActionInProgress = false;
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<bool> updateProfileDetails({String? username, String? status, String? avatarUrl}) async {
     final current = _profile;
     if (current == null) return false;
