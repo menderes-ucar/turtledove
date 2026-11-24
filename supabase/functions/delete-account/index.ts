@@ -51,6 +51,17 @@ Deno.serve(async (req: Request) => {
       return response({ error: "Invalid or expired session" }, 401);
     }
 
+    const { data: profile, error: profileError } = await admin
+      .from("profiles")
+      .select("paired_with")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profileError) {
+      console.error("Could not load account relationship", profileError);
+      return response({ error: "Could not prepare account deletion" }, 500);
+    }
+
     // Remove user-owned storage objects. Supabase Storage folders are virtual,
     // so walk nested folders and paginate instead of assuming one flat page.
     async function removeUserFolder(bucketName: string, folder: string) {
@@ -117,6 +128,21 @@ Deno.serve(async (req: Request) => {
     // hall_of_fame_photos, notes, plans, devices, and relationship_pairs) are
     // removed by the Auth deletion. The profile relationship FK is expected to
     // clear the other participant's paired_with reference via ON DELETE SET NULL.
+    // profiles.paired_with is maintained by application RPCs and is not
+    // guaranteed to have an FK in every deployed schema. Explicitly clear the
+    // partner's pointer so the remaining account is not left in a ghost pair.
+    if (profile?.paired_with) {
+      const { error: detachError } = await admin
+        .from("profiles")
+        .update({ paired_with: null })
+        .eq("id", profile.paired_with)
+        .eq("paired_with", user.id);
+      if (detachError) {
+        console.error("Could not detach paired profile", detachError);
+        return response({ error: "Could not detach the paired account" }, 500);
+      }
+    }
+
     const { error: deleteError } = await admin.auth.admin.deleteUser(user.id);
     if (deleteError) {
       console.error("Auth user deletion failed", deleteError);
