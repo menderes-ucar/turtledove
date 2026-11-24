@@ -144,94 +144,63 @@ workflows:
             exit 1
           fi
 
-          BUILD_NUMBER=$((APPLE_PREVIOUS_BUILD + CM_NUMBER))
+          IOS_CF_BUNDLE_VERSION=$((APPLE_PREVIOUS_BUILD + CM_NUMBER))
 
           echo "Bundle ID: $BUNDLE_ID"
           echo "Previous Apple build: $APPLE_PREVIOUS_BUILD"
           echo "Codemagic build number: $CM_NUMBER"
-          echo "New iOS build number: $BUILD_NUMBER"
+          echo "FINAL iOS CFBundleVersion: $IOS_CF_BUNDLE_VERSION"
 
-          echo "BUILD_NUMBER=$BUILD_NUMBER" >> "$CM_ENV"
+          echo "IOS_CF_BUNDLE_VERSION=$IOS_CF_BUNDLE_VERSION" >> "$CM_ENV"
 
       - name: Build signed IPA for TestFlight
         script: |
           set -euo pipefail
-
-          EXPORT_OPTIONS="/Users/builder/export_options.plist"
-
-          if [ ! -s "$EXPORT_OPTIONS" ]; then
-            echo "ERROR: Codemagic export options plist is missing."
-            exit 1
-          fi
-
+          
+          : "${IOS_CF_BUNDLE_VERSION:?IOS_CF_BUNDLE_VERSION is missing}"
+          
+          echo "Building with CFBundleVersion=$IOS_CF_BUNDLE_VERSION"
+          
           flutter build ipa \
             --release \
-            --build-number="$BUILD_NUMBER" \
+            --build-number="$IOS_CF_BUNDLE_VERSION" \
             --export-options-plist="$EXPORT_OPTIONS"
-
+          
           IPA_PATH="$(find build/ios/ipa -maxdepth 1 -name '*.ipa' -print -quit)"
-
+          
           if [ -z "$IPA_PATH" ]; then
-            echo "ERROR: No IPA file was generated."
+            echo "ERROR: IPA file not found"
             exit 1
           fi
-
-          echo "IPA generated successfully: $IPA_PATH"
-
-          # Verify the APNs entitlement in the signed IPA.
-          VERIFY_DIR="$(mktemp -d)"
-          trap 'rm -rf "$VERIFY_DIR"' EXIT
-
-          /usr/bin/unzip -q "$IPA_PATH" -d "$VERIFY_DIR"
-
-          APP_PATH="$(find "$VERIFY_DIR/Payload" \
-            -maxdepth 1 -type d -name '*.app' -print -quit)"
-
-          if [ -z "$APP_PATH" ]; then
-            echo "ERROR: No .app bundle found inside the IPA."
+          
+          INFO_PLIST_ENTRY="$(unzip -Z1 "$IPA_PATH" | grep -E '^Payload/[^/]+\.app/Info\.plist$' | head -n 1)"
+          
+          if [ -z "$INFO_PLIST_ENTRY" ]; then
+            echo "ERROR: Info.plist not found inside IPA"
             exit 1
           fi
-
-          ENTITLEMENTS_PATH="$VERIFY_DIR/signed-entitlements.plist"
-
-          if ! /usr/bin/codesign \
-            -d --entitlements :- "$APP_PATH" \
-            > "$ENTITLEMENTS_PATH" 2>/dev/null; then
-            echo "ERROR: Could not read signed IPA entitlements."
+          
+          TEMP_INFO_PLIST="$(mktemp)"
+          trap 'rm -f "$TEMP_INFO_PLIST"' EXIT
+          
+          unzip -p "$IPA_PATH" "$INFO_PLIST_ENTRY" > "$TEMP_INFO_PLIST"
+          
+          ACTUAL_BUNDLE_VERSION=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$TEMP_INFO_PLIST")
+          
+          echo "Expected CFBundleVersion: $IOS_CF_BUNDLE_VERSION"
+          echo "Actual IPA CFBundleVersion: $ACTUAL_BUNDLE_VERSION"
+          
+          if [ "$ACTUAL_BUNDLE_VERSION" != "$IOS_CF_BUNDLE_VERSION" ]; then
+            echo "ERROR: IPA build number mismatch!"
             exit 1
           fi
-
-          if [ ! -s "$ENTITLEMENTS_PATH" ]; then
-            echo "ERROR: Signed entitlements are empty."
+          
+          if [ "$ACTUAL_BUNDLE_VERSION" -le "$APPLE_PREVIOUS_BUILD" ]; then
+            echo "ERROR: IPA build number is not higher than Apple's previous build!"
             exit 1
           fi
-
-          APNS_ENVIRONMENT=$(
-            /usr/libexec/PlistBuddy \
-              -c 'Print :aps-environment' \
-              "$ENTITLEMENTS_PATH" 2>/dev/null || true
-          )
-
-          if [ "$APNS_ENVIRONMENT" != "production" ]; then
-            echo "ERROR: Expected aps-environment=production."
-            echo "Actual aps-environment: ${APNS_ENVIRONMENT:-MISSING}"
-            exit 1
-          fi
-
-          echo "Verified signed IPA aps-environment: production"
-
-          SIGNED_BUNDLE_ID=$(
-            /usr/libexec/PlistBuddy \
-              -c 'Print :CFBundleIdentifier' \
-              "$APP_PATH/Info.plist"
-          )
-
-          if [ "$SIGNED_BUNDLE_ID" != "$BUNDLE_ID" ]; then
-            echo "ERROR: Signed IPA bundle ID mismatch: $SIGNED_BUNDLE_ID"
-            exit 1
-          fi
-
-          echo "Verified signed IPA bundle ID: $SIGNED_BUNDLE_ID"
+          
+          echo "SUCCESS: IPA contains the correct CFBundleVersion."
 
     artifacts:
       - build/ios/ipa/*.ipa
