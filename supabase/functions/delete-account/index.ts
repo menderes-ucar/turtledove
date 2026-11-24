@@ -1,0 +1,161 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+function response(body: Record<string, unknown>, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+Deno.serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+  if (req.method !== "POST") {
+    return response({ error: "Method not allowed" }, 405);
+  }
+
+  const authorization = req.headers.get("Authorization");
+  if (!authorization?.startsWith("Bearer ")) {
+    return response({ error: "Authentication required" }, 401);
+  }
+
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!supabaseUrl || !anonKey || !serviceRoleKey) {
+    console.error("Missing required Supabase environment variables");
+    return response({ error: "Account deletion is not configured" }, 500);
+  }
+
+  const token = authorization.slice("Bearer ".length);
+  const userClient = createClient(supabaseUrl, anonKey, {
+    global: { headers: { Authorization: authorization } },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const admin = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  try {
+    // Validate the caller's JWT; never accept a user ID supplied by the client.
+    const { data: authData, error: authError } = await userClient.auth.getUser(token);
+    const user = authData.user;
+    if (authError || !user) {
+      return response({ error: "Invalid or expired session" }, 401);
+    }
+
+    const { data: profile, error: profileError } = await admin
+      .from("profiles")
+      .select("paired_with")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profileError) {
+      console.error("Could not load account relationship", profileError);
+      return response({ error: "Could not prepare account deletion" }, 500);
+    }
+
+    // Remove user-owned storage objects. Supabase Storage folders are virtual,
+    // so walk nested folders and paginate instead of assuming one flat page.
+    async function removeUserFolder(bucketName: string, folder: string): Promise<void> {
+      const storage = admin.storage.from(bucketName);
+      const entries: Array<{ name: string; id: string | null }> = [];
+      let offset = 0;
+
+      // Collect all pages before deleting anything, so offset pagination
+      // cannot skip objects when earlier pages are removed.
+      while (true) {
+        const { data, error } = await storage.list(folder, {
+          limit: 100,
+          offset,
+          sortBy: { column: "name", order: "asc" },
+        });
+        if (error) {
+          throw new Error(`Storage listing failed for ${bucketName}: ${error.message}`);
+        }
+        if (!data || data.length === 0) break;
+        entries.push(...data);
+        if (data.length < 100) break;
+        offset += data.length;
+      }
+
+      const folders = entries.filter((item) => item.id === null);
+      for (const item of folders) {
+        await removeUserFolder(bucketName, `${folder}/${item.name}`);
+      }
+
+      const files = entries.filter((item) => item.id !== null);
+      for (let index = 0; index < files.length; index += 100) {
+        const paths = files
+          .slice(index, index + 100)
+          .map((item) => `${folder}/${item.name}`);
+        const { error } = await storage.remove(paths);
+        if (error) {
+          throw new Error(`Storage removal failed for ${bucketName}: ${error.message}`);
+        }
+      }
+    }
+
+    // These are the user-scoped buckets present in this repository's schema:
+    // avatars, chat media (messages), and the private hall-of-fame gallery.
+    for (const bucket of ["avatars", "messages", "hall-of-fame"]) {
+      await removeUserFolder(bucket, user.id);
+    }
+
+    // Several legacy quiz tables intentionally have user_id columns without
+    // an auth.users FK. Delete their rows explicitly; otherwise deleting the
+    // Auth user would leave identifiable quiz history behind.
+    const userOwnedTables = [
+      "quiz_answers",
+      "quiz_sessions",
+      "user_answers",
+      "user_quiz_attempts",
+      "error_notebook",
+    ] as const;
+
+    for (const table of userOwnedTables) {
+      const { error } = await admin.from(table).delete().eq("user_id", user.id);
+      if (error) {
+        console.error(`Could not delete account rows from ${table}`, error);
+        return response({ error: "Could not delete all account data" }, 500);
+      }
+    }
+
+    // Rows linked by ON DELETE CASCADE (profiles, notifications, device_tokens,
+    // hall_of_fame_photos, notes, plans, devices, and relationship_pairs) are
+    // removed by the Auth deletion. The profile relationship FK is expected to
+    // clear the other participant's paired_with reference via ON DELETE SET NULL.
+    // profiles.paired_with is maintained by application RPCs and is not
+    // guaranteed to have an FK in every deployed schema. Explicitly clear the
+    // partner's pointer so the remaining account is not left in a ghost pair.
+    if (profile?.paired_with) {
+      const { error: detachError } = await admin
+        .from("profiles")
+        .update({ paired_with: null })
+        .eq("id", profile.paired_with)
+        .eq("paired_with", user.id);
+      if (detachError) {
+        console.error("Could not detach paired profile", detachError);
+        return response({ error: "Could not detach the paired account" }, 500);
+      }
+    }
+
+    const { error: deleteError } = await admin.auth.admin.deleteUser(user.id);
+    if (deleteError) {
+      console.error("Auth user deletion failed", deleteError);
+      return response({ error: "Account data could not be fully deleted" }, 500);
+    }
+
+    return response({ success: true });
+  } catch (error) {
+    console.error("Unexpected account deletion error", error);
+    return response({ error: "Account deletion failed" }, 500);
+  }
+});
